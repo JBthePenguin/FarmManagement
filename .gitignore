@@ -1,0 +1,11 @@
+env/
+
+db.sqlite3
+
+farm_management/__pycache__/
+
+product_app/__pycache__/
+
+product_app/migrations/__pycache__/
+
+product_app/migrations/0*.py
