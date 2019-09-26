@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from product_app.models import Product
+from product_app.forms import ProductForm
 
 
 def index(request):
@@ -25,4 +26,16 @@ def product(request):
 
 
 def update_product(request, product_id):
-    return render(request, 'product_app/update.html')
+    product = Product.objects.get(pk=product_id)
+    if request.method == 'POST':
+        # message has sent
+        form = ProductForm(request.POST or None, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('product')
+    form = ProductForm(instance=product)
+    context = {
+        "product": "active",
+        "form": form,
+    }
+    return render(request, 'product_app/update.html', context)
