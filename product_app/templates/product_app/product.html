@@ -1,0 +1,43 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<!-- Header -->
+<h5>{{ products.count }} produit{% if products.count > 1 %}s{% endif %} répertorié{% if products.count > 1 %}s{% endif %} <button class="btn btn-success" type="button">Ajouter un produit</button></h5>
+<!---->
+<!-- Form -->
+<!---->
+<!-- List -->
+{% if products.count > 0 %}
+    <div class="table-responsive-md">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Produit</th>
+                    <th scope="col">Unité</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.unit }}</td>
+                        <td>
+                            <a href="/produits/{{ product.id }}/" class="text-danger">modifier</a>
+                        </td>
+                        <td>
+                            <a href="" onclick='DeleteProduct("{{ product.id }}", "{{ product.name }}", "{{ csrf_token }}");'>
+                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+<!---->
+{% endblock %}
