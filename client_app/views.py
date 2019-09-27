@@ -9,7 +9,7 @@ def client(request):
     if request.method == 'POST' and request.is_ajax():
         action = request.POST.get('action')
         if action == "delete category":
-            # delete product
+            # delete category
             category_id = request.POST.get('category_id')
             category = CategoryClient.objects.get(pk=category_id)
             try:
@@ -18,10 +18,18 @@ def client(request):
                 return HttpResponse("Cette catégorie ne peut pas être supprimée car des clients lui appartiennent.")
             else:
                 return HttpResponse("")
+        elif action == "delete client":
+            # delete client
+            client_id = request.POST.get('client_id')
+            client = Client.objects.get(pk=client_id)
+            client.delete()
+            return HttpResponse("")
     categories = CategoryClient.objects.all().order_by('name')
+    clients = Client.objects.all().order_by('category__name', 'name')
     context = {
         "client": "active",
         "categories": categories,
+        "clients": clients,
     }
     return render(request, 'client_app/client.html', context)
 
@@ -53,3 +61,32 @@ def update_category(request, category_id):
         "form": form,
     }
     return render(request, 'client_app/update_category.html', context)
+
+
+def add_client(request):
+    form = ClientForm(request.POST or None, request.FILES or None)
+    if request.method == 'POST':
+        # product has added
+        if form.is_valid():
+            form.save()
+            return redirect('client')
+    context = {
+        "client": "active",
+        "form": form,
+    }
+    return render(request, 'client_app/add_client.html', context)
+
+
+def update_client(request, client_id):
+    client = Client.objects.get(pk=client_id)
+    form = ClientForm(request.POST or None, instance=client)
+    if request.method == 'POST':
+        # category has updated
+        if form.is_valid():
+            form.save()
+            return redirect('client')
+    context = {
+        "client": "active",
+        "form": form,
+    }
+    return render(request, 'client_app/update_client.html', context)

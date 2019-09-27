@@ -36,3 +36,21 @@ function DeleteCategory(category_id, category_name, csrf_token) {
         });
     }
 }
+
+
+function DeleteClient(client_id, client_name, csrf_token) {
+    r = confirm("Confirmer la suppression du client " + client_name)
+    if (r == true) {
+        $.post({
+            url: '/clients/',
+            data: {
+                'action': 'delete client',
+                'client_id': client_id,
+                'csrfmiddlewaretoken': csrf_token
+            },
+            success: function (data) {
+                location.reload();
+            },
+        });
+    }
+}

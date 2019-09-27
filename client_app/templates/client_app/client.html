@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block content %}
+<!-- Categoies -->
 <!-- Header -->
 <h5>{{ categories.count }} catégorie{% if categories.count > 1 %}s{% endif %} de client répertoriée{% if categories.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_category' %}">Ajouter une catégorie</a></h5>
 <!---->
@@ -35,5 +36,43 @@
         </table>
     </div>
 {% endif %}
+<!---->
+<!---->
+<!-- Clients -->
+<!-- Header -->
+<h5>{{ clients.count }} client{% if clients.count > 1 %}s{% endif %} répertorié{% if clients.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_client' %}">Ajouter un client</a></h5>
+<!---->
+<!-- List of categories-->
+{% if clients.count > 0 %}
+    <div class="table-responsive-md">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">Catégorie</th>
+                    <th scope="col">Client</th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                    <tr>
+                        <td>{{ client.category.name }}</td>
+                        <td>{{ client.name }}</td>
+                        <td>
+                            <a href="/clients/{{ client.id }}/" class="text-danger">modifier</a>
+                        </td>
+                        <td>
+                            <button onclick='DeleteClient("{{ client.id }}", "{{ client.name }}", "{{ csrf_token }}");'>
+                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+<!---->
 <!---->
 {% endblock %}
