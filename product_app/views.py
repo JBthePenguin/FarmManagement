@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from product_app.models import Product
 from product_app.forms import ProductForm
 
@@ -17,7 +17,8 @@ def product(request):
             product_id = request.POST.get('product_id')
             product = Product.objects.get(pk=product_id)
             product.delete()
-    products = Product.objects.all()
+            return HttpResponse("")
+    products = Product.objects.all().order_by('name')
     context = {
         "product": "active",
         "products": products,
@@ -30,13 +31,9 @@ def add_product(request):
     form = ProductForm(request.POST or None, request.FILES or None)
     if request.method == 'POST':
         # product has added
-        print("coucou")
         if form.is_valid():
-            print("coucou2")
             form.save()
-            print("coucou3")
             return redirect('product')
-    # form = ProductForm()
     context = {
         "product": "active",
         "form": form,
@@ -53,7 +50,6 @@ def update_product(request, product_id):
         if form.is_valid():
             form.save()
             return redirect('product')
-    # form = ProductForm(instance=product)
     context = {
         "product": "active",
         "form": form,

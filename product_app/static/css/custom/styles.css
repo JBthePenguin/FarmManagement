@@ -1,3 +1,11 @@
+h5 {
+    margin-top: 1rem;
+}
+
 h5, a.btn, table, form {
     margin-left: 1rem;
+}
+
+button {
+    border: none;
 }

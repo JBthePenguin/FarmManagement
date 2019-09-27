@@ -4,30 +4,28 @@
 
 {% block content %}
 <!-- Header -->
-<h5>{{ products.count }} produit{% if products.count > 1 %}s{% endif %} répertorié{% if products.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_product' %}">Ajouter un produit</a></h5>
+<h5>{{ categories.count }} catégorie{% if categories.count > 1 %}s{% endif %} de client répertoriée{% if categories.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_category' %}">Ajouter une catégorie</a></h5>
 <!---->
-<!-- List -->
-{% if products.count > 0 %}
+<!-- List of categories-->
+{% if categories.count > 0 %}
     <div class="table-responsive-md">
         <table class="table table-sm">
             <thead>
                 <tr>
-                    <th scope="col">Produit</th>
-                    <th scope="col">Unité</th>
+                    <th scope="col">Catégorie</th>
                     <th scope="col"></th>
                     <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
-                {% for product in products %}
+                {% for category in categories %}
                     <tr>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.unit }}</td>
+                        <td>{{ category.name }}</td>
                         <td>
-                            <a href="/produits/{{ product.id }}/" class="text-danger">modifier</a>
+                            <a href="/clients/categorie{{ category.id }}/" class="text-danger">modifier</a>
                         </td>
                         <td>
-                            <button onclick='DeleteProduct("{{ product.id }}", "{{ product.name }}", "{{ csrf_token }}");'>
+                            <button onclick='DeleteCategory("{{ category.id }}", "{{ category.name }}", "{{ csrf_token }}");'>
                                 <img src="{% static 'img/trash.png' %}" class="img-fluid">
                             </button>
                         </td>

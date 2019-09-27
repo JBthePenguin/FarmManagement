@@ -9,3 +9,9 @@ product_app/__pycache__/
 product_app/migrations/__pycache__/
 
 product_app/migrations/0*.py
+
+client_app/__pycache__/
+
+client_app/migrations/__pycache__/
+
+client_app/migrations/0*.py
