@@ -2,7 +2,7 @@
 A tool to manage a farm
 ## Install
 ### Application, virtual environment and requirements
-Clone the folder, go inside, create a virtual environment for Python with virtualenv (*!!! maybe you have to install [virtualenv](https://virtualenv.pypa.io/en/stable/) !!!*), activate it and install all necessary dependencies ([django](https://www.djangoproject.com/foundation/), [django-debug-toolbar](https://django-debug-toolbar.readthedocs.io/en/stable/)):
+Clone the folder, go inside, create a virtual environment for Python with virtualenv (*!!! maybe you have to install [virtualenv](https://virtualenv.pypa.io/en/stable/) !!!*), activate it and install all necessary dependencies ([django](https://www.djangoproject.com/foundation/), [django-debug-toolbar](https://django-debug-toolbar.readthedocs.io/en/stable/), [django-money](https://github.com/django-money/django-money)):
 ```shell
 $ git clone https://github.com/JBthePenguin/Projet.git
 $ cd Projet
