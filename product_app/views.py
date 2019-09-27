@@ -25,15 +25,35 @@ def product(request):
     return render(request, 'product_app/product.html', context)
 
 
-def update_product(request, product_id):
-    product = Product.objects.get(pk=product_id)
+def add_product(request):
+    """ add a product view """
+    form = ProductForm(request.POST or None, request.FILES or None)
     if request.method == 'POST':
-        # message has sent
-        form = ProductForm(request.POST or None, instance=product)
+        # product has added
+        print("coucou")
+        if form.is_valid():
+            print("coucou2")
+            form.save()
+            print("coucou3")
+            return redirect('product')
+    # form = ProductForm()
+    context = {
+        "product": "active",
+        "form": form,
+    }
+    return render(request, 'product_app/add_product.html', context)
+
+
+def update_product(request, product_id):
+    """ update a product view """
+    product = Product.objects.get(pk=product_id)
+    form = ProductForm(request.POST or None, instance=product)
+    if request.method == 'POST':
+        # product has updated
         if form.is_valid():
             form.save()
             return redirect('product')
-    form = ProductForm(instance=product)
+    # form = ProductForm(instance=product)
     context = {
         "product": "active",
         "form": form,

@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- Header -->
-<h5>{{ products.count }} produit{% if products.count > 1 %}s{% endif %} répertorié{% if products.count > 1 %}s{% endif %} <button class="btn btn-success" type="button">Ajouter un produit</button></h5>
+<h5>{{ products.count }} produit{% if products.count > 1 %}s{% endif %} répertorié{% if products.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_product' %}">Ajouter un produit</a></h5>
 <!---->
 <!-- Form -->
 <!---->

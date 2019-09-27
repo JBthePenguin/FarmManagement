@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block content %}
-<form id="update-product-form" role="form" action="" method="post">
+<form id="add-product-form" role="form" action="" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button class="btn btn-success" type="submit">Enregistrer</button>
