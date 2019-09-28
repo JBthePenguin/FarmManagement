@@ -9,3 +9,7 @@ h5, a.btn, table, form {
 button {
     border: none;
 }
+
+td button {
+    background-color: transparent;
+}

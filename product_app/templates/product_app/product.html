@@ -9,13 +9,18 @@
 <!-- List -->
 {% if products.count > 0 %}
     <div class="table-responsive-md">
-        <table class="table table-sm">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
             <thead>
                 <tr>
-                    <th scope="col">Produit</th>
-                    <th scope="col">Unité</th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
+                    <th scope="col" rowspan="2" style="vertical-align: middle;">Produit</th>
+                    <th scope="col" rowspan="2" style="vertical-align: middle;">Unité</th>
+                    <th colspan="3">Prix</th>
+                    <th colspan="2" rowspan="2"></th>
+                </tr>
+                <tr>
+                    <th scope="col">assos</th>
+                    <th scope="col">assos</th>
+                    <th scope="col">assos</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,6 +28,9 @@
                     <tr>
                         <td>{{ product.name }}</td>
                         <td>{{ product.unit }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td>
                             <a href="/produits/{{ product.id }}/" class="text-danger">modifier</a>
                         </td>
