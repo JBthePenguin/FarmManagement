@@ -10,3 +10,6 @@ class Price(models.Model):
     category_client = models.ForeignKey(
         CategoryClient, on_delete=models.CASCADE, db_index=True)
     value = MoneyField(max_digits=14, decimal_places=2, default_currency='EUR')
+
+    class Meta:
+        unique_together = ('product', 'category_client')

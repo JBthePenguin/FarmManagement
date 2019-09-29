@@ -12,29 +12,41 @@
         <table class="table table-hover table-bordered table-sm table-dark text-center">
             <thead>
                 <tr>
-                    <th scope="col" rowspan="2" style="vertical-align: middle;">Produit</th>
-                    <th scope="col" rowspan="2" style="vertical-align: middle;">Unité</th>
-                    <th colspan="3">Prix</th>
-                    <th colspan="2" rowspan="2"></th>
+                    <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">Produit</th>
+                    <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">Unité</th>
+                    {% if categories_client.count > 0 %}
+                        <th colspan="{{ categories_client.count }}">Prix</th>
+                    {% endif %}
+                    <th colspan="2" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}"></th>
                 </tr>
-                <tr>
-                    <th scope="col">assos</th>
-                    <th scope="col">assos</th>
-                    <th scope="col">assos</th>
-                </tr>
+                {% if categories_client.count > 0 %}
+                    <tr>
+                        {% for category_client in categories_client %}
+                            <th scope="col">{{ category_client.name }}</th>
+                        {% endfor %}
+                    </tr>
+                {% endif %}
             </thead>
             <tbody>
                 {% for product in products %}
                     <tr>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.unit }}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>
+                        <td style="vertical-align: middle;">{{ product.name }}</td>
+                        <td style="vertical-align: middle;">{{ product.unit }}</td>
+                        {% if categories_client.count > 0 %}
+                            {% for category_client in categories_client %}
+                                <td style="vertical-align: middle;">
+                                    {% for price in prices %}
+                                        {% if product == price.product and category_client == price.category_client %}
+                                            {{ price.value }}
+                                        {% endif %}
+                                    {% endfor %} 
+                                </td>
+                            {% endfor %}
+                        {% endif %}
+                        <td style="vertical-align: middle;">
                             <a href="/produits/{{ product.id }}/" class="text-danger">modifier</a>
                         </td>
-                        <td>
+                        <td style="vertical-align: middle;">
                             <button onclick='DeleteProduct("{{ product.id }}", "{{ product.name }}", "{{ csrf_token }}");'>
                                 <img src="{% static 'img/trash.png' %}" class="img-fluid">
                             </button>

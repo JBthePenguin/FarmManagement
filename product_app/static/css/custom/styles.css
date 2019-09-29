@@ -8,8 +8,14 @@ h5, a.btn, table, form {
 
 button {
     border: none;
+    margin-top: 1rem;
+}
+
+form a {
+    margin-top: 1rem;
 }
 
 td button {
     background-color: transparent;
+    margin-top: 0;
 }
