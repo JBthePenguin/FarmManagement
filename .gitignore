@@ -21,3 +21,9 @@ price_app/__pycache__/
 price_app/migrations/__pycache__/
 
 price_app/migrations/0*.py
+
+basket_app/__pycache__/
+
+basket_app/migrations/__pycache__/
+
+basket_app/migrations/0*.py
