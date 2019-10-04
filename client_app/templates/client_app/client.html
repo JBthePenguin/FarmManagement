@@ -8,15 +8,8 @@
 <h5>{{ categories.count }} catégorie{% if categories.count > 1 %}s{% endif %} de client répertoriée{% if categories.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_category' %}">Ajouter une catégorie</a></h5>
 <!---->
 <!-- List of categories-->
-{% if categories.count > 0 %}
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
-            <thead>
-                <tr>
-                    <th scope="col">Catégorie</th>
-                    <th colspan="2"></th>
-                </tr>
-            </thead>
             <tbody>
                 {% for category in categories %}
                     <tr>
@@ -34,43 +27,37 @@
             </tbody>
         </table>
     </div>
-{% endif %}
 <!---->
 <!---->
 <!-- Clients -->
 <!-- Header -->
 <h5>{{ clients.count }} client{% if clients.count > 1 %}s{% endif %} répertorié{% if clients.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_client' %}">Ajouter un client</a></h5>
 <!---->
-<!-- List of categories-->
-{% if clients.count > 0 %}
+<!-- List of clients -->
+{% for category in categories %}
+    <h5>{{ category.name }}</h5>
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
-            <thead>
-                <tr>
-                    <th scope="col">Catégorie</th>
-                    <th scope="col">Client</th>
-                    <th colspan="2"></th>
-                </tr>
-            </thead>
             <tbody>
                 {% for client in clients %}
-                    <tr>
-                        <td>{{ client.category.name }}</td>
-                        <td>{{ client.name }}</td>
-                        <td>
-                            <a href="/clients/{{ client.id }}/" class="text-danger">modifier</a>
-                        </td>
-                        <td>
-                            <button onclick='DeleteClient("{{ client.id }}", "{{ client.name }}", "{{ csrf_token }}");'>
-                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
-                            </button>
-                        </td>
-                    </tr>
+                    {% if client.category == category %}
+                        <tr>
+                            <td>{{ client.name }}</td>
+                            <td>
+                                <a href="/clients/{{ client.id }}/" class="text-danger">modifier</a>
+                            </td>
+                            <td>
+                                <button onclick='DeleteClient("{{ client.id }}", "{{ client.name }}", "{{ csrf_token }}");'>
+                                    <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                                </button>
+                            </td>
+                        </tr>
+                    {% endif %}
                 {% endfor %}
             </tbody>
         </table>
     </div>
-{% endif %}
+{% endfor %}
 <!---->
 <!---->
 {% endblock %}

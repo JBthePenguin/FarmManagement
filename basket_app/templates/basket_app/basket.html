@@ -3,5 +3,53 @@
 {% load static %}
 
 {% block content %}
-basket page
+<!-- Categoies -->
+<!-- Header -->
+<h5>{{ categories.count }} catégorie{% if categories.count > 1 %}s{% endif %} de panier répertoriée{% if categories.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_category_basket' %}">Ajouter une catégorie</a></h5>
+<!---->
+<!-- List of categories-->
+{% if categories.count > 0 %}
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <thead>
+                <tr>
+                    <th scope="col">Catégorie</th>
+                    <th colspan="2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>
+                            <a href="/paniers/categorie{{ category.id }}/" class="text-danger">modifier</a>
+                        </td>
+                        <td>
+                            <button onclick='DeleteCategoryBasket("{{ category.id }}", "{{ category.name }}", "{{ csrf_token }}");'>
+                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+<!---->
+<!---->
+<!-- Basket -->
+<!-- Header -->
+<h5>{{ baskets.count }} panier{% if baskets.count > 1 %}s{% endif %} répertorié{% if baskets.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'create_basket' %}">Créer un nouveau panier</a></h5>
+<!---->
+<!-- List by category -->
+{% for category in categories %}
+    <h5>{{ category.name }}</h5>
+    {% for basket in baskets %}
+        {% if basket.category == category %}
+            panier numéro {{ basket.number }}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+<!-- -->
+<!-- -->
 {% endblock %}

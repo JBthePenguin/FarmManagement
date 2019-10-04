@@ -18,7 +18,7 @@ class Basket(models.Model):
             'unique': 'Un panier avec ce numéro est déjà répertorié'
         }
     )
-    categorie = models.ForeignKey(
+    category = models.ForeignKey(
         BasketCategory, on_delete=models.PROTECT, db_index=True)
 
 

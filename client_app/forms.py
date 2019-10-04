@@ -20,7 +20,8 @@ class CategoryModelChoiceField(forms.ModelChoiceField):
 
 class ClientForm(forms.ModelForm):
     """ form for client """
-    category = CategoryModelChoiceField(queryset=CategoryClient.objects.all())
+    category = CategoryModelChoiceField(
+        queryset=CategoryClient.objects.all().order_by('name'))
 
     class Meta:
         model = Client
