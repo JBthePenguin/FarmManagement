@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'djmoney',
+    'mathfilters',
     'product_app',
     'client_app',
     'price_app',

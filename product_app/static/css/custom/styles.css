@@ -2,8 +2,13 @@ h5 {
     margin-top: 1rem;
 }
 
-h5, a.btn, table, form {
+h5, a.btn, form {
     margin-left: 1rem;
+}
+
+.table-responsive-md {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
 }
 
 button {

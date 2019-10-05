@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, HttpResponse
+from django.db.models.deletion import ProtectedError
 from djmoney.money import Money
 from product_app.models import Product
 from product_app.forms import ProductForm
@@ -19,8 +20,12 @@ def product(request):
             # delete product
             product_id = request.POST.get('product_id')
             product = Product.objects.get(pk=product_id)
-            product.delete()
-            return HttpResponse("")
+            try:
+                product.delete()
+            except ProtectedError:
+                return HttpResponse("Ce produit ne peut pas être supprimé car il appartient à un (ou des) panier(s).")
+            else:
+                return HttpResponse("")
     products = Product.objects.all().order_by('name')
     categories_client = CategoryClient.objects.all().order_by('name')
     prices = Price.objects.all()

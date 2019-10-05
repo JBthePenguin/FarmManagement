@@ -26,7 +26,7 @@ class BasketProduct(models.Model):
     basket = models.ForeignKey(
         Basket, on_delete=models.CASCADE, db_index=True)
     product = models.ForeignKey(
-        Product, on_delete=models.CASCADE, db_index=True)
+        Product, on_delete=models.PROTECT, db_index=True)
     quantity_product = models.FloatField()
 
     class Meta:

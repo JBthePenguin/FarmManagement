@@ -3,3 +3,5 @@ django
 django-debug-toolbar
 
 django-money
+
+django-mathfilters
