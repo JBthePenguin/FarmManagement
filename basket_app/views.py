@@ -111,3 +111,52 @@ def create_basket(request):
         "products": products,
     }
     return render(request, 'basket_app/create_basket.html', context)
+
+
+def update_basket(request, basket_number):
+    basket = Basket.objects.get(number=basket_number)
+    form = BasketForm(request.POST or None, instance=basket)
+    products = Product.objects.all().order_by('name')
+    composition = {}
+    for product in products:
+        try:
+            component = BasketProduct.objects.get(
+                basket=basket, product=product)
+            quantity = str(component.quantity_product)
+        except BasketProduct.DoesNotExist:
+            quantity = ""
+        composition[product.name] = quantity
+    if request.method == 'POST':
+        # product has updated
+        if form.is_valid():
+            basket = form.save(commit=False)
+            basket.number = basket_number
+            basket.save()
+            for product in products:
+                new_quantity = request.POST.get(product.name)
+                try:
+                    component = BasketProduct.objects.get(
+                        basket=basket, product=product)
+                    quantity = str(component.quantity_product)
+                    if quantity != new_quantity:
+                        if new_quantity == "":
+                            component.delete()
+                        else:
+                            component.quantity_product = new_quantity
+                            component.save()
+                except BasketProduct.DoesNotExist:
+                    if new_quantity != "":
+                        component = BasketProduct(
+                            basket=basket,
+                            product=product,
+                            quantity_product=new_quantity)
+                        component.save()
+            return redirect('basket')
+    context = {
+        "basket": "active",
+        "basket_number": basket_number,
+        "form": form,
+        "products": products,
+        "composition": composition,
+    }
+    return render(request, 'basket_app/update_basket.html', context)

@@ -35,12 +35,12 @@
 <!-- Header -->
 <h5>{{ baskets.count }} panier{% if baskets.count > 1 %}s{% endif %} répertorié{% if baskets.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'create_basket' %}">Créer un nouveau panier</a></h5>
 <!---->
-<!-- List by category -->
+<!-- List of basket by category -->
 {% for category in categories %}
     <h5>{{ category.name }}</h5>
     {% for basket in baskets %}
         {% if basket.category == category %}
-            <strong style="padding-left:2rem;">panier numéro {{ basket.number }}</strong>
+            <strong style="padding-left:2rem;">panier numéro {{ basket.number }}:</strong><a href="/paniers/numero{{ basket.number }}/" class="text-danger" style="padding-left:1rem;">modifier</a>
             <div class="table-responsive-md">
                 <table class="table table-hover table-bordered table-sm table-dark text-center">
                     <thead>
@@ -79,8 +79,8 @@
                             </tr>
                             {% endif %}
                         {% endfor %}
-                        <tr>
-                            <td colspan="2">Total:</td>
+                        <tr class="bg-success">
+                            <td colspan="2" class="text-right">Total:</td>
                             {% if categories_client.count > 0 %}
                                 {% for category_client in categories_client %}
                                     <td>

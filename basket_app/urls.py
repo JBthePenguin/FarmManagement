@@ -9,4 +9,5 @@ urlpatterns = [
         name='add_category_basket'),
     path('paniers/categorie<int:category_id>/', views.update_category_basket),
     path('paniers/creer-panier', views.create_basket, name='create_basket'),
+    path('paniers/numero<int:basket_number>/', views.update_basket),
 ]

@@ -13,7 +13,7 @@
         {% for category_client in categories_client %}
             {% for key, value in prices.items %}
                 {% if category_client.name == key %}
-                    <label>{{ key }} : <input type="number" step="0.01" name="{{ key }}" value="{{ value }}"></label> €<br>
+                    <label>{{ key }} : <input type="number" step="0.01" name="{{ key }}" value="{{ value }}" class="text-center"></label> €<br>
                 {% endif %}
             {% endfor %}
         {% endfor %}
