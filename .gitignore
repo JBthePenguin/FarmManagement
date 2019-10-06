@@ -27,3 +27,9 @@ basket_app/__pycache__/
 basket_app/migrations/__pycache__/
 
 basket_app/migrations/0*.py
+
+order_app/__pycache__/
+
+order_app/migrations/__pycache__/
+
+order_app/migrations/0*.py

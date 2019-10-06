@@ -1,0 +1,75 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<!-- Orders in preparation -->
+<h5>{{ orders_in_preparation.count }} commande{% if orders_in_preparation.count > 1 %}s{% endif %} en préparation</h5>
+{% if orders_in_preparation.count > 0 %}
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <thead>
+                <tr class="bg-secondary">
+                    <th scope="col">Client</th>
+                    <th scope="col">Date de création</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders_in_preparation %}
+                    <tr>
+                        <td>{{ order.client.name }}</td>
+                        <td>{{ order.creation_date }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+<!-- -->
+<!-- Orders in course of delivery -->
+<h5>{{ orders_in_course_delivery.count }} commande{% if orders_in_course_delivery.count > 1 %}s{% endif %} en cours de livraison</h5>
+{% if orders_in_course_delivery.count > 0 %}
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <thead>
+                <tr class="bg-secondary">
+                    <th scope="col">Client</th>
+                    <th scope="col">Date de validation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders_in_course_delivery %}
+                    <tr>
+                        <td>{{ order.client.name }}</td>
+                        <td>{{ order.validation_date }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+<!-- -->
+<!-- Orders delivered -->
+<h5>{{ orders_delivered.count }} commande{% if orders_delivered.count > 1 %}s{% endif %} livrée{% if orders_delivered.count > 1 %}s{% endif %}</h5>
+{% if orders_delivered.count > 0 %}
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <thead>
+                <tr class="bg-secondary">
+                    <th scope="col">Client</th>
+                    <th scope="col">Date de livraison</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders_delivered %}
+                    <tr>
+                        <td>{{ order.client.name }}</td>
+                        <td>{{ order.delivery_date }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+<!---->
+{% endblock %}

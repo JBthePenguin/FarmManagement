@@ -11,7 +11,7 @@
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
             <thead>
-                <tr>
+                <tr class="bg-secondary">
                     <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">Produit</th>
                     <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">Unité</th>
                     {% if categories_client.count > 0 %}
@@ -20,7 +20,7 @@
                     <th colspan="2" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}"></th>
                 </tr>
                 {% if categories_client.count > 0 %}
-                    <tr>
+                    <tr class="bg-secondary">
                         {% for category_client in categories_client %}
                             <th scope="col">{{ category_client.name }}</th>
                         {% endfor %}
