@@ -40,7 +40,7 @@
     <h5>{{ category.name }}</h5>
     {% for basket in baskets %}
         {% if basket.category == category %}
-            <strong style="padding-left:2rem;">panier numéro {{ basket.number }}:</strong><a href="/paniers/numero{{ basket.number }}/" class="text-danger" style="padding-left:1rem;">modifier</a>
+            <strong style="padding-left:2rem;">panier numéro {{ basket.number }}:</strong><a href="/paniers/numero{{ basket.number }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteBasket("{{ basket.id }}", "{{ basket.number }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
             <div class="table-responsive-md">
                 <table class="table table-hover table-bordered table-sm table-dark text-center">
                     <thead>

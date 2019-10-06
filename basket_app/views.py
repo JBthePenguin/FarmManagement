@@ -18,9 +18,21 @@ def basket(request):
             try:
                 category.delete()
             except ProtectedError:
-                return HttpResponse("Cette catégorie ne peut pas être supprimée car des paniers lui appartiennent.")
+                return HttpResponse("Cette catégorie ne peut pas être supprimée car un (ou des) panier(s) lui appartien(nen)t.")
             else:
                 return HttpResponse("")
+        elif action == "delete basket":
+            # delete basket
+            basket_id = request.POST.get('basket_id')
+            basket = Basket.objects.get(pk=basket_id)
+            basket.delete()
+            baskets = Basket.objects.all().order_by('number')
+            number = 1
+            for basket in baskets:
+                basket.number = number
+                basket.save()
+                number += 1
+            return HttpResponse("")
     baskets = Basket.objects.all().order_by('number')
     categories = BasketCategory.objects.all().order_by('name')
     compositions = BasketProduct.objects.all().order_by(
