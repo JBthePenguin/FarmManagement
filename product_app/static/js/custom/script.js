@@ -92,6 +92,9 @@ function DeleteBasket(basket_id, basket_number, csrf_token) {
                 'csrfmiddlewaretoken': csrf_token
             },
             success: function (data) {
+                if (data != "") {
+                    alert(data);
+                }
                 location.reload();
             },
         });

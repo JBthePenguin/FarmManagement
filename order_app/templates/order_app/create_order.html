@@ -1,0 +1,26 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<h5>Commande</h5>
+<!-- Add product form -->
+<form id="create-order-form" role="form" action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <h5>Composition</h5>
+    {% for category in categories_basket %}
+        <label><input type="number" name="quantity{{ category.name }}" class="text-center"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
+            <option value="" selected>--</option>
+            {% for basket in baskets %}
+                {% if basket.category == category %}
+                    <option value="{{ basket.number }}">{{ basket.number }}</option>
+                {% endif %}
+            {% endfor %}
+        </select><br>
+    {% endfor %}
+    <button class="btn btn-success" type="submit">Enregistrer</button>
+    <a class="btn btn-danger" href="{% url 'order' %}">Annuler</a>
+</form>
+<!---->
+{% endblock %}

@@ -3,6 +3,9 @@
 {% load static %}
 
 {% block content %}
+<!-- Crete new order -->
+<a class="btn btn-success" type="button" href="{% url 'create_order' %}">Créer une nouvelle commande</a>
+<!---->
 <!-- Orders in preparation -->
 <h5>{{ orders_in_preparation.count }} commande{% if orders_in_preparation.count > 1 %}s{% endif %} en préparation</h5>
 {% if orders_in_preparation.count > 0 %}
@@ -10,15 +13,28 @@
         <table class="table table-hover table-bordered table-sm table-dark text-center">
             <thead>
                 <tr class="bg-secondary">
-                    <th scope="col">Client</th>
                     <th scope="col">Date de création</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Composition</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders_in_preparation %}
                     <tr>
-                        <td>{{ order.client.name }}</td>
-                        <td>{{ order.creation_date }}</td>
+                        <td style="vertical-align: middle;">{{ order.creation_date }}</td>
+                        <td style="vertical-align: middle;">{{ order.client.name }}</td>
+                        <td>
+                            <ul style="list-style-type:none; margin-bottom:0">
+                                {% for component in composition %}
+                                    {% if component.order == order %}
+                                        <li>
+                                            <span class="badge badge-secondary badge-pill">{{ component.quantity_basket }}</span>
+                                            panier(s) {{ component.basket.category.name }} numéro <span class="badge badge-secondary badge-pill">{{ component.basket.number }}</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -33,15 +49,15 @@
         <table class="table table-hover table-bordered table-sm table-dark text-center">
             <thead>
                 <tr class="bg-secondary">
-                    <th scope="col">Client</th>
                     <th scope="col">Date de validation</th>
+                    <th scope="col">Client</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders_in_course_delivery %}
                     <tr>
-                        <td>{{ order.client.name }}</td>
                         <td>{{ order.validation_date }}</td>
+                        <td>{{ order.client.name }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -56,15 +72,15 @@
         <table class="table table-hover table-bordered table-sm table-dark text-center">
             <thead>
                 <tr class="bg-secondary">
-                    <th scope="col">Client</th>
                     <th scope="col">Date de livraison</th>
+                    <th scope="col">Client</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders_delivered %}
                     <tr>
-                        <td>{{ order.client.name }}</td>
                         <td>{{ order.delivery_date }}</td>
+                        <td>{{ order.client.name }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

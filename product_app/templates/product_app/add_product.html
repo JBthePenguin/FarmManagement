@@ -11,7 +11,7 @@
     {% if categories_client.count > 0 %}
         <h5>Prix</h5>
         {% for category_client in categories_client %}
-            <label>{{ category_client.name }} : <input type="number" step="0.01" name="{{ category_client.name }}" class="text-center"></label> €<br>
+            <label>{{ category_client.name }} : <input type="number" step="0.01" name="{{ category_client.name }}" class="text-center"> €</label><br>
         {% endfor %}
     {% endif %}
     <button class="btn btn-success" type="submit">Enregistrer</button>

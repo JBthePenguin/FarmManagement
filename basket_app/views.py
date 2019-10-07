@@ -25,14 +25,18 @@ def basket(request):
             # delete basket
             basket_id = request.POST.get('basket_id')
             basket = Basket.objects.get(pk=basket_id)
-            basket.delete()
-            baskets = Basket.objects.all().order_by('number')
-            number = 1
-            for basket in baskets:
-                basket.number = number
-                basket.save()
-                number += 1
-            return HttpResponse("")
+            try:
+                basket.delete()
+            except ProtectedError:
+                return HttpResponse("Ce panier ne peut pas être supprimé car il appartient à une (ou des) commande(s) en préparation.")
+            else:
+                baskets = Basket.objects.all().order_by('number')
+                number = 1
+                for basket in baskets:
+                    basket.number = number
+                    basket.save()
+                    number += 1
+                return HttpResponse("")
     baskets = Basket.objects.all().order_by('number')
     categories = BasketCategory.objects.all().order_by('name')
     compositions = BasketProduct.objects.all().order_by(
