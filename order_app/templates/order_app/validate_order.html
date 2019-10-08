@@ -5,7 +5,7 @@
 {% load mathfilters %}
 
 {% block content %}
-<h5>Commande créé le {{ order_created.creation_date }}</h5>
+<h5>Commande créée le {{ order_created.creation_date }}</h5>
 <h5>Client: {{ order_created.client.name }}</h5>
 <h5>Composition</h5>
 {% for component in composition %}
@@ -34,7 +34,7 @@
                         {% for component_basket in value %}
                             <tr>
                                 <td>{{ component_basket.product.name }}</td>
-                                <td>{{ component_basket.quantity_product }} {{ component_basket.product.unit }}</td>
+                                <td>{{ component_basket.quantity_product|floatformat:"-3" }} {{ component_basket.product.unit }}</td>
                                 <td>{{ component_basket.quantity_product|mul:component.quantity_basket|floatformat:"-3" }} {{ component_basket.product.unit }}</td>
                                 <td>
                                     {% for price in prices %}
@@ -81,4 +81,9 @@
         </table>
     </div>
 {% endfor %}
+<form id="valid-order-form" role="form" action="" method="post">
+    {% csrf_token %}
+    <button class="btn btn-success" type="submit">Valider la commande</button>
+    <a class="btn btn-danger" href="{% url 'order' %}">Retour</a>
+</form>
 {% endblock %}

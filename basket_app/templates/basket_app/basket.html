@@ -64,7 +64,7 @@
                             {% if component.basket == basket %}
                             <tr>
                                 <td>{{ component.product.name }}</td>
-                                <td>{{ component.quantity_product }} {{ component.product.unit }}</td>
+                                <td>{{ component.quantity_product|floatformat:"-3" }} {{ component.product.unit }}</td>
                                 {% if categories_client.count > 0 %}
                                     {% for category_client in categories_client %}
                                         <td>

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from order_app.models import Order, OrderBasket
 from order_app.forms import OrderForm
 from basket_app.models import BasketCategory, Basket, BasketProduct
@@ -78,6 +79,12 @@ def validate_order(request, order_id):
                     total_price += round(
                         price.value * composition_basket.quantity_product, 2)
         total_prices[key] = total_price
+    if request.method == 'POST':
+        # order is validated
+        order_created.validation_date = timezone.now()
+        order_created.status = "en livraison"
+        order_created.save()
+        return redirect('order')
     context = {
         "order": "active",
         "order_created": order_created,
