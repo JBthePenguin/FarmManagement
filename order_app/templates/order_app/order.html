@@ -16,6 +16,7 @@
                     <th scope="col">Date de création</th>
                     <th scope="col">Client</th>
                     <th scope="col">Composition</th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
@@ -23,18 +24,19 @@
                     <tr>
                         <td style="vertical-align: middle;">{{ order.creation_date }}</td>
                         <td style="vertical-align: middle;">{{ order.client.name }}</td>
-                        <td>
+                        <td style="vertical-align: middle;">
                             <ul style="list-style-type:none; margin-bottom:0">
                                 {% for component in composition %}
                                     {% if component.order == order %}
                                         <li>
                                             <span class="badge badge-secondary badge-pill">{{ component.quantity_basket }}</span>
-                                            panier(s) {{ component.basket.category.name }} numéro <span class="badge badge-secondary badge-pill">{{ component.basket.number }}</span>
+                                            panier{% if component.quantity_basket > 1 %}s{% endif %} <strong>{{ component.basket.category.name }}</strong> numéro <span class="badge badge-secondary badge-pill">{{ component.basket.number }}</span>
                                         </li>
                                     {% endif %}
                                 {% endfor %}
                             </ul>
                         </td>
+                        <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/valid{{ order.id }}">Valider</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -1,0 +1,84 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% load mathfilters %}
+
+{% block content %}
+<h5>Commande créé le {{ order_created.creation_date }}</h5>
+<h5>Client: {{ order_created.client.name }}</h5>
+<h5>Composition</h5>
+{% for component in composition %}
+    <strong style="padding-left:2rem;">
+        <span class="badge badge-secondary badge-pill">{{ component.quantity_basket }}</span> panier{% if component.quantity_basket > 1 %}s{% endif %} {{ component.basket.category.name }} numéro <span class="badge badge-secondary badge-pill">{{ component.basket.number }}</span>
+    </strong>
+    <div class="table-responsive-md" style="padding-top:0.5rem;">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <thead>
+                <tr class="bg-secondary">
+                    <th scope="col" rowspan="2" style="vertical-align: middle;">Produit</th>
+                    <th colspan="2">Quantité</th>
+                    <th colspan="3">Prix</th>
+                </tr>
+                <tr class="bg-secondary">
+                    <th scope="col">par panier</th>
+                    <th scope="col">totale</th>
+                    <th scope="col">unitaire</th>
+                    <th scope="col">par panier</th>
+                    <th scope="col">pour la commande</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for key, value in compositions_basket.items %}
+                    {% if key == component.basket.number %}
+                        {% for component_basket in value %}
+                            <tr>
+                                <td>{{ component_basket.product.name }}</td>
+                                <td>{{ component_basket.quantity_product }} {{ component_basket.product.unit }}</td>
+                                <td>{{ component_basket.quantity_product|mul:component.quantity_basket|floatformat:"-3" }} {{ component_basket.product.unit }}</td>
+                                <td>
+                                    {% for price in prices %}
+                                        {% if price.product == component_basket.product %}
+                                            {{ price.value }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for price in prices %}
+                                        {% if price.product == component_basket.product %}
+                                            {{ price.value|mul:component_basket.quantity_product }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for price in prices %}
+                                        {% if price.product == component_basket.product %}
+                                            {{ price.value|mul:component_basket.quantity_product|mul:component.quantity_basket }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                <tr class="bg-success">
+                    <td colspan="4" class="text-right">Total:</td>
+                    <td>
+                        {% for key, value in total_prices.items %}
+                            {% if key == component.basket.number %}
+                                {{ value }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for key, value in total_prices.items %}
+                            {% if key == component.basket.number %}
+                                {{ value|mul:component.quantity_basket }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+            </tbody>
+        </table>
+    </div>
+{% endfor %}
+{% endblock %}

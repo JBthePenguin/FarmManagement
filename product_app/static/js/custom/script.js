@@ -52,6 +52,9 @@ function DeleteClient(client_id, client_name, csrf_token) {
                 'csrfmiddlewaretoken': csrf_token
             },
             success: function (data) {
+                if (data != "") {
+                    alert(data);
+                }
                 location.reload();
             },
         });

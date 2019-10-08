@@ -22,8 +22,12 @@ def client(request):
             # delete client
             client_id = request.POST.get('client_id')
             client = Client.objects.get(pk=client_id)
-            client.delete()
-            return HttpResponse("")
+            try:
+                client.delete()
+            except ProtectedError:
+                return HttpResponse("Ce client ne peut pas être supprimé car une (ou des) commande(s) lui appartien(nen)t.")
+            else:
+                return HttpResponse("")
     categories = CategoryClient.objects.all().order_by('name')
     clients = Client.objects.all().order_by('category__name', 'name')
     context = {
