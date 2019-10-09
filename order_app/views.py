@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponse
 from django.utils import timezone
 from order_app.models import Order, OrderBasket
 from order_app.forms import OrderForm
@@ -8,6 +8,14 @@ from price_app.models import Price
 
 def order(request):
     """ index view """
+    if request.method == 'POST' and request.is_ajax():
+        action = request.POST.get('action')
+        if action == "delete order":
+            # delete category
+            order_id = request.POST.get('order_id')
+            order = Order.objects.get(pk=order_id)
+            order.delete()
+            return HttpResponse("")
     orders_in_preparation = Order.objects.filter(
         status="en préparation").order_by('creation_date').reverse()
     orders_in_course_delivery = Order.objects.filter(

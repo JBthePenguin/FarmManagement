@@ -16,7 +16,7 @@
                     <th scope="col">Date de création</th>
                     <th scope="col">Client</th>
                     <th scope="col">Composition</th>
-                    <th colspan="2"></th>
+                    <th colspan="3"></th>
                 </tr>
             </thead>
             <tbody>
@@ -36,9 +36,14 @@
                                 {% endfor %}
                             </ul>
                         </td>
-                        <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/valid{{ order.id }}">Valider</a></td>
+                        <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/valid{{ order.id }}">Voir et valider</a></td>
                         <td style="vertical-align: middle;">
                             <a href="/commandes/mod-commande{{ order.id }}/" class="text-danger">modifier</a>
+                        </td>
+                        <td style="vertical-align: middle;">
+                            <button onclick='DeleteOrder("{{ order.id }}", "{{ order.creation_date }}", "{{ csrf_token }}");'>
+                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                            </button>
                         </td>
                     </tr>
                 {% endfor %}

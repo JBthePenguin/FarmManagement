@@ -20,7 +20,6 @@
                             {% endif %}
                         {% endfor %}
                     </select><br>
-                
                 {% else %}
                     <label><input type="number" name="quantity{{ category.name }}" class="text-center" value="{{ value.quantity_basket }}"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
                         <option value="">--</option>
