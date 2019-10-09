@@ -143,7 +143,7 @@ def update_basket(request, basket_number):
             quantity = ""
         composition[product.name] = quantity
     if request.method == 'POST':
-        # product has updated
+        # basket has updated
         if form.is_valid():
             basket = form.save(commit=False)
             basket.number = basket_number

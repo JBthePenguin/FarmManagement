@@ -16,7 +16,7 @@
                     <th scope="col">Date de création</th>
                     <th scope="col">Client</th>
                     <th scope="col">Composition</th>
-                    <th scope="col"></th>
+                    <th colspan="2"></th>
                 </tr>
             </thead>
             <tbody>
@@ -37,6 +37,9 @@
                             </ul>
                         </td>
                         <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/valid{{ order.id }}">Valider</a></td>
+                        <td style="vertical-align: middle;">
+                            <a href="/commandes/mod-commande{{ order.id }}/" class="text-danger">modifier</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>

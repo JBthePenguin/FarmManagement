@@ -84,6 +84,7 @@ def validate_order(request, order_id):
         order_created.validation_date = timezone.now()
         order_created.status = "en livraison"
         order_created.save()
+        # save in product and basket ordered
         return redirect('order')
     context = {
         "order": "active",
@@ -94,3 +95,51 @@ def validate_order(request, order_id):
         "total_prices": total_prices,
     }
     return render(request, 'order_app/validate_order.html', context)
+
+
+def update_order(request, order_id):
+    order_created = Order.objects.get(pk=order_id)
+    baskets = Basket.objects.all().order_by('number')
+    categories_basket = BasketCategory.objects.all().order_by('name')
+    composition = OrderBasket.objects.filter(
+        order=order_created).order_by("basket__category__name")
+    composition_by_category = {}
+    for category in categories_basket:
+        composition_by_category[category.name] = ""
+        for component in composition:
+            if component.basket.category == category:
+                composition_by_category[category.name] = component
+    form = OrderForm(request.POST or None, instance=order_created)
+    if request.method == 'POST':
+        # basket has updated
+        if form.is_valid():
+            order = form.save()
+            for category in categories_basket:
+                component = composition_by_category[category.name]
+                new_quantity = request.POST.get("quantity" + category.name)
+                new_basket_number = request.POST.get(str(category.id))
+                if (component == "") and (new_quantity != "") and (new_basket_number != ""):
+                    basket = Basket.objects.get(number=new_basket_number)
+                    component = OrderBasket(
+                        order=order,
+                        basket=basket,
+                        quantity_basket=new_quantity)
+                    component.save()
+                elif component != "":
+                    if new_quantity == "" or new_basket_number == "":
+                        component.delete()
+                    elif new_quantity != str(component.quantity_basket) or new_basket_number != str(component.basket.number):
+                        component.quantity_basket = new_quantity
+                        basket = Basket.objects.get(number=new_basket_number)
+                        component.basket = basket
+                        component.save()
+            return redirect('order')
+    context = {
+        "order": "active",
+        "order_created": order_created,
+        "baskets": baskets,
+        "form": form,
+        "categories_basket": categories_basket,
+        "composition_by_category": composition_by_category,
+    }
+    return render(request, 'order_app/update_order.html', context)
