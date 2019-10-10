@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib import admin
 from basket_app.models import *
-from product_app.models import Product
+from product_app.models import *
 
 
 @admin.register(BasketCategory)
@@ -68,3 +68,8 @@ class BasketProductAdmin(admin.ModelAdmin):
 
     get_product.short_description = 'Product'
     get_basket.short_description = 'Basket number'
+
+
+class OrderModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "%s" % (obj.id)

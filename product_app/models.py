@@ -9,3 +9,11 @@ class Product(models.Model):
         }
     )
     unit = models.CharField(max_length=20)
+
+
+class ProductOrdered(models.Model):
+    name = models.CharField(db_index=True, max_length=100)
+    unit = models.CharField(max_length=20)
+
+    class Meta:
+        unique_together = ('name', 'unit')

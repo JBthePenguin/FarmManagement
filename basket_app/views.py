@@ -5,6 +5,7 @@ from basket_app.forms import *
 from product_app.models import Product
 from client_app.models import CategoryClient
 from price_app.models import Price
+from order_app.models import OrderBasket
 
 
 def basket(request):
@@ -74,7 +75,7 @@ def add_category_basket(request):
     """ add category basket view """
     form = BasketCategoryForm(request.POST or None, request.FILES or None)
     if request.method == 'POST':
-        # product has added
+        # category basket has added
         if form.is_valid():
             form.save()
             return redirect('basket')
@@ -131,6 +132,8 @@ def create_basket(request):
 
 def update_basket(request, basket_number):
     basket = Basket.objects.get(number=basket_number)
+    old_basket_category = basket.category
+    msg = ""
     form = BasketForm(request.POST or None, instance=basket)
     products = Product.objects.all().order_by('name')
     composition = {}
@@ -145,34 +148,73 @@ def update_basket(request, basket_number):
     if request.method == 'POST':
         # basket has updated
         if form.is_valid():
-            basket = form.save(commit=False)
-            basket.number = basket_number
-            basket.save()
-            for product in products:
-                new_quantity = request.POST.get(product.name)
-                try:
-                    component = BasketProduct.objects.get(
-                        basket=basket, product=product)
-                    quantity = str(component.quantity_product)
-                    if quantity != new_quantity:
-                        if new_quantity == "":
-                            component.delete()
-                        else:
-                            component.quantity_product = new_quantity
+            try:
+                OrderBasket.objects.get(basket=basket)
+            except OrderBasket.DoesNotExist:
+                basket = form.save(commit=False)
+                basket.number = basket_number
+                basket.save()
+                for product in products:
+                    new_quantity = request.POST.get(product.name)
+                    try:
+                        component = BasketProduct.objects.get(
+                            basket=basket, product=product)
+                        quantity = str(component.quantity_product)
+                        if quantity != new_quantity:
+                            if new_quantity == "":
+                                component.delete()
+                            else:
+                                component.quantity_product = new_quantity
+                                component.save()
+                    except BasketProduct.DoesNotExist:
+                        if new_quantity != "":
+                            component = BasketProduct(
+                                basket=basket,
+                                product=product,
+                                quantity_product=new_quantity)
                             component.save()
-                except BasketProduct.DoesNotExist:
-                    if new_quantity != "":
-                        component = BasketProduct(
-                            basket=basket,
-                            product=product,
-                            quantity_product=new_quantity)
-                        component.save()
-            return redirect('basket')
+                return redirect('basket')
+            else:
+                new_basket_category = form.instance.category
+                if old_basket_category != new_basket_category:
+                    # raise error because basket is used in an created order
+                    msg = "Ce panier ne peut pas changer de catégorie car il appartient à une commande en préparation."
+                    basket.category = old_basket_category
+                    form = BasketForm(None, instance=basket)
+                    composition = {}
+                    for product in products:
+                        quantity = request.POST.get(product.name)
+                        composition[product.name] = quantity
+                else:
+                    basket = form.save(commit=False)
+                    basket.number = basket_number
+                    basket.save()
+                    for product in products:
+                        new_quantity = request.POST.get(product.name)
+                        try:
+                            component = BasketProduct.objects.get(
+                                basket=basket, product=product)
+                            quantity = str(component.quantity_product)
+                            if quantity != new_quantity:
+                                if new_quantity == "":
+                                    component.delete()
+                                else:
+                                    component.quantity_product = new_quantity
+                                    component.save()
+                        except BasketProduct.DoesNotExist:
+                            if new_quantity != "":
+                                component = BasketProduct(
+                                    basket=basket,
+                                    product=product,
+                                    quantity_product=new_quantity)
+                                component.save()
+                    return redirect('basket')
     context = {
         "basket": "active",
         "basket_number": basket_number,
         "form": form,
         "products": products,
         "composition": composition,
+        "msg": msg,
     }
     return render(request, 'basket_app/update_basket.html', context)

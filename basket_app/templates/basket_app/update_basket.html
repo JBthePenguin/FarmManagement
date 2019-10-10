@@ -7,6 +7,11 @@
 <form id="update-basket-form" role="form" action="" method="post">
     {% csrf_token %}
     <h5>Panier numéro {{ basket_number }}</h5>
+    {% if msg != "" %}
+        <ul>
+            <li>{{ msg }}</li>
+        </ul>
+    {% endif %}
     {{ form.as_p }}
     <h5>Produits</h5>
     {% for product in products %}

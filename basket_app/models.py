@@ -1,5 +1,5 @@
 from django.db import models
-from product_app.models import Product
+from product_app.models import *
 
 
 class BasketCategory(models.Model):
