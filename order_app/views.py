@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, HttpResponse
+from django.db.utils import IntegrityError
 from django.utils import timezone
-from order_app.models import Order, OrderBasket
+from order_app.models import *
 from order_app.forms import OrderForm
 from basket_app.models import BasketCategory, Basket, BasketProduct
 from price_app.models import Price
+from product_app.models import ProductOrdered
 
 
 def order(request):
@@ -23,12 +25,14 @@ def order(request):
     orders_delivered = Order.objects.filter(
         status="livrée").order_by('delivery_date').reverse()
     composition = OrderBasket.objects.all()
+    baskets_ordered = BasketOrdered.objects.all().order_by("category_name")
     context = {
         "order": "active",
         "orders_in_preparation": orders_in_preparation,
         "orders_in_course_delivery": orders_in_course_delivery,
         "orders_delivered": orders_delivered,
         "composition": composition,
+        "baskets_ordered": baskets_ordered,
     }
     return render(request, 'order_app/order.html', context)
 
@@ -60,49 +64,6 @@ def create_order(request):
         "baskets": baskets,
     }
     return render(request, 'order_app/create_order.html', context)
-
-
-def validate_order(request, order_id):
-    order_created = Order.objects.get(pk=order_id)
-    composition = OrderBasket.objects.filter(
-        order=order_created).order_by("basket__category__name")
-    compositions_basket = {}
-    products = []
-    for component in composition:
-        composition_basket = BasketProduct.objects.filter(
-            basket=component.basket)
-        compositions_basket[component.basket.number] = composition_basket
-        for component_basket in composition_basket:
-            products.append(component_basket.product)
-    products = list(set(products))
-    prices = Price.objects.filter(
-        category_client=order_created.client.category,
-        product__in=products)
-    total_prices = {}
-    for key, value in compositions_basket.items():
-        total_price = 0
-        for composition_basket in value:
-            for price in prices:
-                if composition_basket.product == price.product:
-                    total_price += round(
-                        price.value * composition_basket.quantity_product, 2)
-        total_prices[key] = total_price
-    if request.method == 'POST':
-        # order is validated
-        order_created.validation_date = timezone.now()
-        order_created.status = "en livraison"
-        order_created.save()
-        # save in product and basket ordered
-        return redirect('order')
-    context = {
-        "order": "active",
-        "order_created": order_created,
-        "composition": composition,
-        "compositions_basket": compositions_basket,
-        "prices": prices,
-        "total_prices": total_prices,
-    }
-    return render(request, 'order_app/validate_order.html', context)
 
 
 def update_order(request, order_id):
@@ -151,3 +112,79 @@ def update_order(request, order_id):
         "composition_by_category": composition_by_category,
     }
     return render(request, 'order_app/update_order.html', context)
+
+
+def validate_order(request, order_id):
+    order_created = Order.objects.get(pk=order_id)
+    composition = OrderBasket.objects.filter(
+        order=order_created).order_by("basket__category__name")
+    compositions_basket = {}
+    products = []
+    for component in composition:
+        composition_basket = BasketProduct.objects.filter(
+            basket=component.basket)
+        compositions_basket[component.basket.number] = composition_basket
+        for component_basket in composition_basket:
+            products.append(component_basket.product)
+    products = list(set(products))
+    prices = Price.objects.filter(
+        category_client=order_created.client.category,
+        product__in=products)
+    total_prices = {}
+    for key, value in compositions_basket.items():
+        total_price = 0
+        for composition_basket in value:
+            for price in prices:
+                if composition_basket.product == price.product:
+                    total_price += round(
+                        price.value * composition_basket.quantity_product, 2)
+        total_prices[key] = total_price
+    if request.method == 'POST':
+        # order is validated
+        order_created.validation_date = timezone.now()
+        order_created.status = "en livraison"
+        order_created.save()
+        # save in product ordered
+        for product in products:
+            try:
+                product_ordered = ProductOrdered(
+                    name=product.name,
+                    unit=product.unit)
+                product_ordered.save()
+            except IntegrityError:
+                pass
+        for key, value in compositions_basket.items():
+            # save in basket ordered
+            basket = Basket.objects.get(number=key)
+            composition_order = OrderBasket.objects.get(
+                order=order_created, basket=basket)
+            basket_ordered = BasketOrdered(
+                order=order_created,
+                category_name=basket.category.name,
+                quantity=composition_order.quantity_basket)
+            basket_ordered.save()
+            for composition_basket in value:
+                # save in composition basket ordered
+                product_ordered = ProductOrdered.objects.get(
+                    name=composition_basket.product.name,
+                    unit=composition_basket.product.unit)
+                price = Price.objects.get(
+                    product=composition_basket.product,
+                    category_client=order_created.client.category)
+                composition_basket_ordered = BasketProductOrdered(
+                    basket=basket_ordered,
+                    product=product_ordered,
+                    quantity_product=composition_basket.quantity_product,
+                    price_product=price.value)
+                composition_basket_ordered.save()
+            composition_order.delete()
+        return redirect('order')
+    context = {
+        "order": "active",
+        "order_created": order_created,
+        "composition": composition,
+        "compositions_basket": compositions_basket,
+        "prices": prices,
+        "total_prices": total_prices,
+    }
+    return render(request, 'order_app/validate_order.html', context)

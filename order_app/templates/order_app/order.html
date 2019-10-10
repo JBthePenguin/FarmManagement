@@ -61,13 +61,26 @@
                 <tr class="bg-secondary">
                     <th scope="col">Date de validation</th>
                     <th scope="col">Client</th>
+                    <th scope="col">Composition</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders_in_course_delivery %}
                     <tr>
-                        <td>{{ order.validation_date }}</td>
-                        <td>{{ order.client.name }}</td>
+                        <td style="vertical-align: middle;">{{ order.validation_date }}</td>
+                        <td style="vertical-align: middle;">{{ order.client.name }}</td>
+                        <td style="vertical-align: middle;">
+                            <ul style="list-style-type:none; margin-bottom:0">
+                                {% for basket in baskets_ordered %}
+                                    {% if basket.order == order %}
+                                        <li>
+                                            <span class="badge badge-secondary badge-pill">{{ basket.quantity }}</span>
+                                            panier{% if basket.quantity > 1 %}s{% endif %} <strong>{{ basket.category_name }}</strong></span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
