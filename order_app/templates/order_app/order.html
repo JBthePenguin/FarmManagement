@@ -62,6 +62,7 @@
                     <th scope="col">Date de validation</th>
                     <th scope="col">Client</th>
                     <th scope="col">Composition</th>
+                    <th colspan="2"></th>
                 </tr>
             </thead>
             <tbody>
@@ -81,6 +82,10 @@
                                 {% endfor %}
                             </ul>
                         </td>
+                        <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/deliver{{ order.id }}">Voir et valider</a></td>
+                        <td style="vertical-align: middle;">
+                            <button onclick='CancelOrder("{{ order.id }}", "{{ order.client.name }}", "{{ order.validation_date }}", "{{ csrf_token }}");' class="btn btn-danger">Annuler</button>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -97,13 +102,28 @@
                 <tr class="bg-secondary">
                     <th scope="col">Date de livraison</th>
                     <th scope="col">Client</th>
+                    <th scope="col">Composition</th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders_delivered %}
                     <tr>
-                        <td>{{ order.delivery_date }}</td>
-                        <td>{{ order.client.name }}</td>
+                        <td style="vertical-align: middle;">{{ order.delivery_date }}</td>
+                        <td style="vertical-align: middle;">{{ order.client.name }}</td>
+                        <td style="vertical-align: middle;">
+                            <ul style="list-style-type:none; margin-bottom:0">
+                                {% for basket in baskets_ordered %}
+                                    {% if basket.order == order %}
+                                        <li>
+                                            <span class="badge badge-secondary badge-pill">{{ basket.quantity }}</span>
+                                            panier{% if basket.quantity > 1 %}s{% endif %} <strong>{{ basket.category_name }}</strong></span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/delivered{{ order.id }}">Voir</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

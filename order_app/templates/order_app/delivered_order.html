@@ -1,0 +1,66 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% load mathfilters %}
+
+{% block content %}
+<h5>Commande livrée le {{ order_delivered.delivery_date }}</h5>
+<h5>Client: {{ order_delivered.client.name }}</h5>
+<h5>Composition</h5>
+{% for basket in baskets_ordered %}
+    <strong style="padding-left:2rem;">
+        <span class="badge badge-secondary badge-pill">{{ basket.quantity }}</span> panier{% if basket.quantity > 1 %}s{% endif %} {{ basket.category_name }}</span>
+    </strong>
+    <div class="table-responsive-md" style="padding-top:0.5rem;">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <thead>
+                <tr class="bg-secondary">
+                    <th scope="col" rowspan="2" style="vertical-align: middle;">Produit</th>
+                    <th colspan="2">Quantité</th>
+                    <th colspan="3">Prix</th>
+                </tr>
+                <tr class="bg-secondary">
+                    <th scope="col">par panier</th>
+                    <th scope="col">totale</th>
+                    <th scope="col">unitaire</th>
+                    <th scope="col">par panier</th>
+                    <th scope="col">pour la commande</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for component in compositions_basket%}
+                    {% if basket == component.basket %}
+                        <tr>
+                            <td>{{ component.product.name }}</td>
+                            <td>{{ component.quantity_product|floatformat:"-3" }} {{ component.product.unit }}</td>
+                            <td>{{ component.quantity_product|mul:basket.quantity|floatformat:"-3" }} {{ component.product.unit }}</td>
+                            <td>{{ component.price_product }}</td>
+                            <td>{{ component.price_product|mul:component.quantity_product }}</td>
+                            <td>{{ component.price_product|mul:component.quantity_product|mul:basket.quantity }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                <tr class="bg-success">
+                    <td colspan="4" class="text-right">Total:</td>
+                    <td>
+                        {% for key, value in total_prices.items %}
+                            {% if key == basket %}
+                                {{ value }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for key, value in total_prices.items %}
+                            {% if key == basket %}
+                                {{ value|mul:basket.quantity }}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endfor %}
+<a class="btn btn-danger" href="{% url 'order' %}" style="margin-left:2rem;">Retour</a>
+{% endblock %}

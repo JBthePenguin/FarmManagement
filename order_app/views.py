@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.db.utils import IntegrityError
+from django.db.models.deletion import ProtectedError
 from django.utils import timezone
 from order_app.models import *
 from order_app.forms import OrderForm
@@ -12,11 +13,18 @@ def order(request):
     """ index view """
     if request.method == 'POST' and request.is_ajax():
         action = request.POST.get('action')
-        if action == "delete order":
-            # delete category
+        if action == "delete order" or action == "cancel order":
+            # delete or cancel category
             order_id = request.POST.get('order_id')
             order = Order.objects.get(pk=order_id)
             order.delete()
+            if action == "cancel order":
+                products_ordered = ProductOrdered.objects.all()
+                for product_ordered in products_ordered:
+                    try:
+                        product_ordered.delete()
+                    except ProtectedError:
+                        pass
             return HttpResponse("")
     orders_in_preparation = Order.objects.filter(
         status="en préparation").order_by('creation_date').reverse()
@@ -188,3 +196,57 @@ def validate_order(request, order_id):
         "total_prices": total_prices,
     }
     return render(request, 'order_app/validate_order.html', context)
+
+
+def deliver_order(request, order_id):
+    order_validated = Order.objects.get(pk=order_id)
+    if request.method == 'POST':
+        # order is validated
+        order_validated.delivery_date = timezone.now()
+        order_validated.status = "livrée"
+        order_validated.save()
+        return redirect('order')
+    baskets_ordered = BasketOrdered.objects.filter(
+        order=order_validated).order_by("category_name")
+    compositions_basket = BasketProductOrdered.objects.filter(
+        basket__in=baskets_ordered).order_by("product__name")
+    total_prices = {}
+    for basket in baskets_ordered:
+        total_price = 0
+        for component in compositions_basket:
+            if component.basket == basket:
+                total_price += round(
+                    component.price_product * component.quantity_product, 2)
+            total_prices[basket] = total_price
+    context = {
+        "order": "active",
+        "order_validated": order_validated,
+        "baskets_ordered": baskets_ordered,
+        "compositions_basket": compositions_basket,
+        "total_prices": total_prices,
+    }
+    return render(request, 'order_app/deliver_order.html', context)
+
+
+def delivered_order(request, order_id):
+    order_delivered = Order.objects.get(pk=order_id)
+    baskets_ordered = BasketOrdered.objects.filter(
+        order=order_delivered).order_by("category_name")
+    compositions_basket = BasketProductOrdered.objects.filter(
+        basket__in=baskets_ordered).order_by("product__name")
+    total_prices = {}
+    for basket in baskets_ordered:
+        total_price = 0
+        for component in compositions_basket:
+            if component.basket == basket:
+                total_price += round(
+                    component.price_product * component.quantity_product, 2)
+            total_prices[basket] = total_price
+    context = {
+        "order": "active",
+        "order_delivered": order_delivered,
+        "baskets_ordered": baskets_ordered,
+        "compositions_basket": compositions_basket,
+        "total_prices": total_prices,
+    }
+    return render(request, 'order_app/delivered_order.html', context)
