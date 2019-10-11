@@ -62,6 +62,7 @@
         </table>
     </div>
 {% endfor %}
+<h5>Prix de la commande: {{ order_price }}</h5>
 <form id="valid-order-form" role="form" action="" method="post">
     {% csrf_token %}
     <button class="btn btn-success" type="submit">Marquer la commande comme livrée</button>

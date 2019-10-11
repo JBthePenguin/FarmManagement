@@ -139,6 +139,7 @@ def validate_order(request, order_id):
         category_client=order_created.client.category,
         product__in=products)
     total_prices = {}
+    order_price = 0
     for key, value in compositions_basket.items():
         total_price = 0
         for composition_basket in value:
@@ -147,6 +148,9 @@ def validate_order(request, order_id):
                     total_price += round(
                         price.value * composition_basket.quantity_product, 2)
         total_prices[key] = total_price
+        for component in composition:
+            if component.basket.number == key:
+                order_price += total_price * component.quantity_basket
     if request.method == 'POST':
         # order is validated
         order_created.validation_date = timezone.now()
@@ -194,6 +198,7 @@ def validate_order(request, order_id):
         "compositions_basket": compositions_basket,
         "prices": prices,
         "total_prices": total_prices,
+        "order_price": order_price,
     }
     return render(request, 'order_app/validate_order.html', context)
 
@@ -211,19 +216,22 @@ def deliver_order(request, order_id):
     compositions_basket = BasketProductOrdered.objects.filter(
         basket__in=baskets_ordered).order_by("product__name")
     total_prices = {}
+    order_price = 0
     for basket in baskets_ordered:
         total_price = 0
         for component in compositions_basket:
             if component.basket == basket:
                 total_price += round(
                     component.price_product * component.quantity_product, 2)
-            total_prices[basket] = total_price
+        total_prices[basket] = total_price
+        order_price += total_price * basket.quantity
     context = {
         "order": "active",
         "order_validated": order_validated,
         "baskets_ordered": baskets_ordered,
         "compositions_basket": compositions_basket,
         "total_prices": total_prices,
+        "order_price": order_price,
     }
     return render(request, 'order_app/deliver_order.html', context)
 
@@ -235,18 +243,21 @@ def delivered_order(request, order_id):
     compositions_basket = BasketProductOrdered.objects.filter(
         basket__in=baskets_ordered).order_by("product__name")
     total_prices = {}
+    order_price = 0
     for basket in baskets_ordered:
         total_price = 0
         for component in compositions_basket:
             if component.basket == basket:
                 total_price += round(
                     component.price_product * component.quantity_product, 2)
-            total_prices[basket] = total_price
+        total_prices[basket] = total_price
+        order_price += total_price * basket.quantity
     context = {
         "order": "active",
         "order_delivered": order_delivered,
         "baskets_ordered": baskets_ordered,
         "compositions_basket": compositions_basket,
         "total_prices": total_prices,
+        "order_price": order_price,
     }
     return render(request, 'order_app/delivered_order.html', context)

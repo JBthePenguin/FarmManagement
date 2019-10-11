@@ -62,5 +62,6 @@
         </table>
     </div>
 {% endfor %}
+<h5>Prix de la commande: {{ order_price }}</h5>
 <a class="btn btn-danger" href="{% url 'order' %}" style="margin-left:2rem;">Retour</a>
 {% endblock %}
