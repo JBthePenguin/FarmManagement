@@ -3,37 +3,74 @@
 {% load static %}
 
 {% block content %}
-<!-- Header -->
+<!-- Header with number of products saved and button link to add a product -->
 <h5>{{ products.count }} produit{% if products.count > 1 %}s{% endif %} répertorié{% if products.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_product' %}">Ajouter un produit</a></h5>
 <!---->
-<!-- List -->
 {% if products.count > 0 %}
+    <!-- Table for products -->
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header --> 
             <thead>
+                <!-- first line -->
                 <tr class="bg-secondary">
-                    <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">Produit</th>
-                    <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">Unité</th>
+                    <!-- col product name -->
+                    <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">
+                        Produit
+                    </th>
+                    <!---->
+                    <!-- col product unit -->
+                    <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">
+                        Unité
+                    </th>
+                    <!---->
                     {% if categories_client.count > 0 %}
-                        <th colspan="{{ categories_client.count }}">Prix</th>
+                        <!-- cols product prices -->
+                        <th colspan="{{ categories_client.count }}">
+                            Prix
+                        </th>
+                        <!---->
                     {% endif %}
-                    <th colspan="2" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}"></th>
+                    <!-- 2 cols in one (empty) for update and delete columns  -->
+                    <th colspan="2" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}">
+                    </th>
+                    <!----> 
                 </tr>
+                <!---->
                 {% if categories_client.count > 0 %}
+                    <!-- second line -->
                     <tr class="bg-secondary">
                         {% for category_client in categories_client %}
-                            <th scope="col">{{ category_client.name }}</th>
+                            <!-- col for price for each client's category -->
+                            <th scope="col">
+                                {{ category_client.name }}
+                            </th>
+                            <!---->
                         {% endfor %}
                     </tr>
+                    <!---->
                 {% endif %}
             </thead>
+            <!-- -->
+            <!-- Table lines -->
             <tbody>
                 {% for product in products %}
+                    <!-- line for each product -->
                     <tr>
-                        <td style="vertical-align: middle;">{{ product.name }}</td>
-                        <td style="vertical-align: middle;">{{ product.unit }}</td>
+                        <!-- product name -->
+                        <td style="vertical-align: middle;">
+                            {{ product.name }}
+                        </td>
+                        <!---->
+                        <!-- product unit -->
+                        <td style="vertical-align: middle;">
+                            {{ product.unit }}
+                        </td>
+                        <!---->
                         {% if categories_client.count > 0 %}
+                            <!-- product's prices -->
                             {% for category_client in categories_client %}
+                                <!-- price for each client's category -->
                                 <td style="vertical-align: middle;">
                                     {% for price in prices %}
                                         {% if product == price.product and category_client == price.category_client %}
@@ -41,21 +78,30 @@
                                         {% endif %}
                                     {% endfor %} 
                                 </td>
+                                <!---->
                             {% endfor %}
+                            <!---->
                         {% endif %}
+                        <!-- link to update product -->
                         <td style="vertical-align: middle;">
                             <a href="/produits/{{ product.id }}/" class="text-danger">modifier</a>
                         </td>
+                        <!---->
+                        <!--button to delete prodcut -->
                         <td style="vertical-align: middle;">
                             <button onclick='DeleteProduct("{{ product.id }}", "{{ product.name }}", "{{ csrf_token }}");'>
                                 <img src="{% static 'img/trash.png' %}" class="img-fluid">
                             </button>
                         </td>
+                        <!---->
                     </tr>
+                    <!---->
                 {% endfor %}
             </tbody>
+            <!---->
         </table>
     </div>
+    <!---->
 {% endif %}
 <!---->
 {% endblock %}

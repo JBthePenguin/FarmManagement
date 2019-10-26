@@ -2,6 +2,8 @@ env/
 
 db.sqlite3
 
+geckodriver.log
+
 farm_management/__pycache__/
 
 product_app/__pycache__/

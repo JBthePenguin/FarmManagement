@@ -35,6 +35,7 @@ def order(request):
     composition = OrderBasket.objects.all()
     baskets_ordered = BasketOrdered.objects.all().order_by("category_name")
     context = {
+        "page_title": "| Commandes",
         "order": "active",
         "orders_in_preparation": orders_in_preparation,
         "orders_in_course_delivery": orders_in_course_delivery,

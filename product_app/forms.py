@@ -3,7 +3,7 @@ from product_app.models import Product
 
 
 class ProductForm(forms.ModelForm):
-    """ form for product """
+    """ form for add or update a product """
     class Meta:
         model = Product
         fields = ['name', 'unit']

@@ -13,23 +13,33 @@ def index(request):
 
 
 def product(request):
-    """ product view """
+    """ product view used to:
+    - display table with all products saved
+        (name, unit and price for each client's category)
+    - delete a product with ajax post request """
     if request.method == 'POST' and request.is_ajax():
+        # ajax post
         action = request.POST.get('action')
         if action == "delete":
-            # delete product
+            # get product
             product_id = request.POST.get('product_id')
             product = Product.objects.get(pk=product_id)
             try:
+                # delete product
                 product.delete()
             except ProtectedError:
+                # No delete because product is used in a basket
                 return HttpResponse("Ce produit ne peut pas être supprimé car il appartient à un (ou des) panier(s).")
             else:
+                # product deleted
                 return HttpResponse("")
+    # get all products, client's categories, prices
     products = Product.objects.all().order_by('name')
     categories_client = CategoryClient.objects.all().order_by('name')
     prices = Price.objects.all()
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Produits",
         "product": "active",
         "products": products,
         "categories_client": categories_client,
@@ -40,23 +50,26 @@ def product(request):
 
 def add_product(request):
     """ add a product view """
+    # form for product and client's_category needed for price
     form = ProductForm(request.POST or None, request.FILES or None)
     categories_client = CategoryClient.objects.all().order_by('name')
     if request.method == 'POST':
         # product has added
         if form.is_valid():
-            form.save()
-            product = Product.objects.get(name=form.instance.name)
+            product = form.save()  # save product
             for category_client in categories_client:
                 price_value = request.POST.get(category_client.name)
                 if price_value != "":
+                    # save price
                     price = Price(
                         product=product,
                         category_client=category_client,
                         value=price_value)
                     price.save()
             return redirect('product')
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Ajouter produit",
         "product": "active",
         "form": form,
         "categories_client": categories_client,
@@ -66,6 +79,7 @@ def add_product(request):
 
 def update_product(request, product_id):
     """ update a product view """
+    # form for update a product with his values in inputs values
     product = Product.objects.get(pk=product_id)
     form = ProductForm(request.POST or None, instance=product)
     categories_client = CategoryClient.objects.all().order_by('name')
@@ -81,7 +95,7 @@ def update_product(request, product_id):
     if request.method == 'POST':
         # product has updated
         if form.is_valid():
-            form.save()
+            form.save()  # save product updated
             for category_client in categories_client:
                 new_price_value = request.POST.get(category_client.name)
                 try:
@@ -89,20 +103,26 @@ def update_product(request, product_id):
                         product=product, category_client=category_client)
                     price_value = str(price.value.amount)
                     if price_value != new_price_value:
+                        # price changed
                         if new_price_value == "":
+                            # delete price
                             price.delete()
                         else:
+                            # save new price
                             price.value = Money(new_price_value, 'EUR')
                             price.save()
                 except Price.DoesNotExist:
                     if new_price_value != "":
+                        # save new price
                         price = Price(
                             product=product,
                             category_client=category_client,
                             value=new_price_value)
                         price.save()
             return redirect('product')
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Modifier produit",
         "product": "active",
         "form": form,
         "categories_client": categories_client,

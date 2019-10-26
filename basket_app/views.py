@@ -60,6 +60,7 @@ def basket(request):
             total_prices_by_category[category.name] = total_price
         total_prices_by_basket[basket.number] = total_prices_by_category
     context = {
+        "page_title": "| Paniers",
         "basket": "active",
         "baskets": baskets,
         "categories": categories,

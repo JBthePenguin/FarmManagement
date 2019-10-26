@@ -3,12 +3,15 @@
 {% load static %}
 
 {% block content %}
-<h5>Produit</h5>
 <!-- Update form -->
 <form id="update-product-form" role="form" action="" method="post">
     {% csrf_token %}
+    <!-- inputs for name and unit -->
+    <h5>Produit</h5>
     {{ form.as_p }}
+    <!---->
     {% if categories_client.count > 0 %}
+        <!-- inputs for prices -->
         <h5>Prix</h5>
         {% for category_client in categories_client %}
             {% for key, value in prices.items %}
@@ -17,9 +20,12 @@
                 {% endif %}
             {% endfor %}
         {% endfor %}
+        <!---->
     {% endif %}
+    <!-- Button save and cancel -->
     <button class="btn btn-success" type="submit">Enregistrer</button>
     <a class="btn btn-danger" href="{% url 'product' %}">Annuler</a>
+    <!---->
 </form>
 <!-- -->
 {% endblock %}

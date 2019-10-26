@@ -31,6 +31,7 @@ def client(request):
     categories = CategoryClient.objects.all().order_by('name')
     clients = Client.objects.all().order_by('category__name', 'name')
     context = {
+        "page_title": "| Clients",
         "client": "active",
         "categories": categories,
         "clients": clients,
