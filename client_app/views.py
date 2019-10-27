@@ -47,6 +47,7 @@ def add_category(request):
             form.save()
             return redirect('client')
     context = {
+        "page_title": "| Ajouter une catégorie de client",
         "client": "active",
         "form": form,
     }

@@ -26,10 +26,12 @@ class Browser(StaticLiveServerTestCase):
         wait = WebDriverWait(self.selenium, 10)
         wait.until(EC.title_contains(title_text))
 
-    def assert_page_title(self, title):
-        """ assert for page title <h5> """
-        page_title = self.selenium.find_element_by_tag_name("h5")
-        self.assertIn(title, page_title.text)
+    def assert_page_title(self, title_one, title_two):
+        """ assert for page titles <h5> """
+        page_title = self.selenium.find_elements_by_tag_name("h5")
+        self.assertIn(title_one, page_title[0].text)
+        if title_two != "":
+            self.assertIn(title_two, page_title[1].text)
 
 
 class BaseTests(Browser):
@@ -68,11 +70,12 @@ class IndexTests(Browser):
     def test_index(self):
         """ test browsing in index template """
         self.selenium.get('%s%s' % (self.live_server_url, "/"))
-        self.assert_page_title("Hello world!")  # assert page title
+        self.assert_page_title("Hello world!", "")  # assert page title
 
 
 class ProductTests(Browser):
-    """ Tests for browsing in product page, add, update and delete product """
+    """ Tests for browsing in product app
+    - add, update and delete product """
 
     def add_product(self, name, unit):
         """ add a product with the form """
@@ -112,31 +115,53 @@ class ProductTests(Browser):
             if line_values[0].text == product.name:
                 self.assertEqual(
                     line_values[1].text,
-                    product.unit)  # assert product unit in table
+                    product.unit)  # assert product is in table
                 product_line = line
         return product_line
 
     def test_product_page(self):
         """ test browsing in product template """
         self.selenium.get('%s%s' % (self.live_server_url, "/produits/"))
-        self.assert_page_title("0 produit répertorié")  # assert page title
-        # add a product
-        self.add_product("tomate", "kg")
-        new_product = Product.objects.get(name="tomate")
-        self.assertEqual(new_product.unit, "kg")  # assert product saved in db
-        product_line = self.assert_product_in_table(
-            new_product)  # assert product is in table
+        self.assert_page_title("0 produit répertorié", "")  # assert page title
+        # add some products
+        products = {
+            "tomate": "kg",
+            "ail": "pièce",
+            "chou": "kg",
+            "oignon": "lot"}
+        for name, unit in products.items():
+            self.add_product(name, unit)
+            new_product = Product.objects.get(name=name)
+            self.assertEqual(
+                new_product.unit, unit)  # assert product saved in db
+            product_line = self.assert_product_in_table(
+                new_product)  # assert product is in table
         # update product
-        self.update_product(product_line, "tomate", "kg", "ail", "pièce")
-        updated_product = Product.objects.get(name="ail")
+        product = Product.objects.get(name="tomate")
+        product_line = self.assert_product_in_table(product)
+        self.update_product(product_line, "tomate", "kg", "tomate", "pièce")
+        updated_product = Product.objects.get(name="tomate")
         self.assertEqual(
             updated_product.unit, "pièce")  # assert product updated in db
         product_line = self.assert_product_in_table(
-            updated_product)  # assert product is in table
+            updated_product)  # assert product is updated in table
         # delete product
+        products = Product.objects.all()
+        self.assertEqual(len(products), 4)  # number of products before delete
         product_line.find_element_by_tag_name("button").click()
         alert = self.selenium.switch_to_alert()
         alert.accept()
         sleep(2)
         products = Product.objects.all()
-        self.assertEqual(len(products), 0)  # assert product deleted in db
+        self.assertEqual(len(products), 3)  # number of products after delete
+        product_names = []
+        for product in products:
+            product_names.append(product.name)
+        print(product_names)
+        self.assertNotIn(
+            "tomate", product_names)  # assert product deleted in db
+        # delete all products
+        for product in products:
+            product.delete()
+        products = Product.objects.all()
+        self.assertEqual(len(products), 0)  # assert no product in db
