@@ -157,7 +157,6 @@ class ProductTests(Browser):
         product_names = []
         for product in products:
             product_names.append(product.name)
-        print(product_names)
         self.assertNotIn(
             "tomate", product_names)  # assert product deleted in db
         # delete all products

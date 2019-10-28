@@ -3,7 +3,7 @@ from client_app.models import *
 
 
 class CategoryForm(forms.ModelForm):
-    """ form for category client """
+    """ form for add or update a client's category """
     class Meta:
         model = CategoryClient
         fields = ['name']
@@ -14,12 +14,13 @@ class CategoryForm(forms.ModelForm):
 
 
 class CategoryModelChoiceField(forms.ModelChoiceField):
+    """ Model to display category's names in select category for a client"""
     def label_from_instance(self, obj):
         return "%s" % (obj.name)
 
 
 class ClientForm(forms.ModelForm):
-    """ form for client """
+    """ form for add or update a client """
     category = CategoryModelChoiceField(
         queryset=CategoryClient.objects.all().order_by('name'))
 

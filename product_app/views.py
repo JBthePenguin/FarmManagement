@@ -25,7 +25,7 @@ def product(request):
             product_id = request.POST.get('product_id')
             product = Product.objects.get(pk=product_id)
             try:
-                # delete product
+                # delete product in db
                 product.delete()
             except ProtectedError:
                 # No delete because product is used in a basket
@@ -49,18 +49,20 @@ def product(request):
 
 
 def add_product(request):
-    """ add a product view """
-    # form for product and client's_category needed for price
+    """ add a product view used to
+    - display form to add a product
+    - save product with prices in db """
+    # form for Product and client's_category needed for Price
     form = ProductForm(request.POST or None, request.FILES or None)
     categories_client = CategoryClient.objects.all().order_by('name')
     if request.method == 'POST':
         # product has added
         if form.is_valid():
-            product = form.save()  # save product
+            product = form.save()  # save product in db
             for category_client in categories_client:
                 price_value = request.POST.get(category_client.name)
                 if price_value != "":
-                    # save price
+                    # save price in db
                     price = Price(
                         product=product,
                         category_client=category_client,
@@ -78,7 +80,9 @@ def add_product(request):
 
 
 def update_product(request, product_id):
-    """ update a product view """
+    """ update a product view
+    - display form to update a product
+    - save changes in db """
     # form for update a product with his values in inputs values
     product = Product.objects.get(pk=product_id)
     form = ProductForm(request.POST or None, instance=product)
@@ -90,12 +94,13 @@ def update_product(request, product_id):
                 product=product, category_client=category_client)
             price_value = str(price.value.amount)
         except Price.DoesNotExist:
+            # no price saved for this category
             price_value = ""
         prices[category_client.name] = price_value
     if request.method == 'POST':
         # product has updated
         if form.is_valid():
-            form.save()  # save product updated
+            form.save()  # save product updated in db
             for category_client in categories_client:
                 new_price_value = request.POST.get(category_client.name)
                 try:
@@ -105,15 +110,15 @@ def update_product(request, product_id):
                     if price_value != new_price_value:
                         # price changed
                         if new_price_value == "":
-                            # delete price
+                            # delete price in db
                             price.delete()
                         else:
-                            # save new price
+                            # save new price in db
                             price.value = Money(new_price_value, 'EUR')
                             price.save()
                 except Price.DoesNotExist:
                     if new_price_value != "":
-                        # save new price
+                        # save new price in db
                         price = Price(
                             product=product,
                             category_client=category_client,

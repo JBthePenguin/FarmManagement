@@ -87,7 +87,7 @@
                             <a href="/produits/{{ product.id }}/" class="text-danger">modifier</a>
                         </td>
                         <!---->
-                        <!--button to delete prodcut -->
+                        <!--button to delete product -->
                         <td style="vertical-align: middle;">
                             <button onclick='DeleteProduct("{{ product.id }}", "{{ product.name }}", "{{ csrf_token }}");'>
                                 <img src="{% static 'img/trash.png' %}" class="img-fluid">

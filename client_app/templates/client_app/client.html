@@ -7,22 +7,32 @@
 <!-- Header -->
 <h5>{{ categories.count }} catégorie{% if categories.count > 1 %}s{% endif %} de client répertoriée{% if categories.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_category' %}">Ajouter une catégorie</a></h5>
 <!---->
-<!-- List of categories-->
+<!-- Categories-->
 <div class="table-responsive-md">
     <table class="table table-hover table-bordered table-sm table-dark text-center">
         <tbody>
             {% for category in categories %}
+                <!-- line for each categories -->
                 <tr>
-                    <td>{{ category.name }}</td>
+                    <!-- category name -->
+                    <td>
+                        {{ category.name }}
+                    </td>
+                    <!---->
+                    <!-- link to update category -->
                     <td>
                         <a href="/clients/categorie{{ category.id }}/" class="text-danger">modifier</a>
                     </td>
+                    <!---->
+                    <!--button to delete category -->
                     <td>
                         <button onclick='DeleteCategory("{{ category.id }}", "{{ category.name }}", "{{ csrf_token }}");'>
                             <img src="{% static 'img/trash.png' %}" class="img-fluid">
                         </button>
                     </td>
+                    <!---->
                 </tr>
+                <!---->
             {% endfor %}
         </tbody>
     </table>
@@ -33,25 +43,37 @@
 <!-- Header -->
 <h5>{{ clients.count }} client{% if clients.count > 1 %}s{% endif %} répertorié{% if clients.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_client' %}">Ajouter un client</a></h5>
 <!---->
-<!-- List of clients -->
+<!-- Tables of clients by category -->
 {% for category in categories %}
+    <!-- category name -->
     <h5>{{ category.name }}</h5>
+    <!---->
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
             <tbody>
                 {% for client in clients %}
                     {% if client.category == category %}
+                        <!-- line for each client of this category -->
                         <tr>
-                            <td>{{ client.name }}</td>
+                            <!-- client name -->
+                            <td>
+                                {{ client.name }}
+                            </td>
+                            <!---->
+                            <!-- link to update client -->
                             <td>
                                 <a href="/clients/{{ client.id }}/" class="text-danger">modifier</a>
                             </td>
+                            <!---->
+                            <!--button to delete client -->
                             <td>
                                 <button onclick='DeleteClient("{{ client.id }}", "{{ client.name }}", "{{ csrf_token }}");'>
                                     <img src="{% static 'img/trash.png' %}" class="img-fluid">
                                 </button>
                             </td>
+                            <!---->
                         </tr>
+                        <!---->
                     {% endif %}
                 {% endfor %}
             </tbody>
