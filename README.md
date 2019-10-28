@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/JBthePenguin/FarmManagement.svg?branch=master)](https://travis-ci.com/JBthePenguin/FarmManagement)
 # Farm Management
 A tool to manage a farm
 ## Install
