@@ -21,6 +21,8 @@ install:
   - pip install -r requirements.txt
 
 before_script:
+  - python manage.py makemigrations
+  - python manage.py migrate
   - "export DISPLAY=:99.0"
   - sleep 15 # give xvfb some time to start
 
