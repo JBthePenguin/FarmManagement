@@ -13,7 +13,7 @@ addons:
 
 before_install:
   # Required to run browser tests (FF) ##
-  - sudo ./setup_geckodriver.sh
+  - ./setup_geckodriver.sh
   - export PATH="${HOME}/geckodriver:${PATH}"
 
 install:
