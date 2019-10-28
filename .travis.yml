@@ -1,5 +1,3 @@
-sudo: required
-
 language: python
 
 python:
@@ -13,7 +11,7 @@ addons:
 
 before_install:
   # Required to run browser tests (FF) ##
-  - ./setup_geckodriver.sh
+  - bash ./setup_geckodriver.sh
   - export PATH="${HOME}/geckodriver:${PATH}"
 
 install:
