@@ -4,12 +4,14 @@
 
 {% block content %}
 <h5>Client</h5>
-<!-- Add product form -->
+<!-- Add client form -->
 <form id="add-client-form" role="form" action="" method="post">
     {% csrf_token %}
     {{ form.as_p }}
+    <!-- Button save and cancel -->
     <button class="btn btn-success" type="submit">Enregistrer</button>
     <a class="btn btn-danger" href="{% url 'client' %}">Annuler</a>
+    <!---->
 </form>
 <!---->
 {% endblock %}

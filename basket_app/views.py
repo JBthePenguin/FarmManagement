@@ -9,8 +9,12 @@ from order_app.models import OrderBasket
 
 
 def basket(request):
-    """ basket view """
+    """ basket view used to:
+    - display table with all client's category saved
+    - display table with all client saved
+    - delete a category or a client with ajax post request """
     if request.method == 'POST' and request.is_ajax():
+        # ajax post
         action = request.POST.get('action')
         if action == "delete category":
             # delete category
@@ -19,6 +23,7 @@ def basket(request):
             try:
                 category.delete()
             except ProtectedError:
+                # No delete because this category have a basket created
                 return HttpResponse("Cette catégorie ne peut pas être supprimée car un (ou des) panier(s) lui appartien(nen)t.")
             else:
                 return HttpResponse("")
@@ -29,8 +34,10 @@ def basket(request):
             try:
                 basket.delete()
             except ProtectedError:
+                # No delete because this basket is used in order in preparation
                 return HttpResponse("Ce panier ne peut pas être supprimé car il appartient à une (ou des) commande(s) en préparation.")
             else:
+                # update all basket's numbers
                 baskets = Basket.objects.all().order_by('number')
                 number = 1
                 for basket in baskets:
@@ -38,14 +45,20 @@ def basket(request):
                     basket.save()
                     number += 1
                 return HttpResponse("")
+    # get all baskets, basket's categories, compositons,
+    # client's categories and prices
     baskets = Basket.objects.all().order_by('number')
     categories = BasketCategory.objects.all().order_by('name')
     compositions = BasketProduct.objects.all().order_by(
         'basket__number', 'product__name')
     categories_client = CategoryClient.objects.all().order_by('name')
     prices = Price.objects.all()
+    # make a dict for total price by basket for each client's category
+    # {basket number: total prices by client's category}
     total_prices_by_basket = {}
     for basket in baskets:
+        # make a dict for total price by client's category
+        # {client's category name: total price}
         total_prices_by_category = {}
         for category in categories_client:
             total_price = 0
@@ -59,6 +72,7 @@ def basket(request):
                                 price.value * component.quantity_product, 2)
             total_prices_by_category[category.name] = total_price
         total_prices_by_basket[basket.number] = total_prices_by_category
+    # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Paniers",
         "basket": "active",
@@ -73,14 +87,20 @@ def basket(request):
 
 
 def add_category_basket(request):
-    """ add category basket view """
+    """ add a category view used to:
+    - display form to add a basket's category
+    - save category in db """
+    # form for BasketCategory
     form = BasketCategoryForm(request.POST or None, request.FILES or None)
     if request.method == 'POST':
         # category basket has added
         if form.is_valid():
+            # save category in db
             form.save()
             return redirect('basket')
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Ajouter une catégorie de paniers",
         "basket": "active",
         "form": form,
     }
@@ -88,14 +108,20 @@ def add_category_basket(request):
 
 
 def update_category_basket(request, category_id):
+    """ update a category view
+    - display form to update a category
+    - save changes in db """
+    # form for update a category with his values in inputs values
     category = BasketCategory.objects.get(pk=category_id)
     form = BasketCategoryForm(request.POST or None, instance=category)
     if request.method == 'POST':
         # category has updated
         if form.is_valid():
-            form.save()
+            form.save()  # save category updated in db
             return redirect('basket')
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Modifier une catégorie de panier",
         "basket": "active",
         "form": form,
     }

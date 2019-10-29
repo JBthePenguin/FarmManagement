@@ -3,11 +3,11 @@
 {% load static %}
 
 {% block content %}
-<!-- Categoies -->
+<!-- Categories -->
 <!-- Header -->
 <h5>{{ categories.count }} catégorie{% if categories.count > 1 %}s{% endif %} de client répertoriée{% if categories.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_category' %}">Ajouter une catégorie</a></h5>
 <!---->
-<!-- Categories-->
+<!-- Table category-->
 <div class="table-responsive-md">
     <table class="table table-hover table-bordered table-sm table-dark text-center">
         <tbody>

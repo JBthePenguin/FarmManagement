@@ -3,6 +3,8 @@ from product_app.models import *
 
 
 class BasketCategory(models.Model):
+    """ Model for basket's category:
+    - name unique: str """
     name = models.CharField(
         db_index=True, unique=True, max_length=100,
         error_messages={
@@ -12,6 +14,9 @@ class BasketCategory(models.Model):
 
 
 class Basket(models.Model):
+    """ Model for client's category:
+    - number unique (like an indice): int
+    - category: foreign key BasketCategory """
     number = models.IntegerField(
         db_index=True, unique=True,
         error_messages={
@@ -23,6 +28,11 @@ class Basket(models.Model):
 
 
 class BasketProduct(models.Model):
+    """ Model for basket's composition:
+    - basket: foreign key Basket
+    - product: foreign key Product
+    - quantity_product: float
+    unique_together: basket, 'product """
     basket = models.ForeignKey(
         Basket, on_delete=models.CASCADE, db_index=True)
     product = models.ForeignKey(
