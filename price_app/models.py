@@ -5,6 +5,11 @@ from client_app.models import CategoryClient
 
 
 class Price(models.Model):
+    """ Model for price:
+    - product: foreign key Product
+    - category client: foreign key CategoryClient
+    - value: Decimal (use django-money)
+    unique together: product, category client"""
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, db_index=True)
     category_client = models.ForeignKey(
