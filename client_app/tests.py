@@ -26,6 +26,22 @@ def add_client(browser, name, category):
     browser.wait_page_loaded("Clients")
 
 
+def delete_all_categories_and_clients(browser):
+    """ delete all categories and clients in db """
+    # delete all clients
+    clients = Client.objects.all()
+    for client in clients:
+        client.delete()
+    clients = Client.objects.all()
+    browser.assertEqual(len(clients), 0)  # assert no client in db
+    # delete all categories
+    categories = CategoryClient.objects.all()
+    for category in categories:
+        category.delete()
+    categories = CategoryClient.objects.all()
+    browser.assertEqual(len(categories), 0)  # assert no category in db
+
+
 class ClientTests(Browser):
     """ Tests for browsing in Client app
     - add, update and delete category and client """
@@ -197,20 +213,10 @@ class ClientTests(Browser):
         sleep(2)
         clients = Client.objects.all()
         self.assertEqual(
-            len(categories), 2)  # number of clients after delete
+            len(clients), 2)  # number of clients after delete
         client_names = []
         for client in clients:
             client_names.append(client.name)
         self.assertNotIn(
             "part test", client_names)  # assert client deleted in db
-        # delete all clients
-        for client in clients:
-            client.delete()
-        clients = Client.objects.all()
-        self.assertEqual(len(clients), 0)  # assert no client in db
-        # delete all categories
-        categories = CategoryClient.objects.all()
-        for category in categories:
-            category.delete()
-        categories = CategoryClient.objects.all()
-        self.assertEqual(len(categories), 0)  # assert no category in db
+        delete_all_categories_and_clients(self)

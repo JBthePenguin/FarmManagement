@@ -166,10 +166,14 @@ def create_basket(request):
 
 
 def update_basket(request, basket_number):
+    """ update a basket view
+    - display form to update a basket
+    - save changes in db """
+    # form for update a client with his values in inputs values
     basket = Basket.objects.get(number=basket_number)
-    old_basket_category = basket.category
-    msg = ""
     form = BasketForm(request.POST or None, instance=basket)
+    # make a dict for composition's values
+    # {product name: quantity}
     products = Product.objects.all().order_by('name')
     composition = {}
     for product in products:
@@ -180,71 +184,64 @@ def update_basket(request, basket_number):
         except BasketProduct.DoesNotExist:
             quantity = ""
         composition[product.name] = quantity
+    # error message
+    old_basket_category = basket.category
+    msg = ""
     if request.method == 'POST':
         # basket has updated
         if form.is_valid():
-            try:
-                OrderBasket.objects.get(basket=basket)
-            except OrderBasket.DoesNotExist:
+            def save_basket_changes():
+                """ save changes of basket updated """
                 basket = form.save(commit=False)
                 basket.number = basket_number
-                basket.save()
+                basket.save()  # save basket in db
                 for product in products:
+                    # new quantity for each product
                     new_quantity = request.POST.get(product.name)
                     try:
+                        # composition exist
                         component = BasketProduct.objects.get(
                             basket=basket, product=product)
                         quantity = str(component.quantity_product)
                         if quantity != new_quantity:
                             if new_quantity == "":
-                                component.delete()
+                                component.delete()  # delete composition row
                             else:
                                 component.quantity_product = new_quantity
-                                component.save()
+                                component.save()  # save new compositon in db
                     except BasketProduct.DoesNotExist:
+                        # composition does not exist
                         if new_quantity != "":
                             component = BasketProduct(
                                 basket=basket,
                                 product=product,
                                 quantity_product=new_quantity)
-                            component.save()
+                            component.save()  # save new compositon in db
                 return redirect('basket')
+            try:
+                OrderBasket.objects.get(basket=basket)
+            except OrderBasket.DoesNotExist:
+                # basket not used in an order
+                return save_basket_changes()
             else:
+                # basket used in an order
                 new_basket_category = form.instance.category
                 if old_basket_category != new_basket_category:
                     # raise error because basket is used in an created order
                     msg = "Ce panier ne peut pas changer de catégorie car il appartient à une commande en préparation."
                     basket.category = old_basket_category
+                    # form for update a client with old values in inputs values
                     form = BasketForm(None, instance=basket)
+                    # dict for composition's values
                     composition = {}
                     for product in products:
                         quantity = request.POST.get(product.name)
                         composition[product.name] = quantity
                 else:
-                    basket = form.save(commit=False)
-                    basket.number = basket_number
-                    basket.save()
-                    for product in products:
-                        new_quantity = request.POST.get(product.name)
-                        try:
-                            component = BasketProduct.objects.get(
-                                basket=basket, product=product)
-                            quantity = str(component.quantity_product)
-                            if quantity != new_quantity:
-                                if new_quantity == "":
-                                    component.delete()
-                                else:
-                                    component.quantity_product = new_quantity
-                                    component.save()
-                        except BasketProduct.DoesNotExist:
-                            if new_quantity != "":
-                                component = BasketProduct(
-                                    basket=basket,
-                                    product=product,
-                                    quantity_product=new_quantity)
-                                component.save()
-                    return redirect('basket')
+                    return save_basket_changes()
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Modifier un panier",
         "basket": "active",
         "basket_number": basket_number,
         "form": form,

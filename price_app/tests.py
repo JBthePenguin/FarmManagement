@@ -1,8 +1,8 @@
-from product_app.tests import Browser
+from product_app.tests import Browser, delete_all_products
 from product_app.models import Product
 from price_app.models import Price
-from client_app.models import CategoryClient
-from client_app.tests import add_category_client
+from client_app.tests import (
+    add_category_client, delete_all_categories_and_clients)
 from djmoney.money import Money
 
 
@@ -129,14 +129,5 @@ class PriceTests(Browser):
                 "",
                 ""))  # assert prices deleted in product's table
         # delete all products
-        products = Product.objects.all()
-        for product in products:
-            product.delete()
-        products = Product.objects.all()
-        self.assertEqual(len(products), 0)  # assert no product in db
-        # delete all categories
-        categories = CategoryClient.objects.all()
-        for category in categories:
-            category.delete()
-        categories = CategoryClient.objects.all()
-        self.assertEqual(len(categories), 0)  # assert no category in db
+        delete_all_products(self)
+        delete_all_categories_and_clients(self)

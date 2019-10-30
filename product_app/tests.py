@@ -83,6 +83,15 @@ def add_product(browser, name, unit):
     browser.wait_page_loaded("Produits")
 
 
+def delete_all_products(browser):
+    """ delete all products in db """
+    products = Product.objects.all()
+    for product in products:
+        product.delete()
+    products = Product.objects.all()
+    browser.assertEqual(len(products), 0)  # assert no product in db
+
+
 class ProductTests(Browser):
     """ Tests for browsing in product app
     - add, update and delete product """
@@ -160,8 +169,4 @@ class ProductTests(Browser):
             product_names.append(product.name)
         self.assertNotIn(
             "tomate", product_names)  # assert product deleted in db
-        # delete all products
-        for product in products:
-            product.delete()
-        products = Product.objects.all()
-        self.assertEqual(len(products), 0)  # assert no product in db
+        delete_all_products(self)

@@ -1,6 +1,7 @@
-from product_app.tests import Browser
+from product_app.tests import Browser, delete_all_products
 from basket_app.models import BasketCategory, Basket, BasketProduct
-from client_app.tests import add_category_client  # , add_client
+from client_app.tests import (
+    add_category_client, delete_all_categories_and_clients)
 from price_app.tests import add_product_with_price
 from product_app.models import Product
 from time import sleep
@@ -36,6 +37,22 @@ def create_basket(browser, basket):
         i += 1
     browser.selenium.find_element_by_class_name("btn-success").click()
     browser.wait_page_loaded("Paniers")
+
+
+def delete_all_categories_and_baskets(browser):
+    """ delete all baskets in db """
+    # delete all baskets
+    baskets = Basket.objects.all()
+    for basket in baskets:
+        basket.delete()
+    baskets = Basket.objects.all()
+    browser.assertEqual(len(baskets), 0)  # assert no basket in db
+    # delete all categories
+    categories = BasketCategory.objects.all()
+    for category in categories:
+        category.delete()
+    categories = BasketCategory.objects.all()
+    browser.assertEqual(len(categories), 0)  # assert no category in db
 
 
 class BasketTests(Browser):
@@ -115,6 +132,35 @@ class BasketTests(Browser):
                     composition[line_values[0].text] + product.unit)
             i += 1
 
+    def update_basket(self, basket, new_basket):
+        """ update a basket with the form """
+        self.selenium.find_element_by_xpath(
+            "//a[@href='/paniers/numero" + str(basket.number) + "/']"
+        ).click()
+        self.wait_page_loaded("Modifier un panier")
+        input_category = self.selenium.find_element_by_xpath(
+            "//select[@name='category']/option[@selected]")
+        self.assertEqual(
+            input_category.text,
+            basket.category.name)  # assert basket category value in form
+        self.selenium.find_element_by_xpath(
+            "//select[@name='category']/option[text()='" + new_basket[0] + "']"
+        ).click()
+        composition = BasketProduct.objects.filter(
+            basket=basket).order_by("product__name")
+        inputs = self.selenium.find_elements_by_tag_name("input")
+        i = 0
+        for input_tag in inputs[1:]:
+            # assert quantity value in form
+            self.assertEqual(
+                input_tag.get_attribute('value'),
+                str(composition[i].quantity_product))
+            input_tag.clear()
+            input_tag.send_keys(new_basket[i + 1])
+            i += 1
+        self.selenium.find_element_by_class_name("btn-success").click()
+        self.wait_page_loaded("Paniers")
+
     def test_basket_page(self):
         """ test browsing in basket template """
         self.selenium.get('%s%s' % (self.live_server_url, "/paniers/"))
@@ -127,14 +173,6 @@ class BasketTests(Browser):
         category_names = ["restaurant", "association", "particulier"]
         for category_name in category_names:
             add_category_client(self, category_name)
-        # add some clients
-        # clients_dict = {
-        #     "asso test": "association",
-        #     "rest test": "restaurant",
-        #     "part test": "particulier",
-        # }
-        # for name, category in clients_dict.items():
-        #     add_client(self, name, category)
         # add some products
         self.selenium.find_element_by_link_text("Produits").click()
         self.wait_page_loaded("Produits")
@@ -198,5 +236,51 @@ class BasketTests(Browser):
             {"ail": "2 ", "chou": "0,500 ", "tomate": "3 "},
             {"ail": "2,500 ", "chou": "1,250 ", "tomate": "5 "},
             {"ail": "0,750 ", "tomate": "1 "}, ]
-        self.assert_composition(compositions)  # assert composition
+        self.assert_composition(compositions)  # assert composition in table
         # update basket
+        basket = Basket.objects.get(number=1)
+        self.update_basket(basket, ("petit", "", "0,75", "2"))
+        basket = Basket.objects.get(number=1)
+        self.assertEqual(
+            basket.category.name,
+            "petit")  # assert basket's category updated in db
+        new_composition = BasketProduct.objects.filter(
+            basket=basket).order_by("product__name")
+        i = 0
+        for quantity in (0.75, 2):
+            self.assertEqual(
+                quantity,
+                new_composition[i].quantity_product
+            )  # assert new composition in db
+            i += 1
+        self.assert_basket_table(
+            category_names
+        )  # assert updated basket's table is ordered by category
+        compositions = [
+            {"ail": "2,500 ", "chou": "1,250 ", "tomate": "5 "},
+            {"chou": "0,750 ", "tomate": "2 "},
+            {"ail": "0,750 ", "tomate": "1 "}, ]
+        self.assert_composition(compositions)  # assert new compo in table
+        # delete basket
+        baskets = Basket.objects.all()
+        self.assertEqual(
+            len(baskets), 3)  # number of baskets before delete
+        category_div = self.selenium.find_element_by_class_name(
+            "tables-by-category")
+        category_div.find_element_by_tag_name("button").click()
+        alert = self.selenium.switch_to_alert()
+        alert.accept()
+        sleep(2)
+        baskets = Basket.objects.all()
+        self.assertEqual(
+            len(baskets), 2)  # number of baskets after delete
+        # assert basket's number in db
+        basket_numbers = []
+        for basket in baskets:
+            basket_numbers.append(basket.number)
+        self.assertIn(1, basket_numbers)
+        self.assertIn(2, basket_numbers)
+        self.assertNotIn(3, basket_numbers)
+        delete_all_categories_and_baskets(self)
+        delete_all_products(self)
+        delete_all_categories_and_clients(self)
