@@ -3,17 +3,25 @@
 {% load static %}
 
 {% block content %}
-<!-- Add basket form -->
+<!-- Create basket form -->
 <form id="add-basket-form" role="form" action="" method="post">
     {% csrf_token %}
+    <!-- title with basket number -->
     <h5>Panier numéro {{ basket_number }}</h5>
+    <!---->
+    <!-- basket's category-->
     {{ form.as_p }}
+    <!---->
     <h5>Produits</h5>
     {% for product in products %}
+        <!-- input for quantity of each product -->
         <label>{{ product.name }} : <input type="number" step="0.001" name="{{ product.name }}" class="text-center"> {{ product.unit }}</label><br>
+        <!---->
     {% endfor %}
+    <!-- Button save and cancel -->
     <button class="btn btn-success" type="submit">Enregistrer</button>
     <a class="btn btn-danger" href="{% url 'basket' %}">Annuler</a>
+    <!---->
 </form>
 <!---->
 {% endblock %}

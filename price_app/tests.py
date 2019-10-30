@@ -2,33 +2,26 @@ from product_app.tests import Browser
 from product_app.models import Product
 from price_app.models import Price
 from client_app.models import CategoryClient
+from client_app.tests import add_category_client
 from djmoney.money import Money
+
+
+def add_product_with_price(browser, categories, product):
+    """ add a product with price with the form """
+    browser.selenium.find_element_by_link_text("Ajouter un produit").click()
+    browser.wait_page_loaded("Ajouter produit")
+    inputs = browser.selenium.find_elements_by_tag_name("input")
+    i = 0
+    for input_tag in inputs[1:]:
+        input_tag.send_keys(product[i])
+        i += 1
+    browser.selenium.find_element_by_class_name("btn-success").click()
+    browser.wait_page_loaded("Produits")
 
 
 class PriceTests(Browser):
     """ Tests for browsing in price app
     - add, update and delete price for product """
-
-    def add_category(self, name):
-        """ add a client's category with the form """
-        self.selenium.find_element_by_link_text(
-            "Ajouter une catégorie").click()
-        self.wait_page_loaded("Ajouter une catégorie de client")
-        self.selenium.find_element_by_id("id_name").send_keys(name)
-        self.selenium.find_element_by_class_name("btn-success").click()
-        self.wait_page_loaded("Clients")
-
-    def add_product_with_price(self, categories, product):
-        """ add a product with price with the form """
-        self.selenium.find_element_by_link_text("Ajouter un produit").click()
-        self.wait_page_loaded("Ajouter produit")
-        inputs = self.selenium.find_elements_by_tag_name("input")
-        i = 0
-        for input_tag in inputs[1:]:
-            input_tag.send_keys(product[i])
-            i += 1
-        self.selenium.find_element_by_class_name("btn-success").click()
-        self.wait_page_loaded("Produits")
 
     def assert_table_header(self, categories):
         """ assert if category's name is displayed
@@ -82,7 +75,7 @@ class PriceTests(Browser):
         self.selenium.get('%s%s' % (self.live_server_url, "/clients/"))
         category_names = ["restaurant", "association", "particulier"]
         for category_name in category_names:
-            self.add_category(category_name)
+            add_category_client(self, category_name)
         # add some products with prices
         self.selenium.find_element_by_link_text("Produits").click()
         self.wait_page_loaded("Produits")
@@ -91,7 +84,7 @@ class PriceTests(Browser):
             ("ail", "kg", "2,40", "2,15", "3,05"),
             ("chou", "pièce", "1", "1,5", "2"), ]
         for product in products:
-            self.add_product_with_price(category_names, product)
+            add_product_with_price(self, category_names, product)
         prices = Price.objects.all()
         self.assertEqual(len(prices), 9)  # assert prices saved in db
         self.assert_table_header(

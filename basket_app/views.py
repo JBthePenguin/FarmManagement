@@ -129,26 +129,34 @@ def update_category_basket(request, category_id):
 
 
 def create_basket(request):
-    """ basket view """
+    """ create a basket view
+    - display form to create a basket
+    - save basket and composition in db """
+    # form for create a basket
     form = BasketForm(request.POST or None, request.FILES or None)
+    # set new basket number and get all products
     basket_number = Basket.objects.all().count() + 1
     products = Product.objects.all().order_by('name')
     if request.method == 'POST':
-        # basket has added
+        # basket has created
         if form.is_valid():
+            # save basket in db
             basket = form.save(commit=False)
             basket.number = basket_number
             basket.save()
             for product in products:
                 quantity = request.POST.get(product.name)
                 if quantity != "":
+                    # save composion in db
                     component = BasketProduct(
                         basket=basket,
                         product=product,
                         quantity_product=quantity)
                     component.save()
             return redirect('basket')
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Créer un panier",
         "basket": "active",
         "form": form,
         "basket_number": basket_number,

@@ -73,18 +73,19 @@ class IndexTests(Browser):
         self.assert_page_title("Hello world!", "")  # assert page title
 
 
+def add_product(browser, name, unit):
+    """ add a product with the form """
+    browser.selenium.find_element_by_link_text("Ajouter un produit").click()
+    browser.wait_page_loaded("Ajouter produit")
+    browser.selenium.find_element_by_id("id_name").send_keys(name)
+    browser.selenium.find_element_by_id("id_unit").send_keys(unit)
+    browser.selenium.find_element_by_class_name("btn-success").click()
+    browser.wait_page_loaded("Produits")
+
+
 class ProductTests(Browser):
     """ Tests for browsing in product app
     - add, update and delete product """
-
-    def add_product(self, name, unit):
-        """ add a product with the form """
-        self.selenium.find_element_by_link_text("Ajouter un produit").click()
-        self.wait_page_loaded("Ajouter produit")
-        self.selenium.find_element_by_id("id_name").send_keys(name)
-        self.selenium.find_element_by_id("id_unit").send_keys(unit)
-        self.selenium.find_element_by_class_name("btn-success").click()
-        self.wait_page_loaded("Produits")
 
     def update_product(self, line, old_name, old_unit, new_name, new_unit):
         """ update a product with the form """
@@ -130,7 +131,7 @@ class ProductTests(Browser):
             "chou": "kg",
             "oignon": "lot"}
         for name, unit in products.items():
-            self.add_product(name, unit)
+            add_product(self, name, unit)
             new_product = Product.objects.get(name=name)
             self.assertEqual(
                 new_product.unit, unit)  # assert product saved in db

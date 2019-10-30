@@ -3,17 +3,32 @@ from client_app.models import CategoryClient, Client
 from time import sleep
 
 
+def add_category_client(browser, name):
+    """ add a client's category with the form """
+    browser.selenium.find_element_by_link_text(
+        "Ajouter une catégorie").click()
+    browser.wait_page_loaded("Ajouter une catégorie de client")
+    browser.selenium.find_element_by_id("id_name").send_keys(name)
+    browser.selenium.find_element_by_class_name("btn-success").click()
+    browser.wait_page_loaded("Clients")
+
+
+def add_client(browser, name, category):
+    """ add a client with the form """
+    browser.selenium.find_element_by_link_text(
+        "Ajouter un client").click()
+    browser.wait_page_loaded("Ajouter un client")
+    browser.selenium.find_element_by_xpath(
+        "//select[@name='category']/option[text()='" + category + "']"
+    ).click()
+    browser.selenium.find_element_by_id("id_name").send_keys(name)
+    browser.selenium.find_element_by_class_name("btn-success").click()
+    browser.wait_page_loaded("Clients")
+
+
 class ClientTests(Browser):
     """ Tests for browsing in Client app
     - add, update and delete category and client """
-    def add_category(self, name):
-        """ add a category with the form """
-        self.selenium.find_element_by_link_text(
-            "Ajouter une catégorie").click()
-        self.wait_page_loaded("Ajouter une catégorie de client")
-        self.selenium.find_element_by_id("id_name").send_keys(name)
-        self.selenium.find_element_by_class_name("btn-success").click()
-        self.wait_page_loaded("Clients")
 
     def update_category(self, line, old_name, new_name):
         """ update a category with the form """
@@ -50,18 +65,6 @@ class ClientTests(Browser):
             line_values = line.find_elements_by_tag_name("td")
             if line_values[0].text == category.name:
                 return line
-
-    def add_client(self, name, category):
-        """ add a client with the form """
-        self.selenium.find_element_by_link_text(
-            "Ajouter un client").click()
-        self.wait_page_loaded("Ajouter un client")
-        self.selenium.find_element_by_xpath(
-            "//select[@name='category']/option[text()='" + category + "']"
-        ).click()
-        self.selenium.find_element_by_id("id_name").send_keys(name)
-        self.selenium.find_element_by_class_name("btn-success").click()
-        self.wait_page_loaded("Clients")
 
     def assert_client_in_table(self, categories):
         """ assert if client is displayed in table of his category"""
@@ -123,7 +126,7 @@ class ClientTests(Browser):
         # add some category of client
         category_names = ["restaurant", "association", "particulier"]
         for category_name in category_names:
-            self.add_category(category_name)
+            add_category_client(self, category_name)
         categories = CategoryClient.objects.all()
         self.assertEqual(len(categories), 3)  # assert category saved in db
         self.assert_category_range_in_table(
@@ -154,7 +157,7 @@ class ClientTests(Browser):
         self.assertNotIn(
             "association", category_names)  # assert category deleted in db
         # add some clients
-        self.add_category("association")
+        add_category_client(self, "association")
         category_names.append("association")
         clients_dict = {
             "asso test": "association",
@@ -162,7 +165,7 @@ class ClientTests(Browser):
             "part test": "particulier",
         }
         for name, category in clients_dict.items():
-            self.add_client(name, category)
+            add_client(self, name, category)
         clients = Client.objects.all()
         self.assertEqual(len(clients), 3)  # assert client saved in db
         self.assert_client_in_table(
