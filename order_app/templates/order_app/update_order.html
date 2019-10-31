@@ -3,15 +3,21 @@
 {% load static %}
 
 {% block content %}
+<!-- Update order form -->
 <form id="update-order-form" role="form" action="" method="post">
     {% csrf_token %}
+    <!-- title with creation date -->
     <h5>Commande créée le {{ order_created.creation_date }}</h5>
+    <!---->
+    <!-- select for client -->
     {{ form.as_p }}
+    <!---->
     <h5>Composition</h5>
     {% for category in categories_basket %}
         {% for key, value in composition_by_category.items %}
             {% if category.name == key %}
                 {% if value == "" %}
+                    <!-- input for quantity and select for basket number for each basket's category without value-->
                     <label><input type="number" name="quantity{{ category.name }}" class="text-center"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
                         <option value="" selected>--</option>
                         {% for basket in baskets %}
@@ -20,7 +26,9 @@
                             {% endif %}
                         {% endfor %}
                     </select><br>
+                    <!---->
                 {% else %}
+                    <!-- input for quantity and select for basket number for each basket's category with value-->
                     <label><input type="number" name="quantity{{ category.name }}" class="text-center" value="{{ value.quantity_basket }}"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
                         <option value="">--</option>
                         {% for basket in baskets %}
@@ -33,12 +41,15 @@
                             {% endif%}
                         {% endfor %}
                     </select><br>
+                    <!---->
                 {% endif %}
             {% endif %}
         {% endfor %}
     {% endfor %}
+    <!-- Button save and cancel -->
     <button class="btn btn-success" type="submit">Enregistrer</button>
     <a class="btn btn-danger" href="{% url 'order' %}">Annuler</a>
+    <!---->
 </form>
 <!---->
 {% endblock %}

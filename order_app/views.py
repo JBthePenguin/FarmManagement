@@ -37,7 +37,7 @@ def order(request):
         status="en livraison").order_by('validation_date').reverse()
     orders_delivered = Order.objects.filter(
         status="livrée").order_by('delivery_date').reverse()
-    composition = OrderBasket.objects.all()
+    composition = OrderBasket.objects.all().order_by("basket__category__name")
     baskets_ordered = BasketOrdered.objects.all().order_by("category_name")
     # prepare and send all elements needed to construct the template
     context = {
@@ -87,22 +87,29 @@ def create_order(request):
 
 
 def update_order(request, order_id):
+    """ update an order view
+    - display form to update an order
+    - save changes in db """
+    # form for update a client with his values in inputs values
     order_created = Order.objects.get(pk=order_id)
+    form = OrderForm(request.POST or None, instance=order_created)
+    # get all basket's categories and baskets
     baskets = Basket.objects.all().order_by('number')
     categories_basket = BasketCategory.objects.all().order_by('name')
     composition = OrderBasket.objects.filter(
         order=order_created).order_by("basket__category__name")
+    # make a dict for composition', "" if no basket of this category in order
+    # {basket's category name: component}
     composition_by_category = {}
     for category in categories_basket:
         composition_by_category[category.name] = ""
         for component in composition:
             if component.basket.category == category:
                 composition_by_category[category.name] = component
-    form = OrderForm(request.POST or None, instance=order_created)
     if request.method == 'POST':
         # basket has updated
         if form.is_valid():
-            order = form.save()
+            order = form.save()  # save order
             for category in categories_basket:
                 component = composition_by_category[category.name]
                 new_quantity = request.POST.get("quantity" + category.name)
@@ -113,17 +120,19 @@ def update_order(request, order_id):
                         order=order,
                         basket=basket,
                         quantity_basket=new_quantity)
-                    component.save()
+                    component.save()  # save composition
                 elif component != "":
                     if new_quantity == "" or new_basket_number == "":
-                        component.delete()
+                        component.delete()  # delete composition
                     elif new_quantity != str(component.quantity_basket) or new_basket_number != str(component.basket.number):
                         component.quantity_basket = new_quantity
                         basket = Basket.objects.get(number=new_basket_number)
                         component.basket = basket
-                        component.save()
+                        component.save()  # save composition
             return redirect('order')
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Modifier une commande",
         "order": "active",
         "order_created": order_created,
         "baskets": baskets,

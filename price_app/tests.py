@@ -1,5 +1,4 @@
 from product_app.tests import Browser, delete_all_products
-from product_app.models import Product
 from price_app.models import Price
 from client_app.tests import (
     add_category_client, delete_all_categories_and_clients)
@@ -29,7 +28,7 @@ class PriceTests(Browser):
         table = self.selenium.find_element_by_xpath("//table[1]")
         thread_table = table.find_element_by_tag_name('thead')
         thread_lines = thread_table.find_elements_by_tag_name("tr")
-        thread_price_texts = thread_lines[1].find_elements_by_tag_name("td")
+        thread_price_texts = thread_lines[1].find_elements_by_tag_name("th")
         categories.sort()
         i = 0
         for price_text in thread_price_texts:
