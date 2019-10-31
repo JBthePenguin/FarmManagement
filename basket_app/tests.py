@@ -117,7 +117,7 @@ class BasketTests(Browser):
                 i_second += 1
             i += 1
 
-    def assert_composition(self, compositions):
+    def assert_composition(self, compositions, prices, total_prices):
         """ assert the composition of a basket """
         tables = self.selenium.find_elements_by_tag_name("table")
         i = 1
@@ -125,11 +125,31 @@ class BasketTests(Browser):
             body_table = tables[i].find_element_by_tag_name('tbody')
             lines = body_table.find_elements_by_tag_name("tr")
             for line in lines[:-1]:
+                # assert quantity for each product
                 line_values = line.find_elements_by_tag_name("td")
                 product = Product.objects.get(name=line_values[0].text)
                 self.assertEqual(
                     line_values[1].text,
                     composition[line_values[0].text] + product.unit)
+                # assert prices for each client's category
+                prices_basket = prices[i - 1]
+                i_second = 0
+                for line_value in line_values[2:]:
+                    prices_product = prices_basket[line_values[0].text]
+                    self.assertEqual(
+                        line_value.text,
+                        prices_product[i_second])
+                    i_second += 1
+            # assert total price line
+            last_line_values = lines[-1].find_elements_by_tag_name("td")
+            self.assertEqual("Total:", last_line_values[0].text)
+            total_prices_basket = total_prices[i - 1]
+            i_second = 0
+            for last_line_value in last_line_values[1:]:
+                self.assertEqual(
+                    last_line_value.text,
+                    total_prices_basket[i_second])
+                i_second += 1
             i += 1
 
     def update_basket(self, basket, new_basket):
@@ -236,7 +256,24 @@ class BasketTests(Browser):
             {"ail": "2 ", "chou": "0,500 ", "tomate": "3 "},
             {"ail": "2,500 ", "chou": "1,250 ", "tomate": "5 "},
             {"ail": "0,750 ", "tomate": "1 "}, ]
-        self.assert_composition(compositions)  # assert composition in table
+        prices = [
+            {
+                "ail": ("4,80 €", "4,30 €", "6,10 €"),
+                "chou": ("0,50 €", "0,75 €", "1,00 €"),
+                "tomate": ("3,60 €", "1,35 €", "6,00 €"), },
+            {
+                "ail": ("6,00 €", "5,38 €", "7,62 €"),
+                "chou": ("1,25 €", "1,88 €", "2,50 €"),
+                "tomate": ("6,00 €", "2,25 €", "10,00 €")},
+            {
+                "ail": ("1,80 €", "1,61 €", "2,29 €"),
+                "tomate": ("1,20 €", "0,45 €", "2,00 €")}, ]
+        total_prices = [
+            ("8,90 €", "6,40 €", "13,10 €"),
+            ("13,25 €", "9,51 €", "20,12 €"),
+            ("3,00 €", "2,06 €", "4,29 €")]
+        self.assert_composition(
+            compositions, prices, total_prices)  # assert composition in table
         # update basket
         basket = Basket.objects.get(number=1)
         self.update_basket(basket, ("petit", "", "0,75", "2"))
@@ -260,7 +297,23 @@ class BasketTests(Browser):
             {"ail": "2,500 ", "chou": "1,250 ", "tomate": "5 "},
             {"chou": "0,750 ", "tomate": "2 "},
             {"ail": "0,750 ", "tomate": "1 "}, ]
-        self.assert_composition(compositions)  # assert new compo in table
+        prices = [
+            {
+                "ail": ("6,00 €", "5,38 €", "7,62 €"),
+                "chou": ("1,25 €", "1,88 €", "2,50 €"),
+                "tomate": ("6,00 €", "2,25 €", "10,00 €"), },
+            {
+                "chou": ("0,75 €", "1,12 €", "1,50 €"),
+                "tomate": ("2,40 €", "0,90 €", "4,00 €")},
+            {
+                "ail": ("1,80 €", "1,61 €", "2,29 €"),
+                "tomate": ("1,20 €", "0,45 €", "2,00 €")}, ]
+        total_prices = [
+            ("13,25 €", "9,51 €", "20,12 €"),
+            ("3,15 €", "2,02 €", "5,50 €"),
+            ("3,00 €", "2,06 €", "4,29 €")]
+        self.assert_composition(
+            compositions, prices, total_prices)  # assert new compo in table
         # delete basket
         baskets = Basket.objects.all()
         self.assertEqual(
