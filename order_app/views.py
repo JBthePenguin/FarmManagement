@@ -10,15 +10,19 @@ from product_app.models import ProductOrdered
 
 
 def order(request):
-    """ index view """
+    """ basket view used to:
+    - display table with orders ordered by status and date
+    - delete or cancel an order with ajax post request """
     if request.method == 'POST' and request.is_ajax():
+        # ajax post
         action = request.POST.get('action')
         if action == "delete order" or action == "cancel order":
-            # delete or cancel category
+            # delete order
             order_id = request.POST.get('order_id')
             order = Order.objects.get(pk=order_id)
             order.delete()
             if action == "cancel order":
+                # delete products ordered not used in an order validated
                 products_ordered = ProductOrdered.objects.all()
                 for product_ordered in products_ordered:
                     try:
@@ -26,6 +30,7 @@ def order(request):
                     except ProtectedError:
                         pass
             return HttpResponse("")
+    # get all orders by status, all compositions and all baskets ordered
     orders_in_preparation = Order.objects.filter(
         status="en préparation").order_by('creation_date').reverse()
     orders_in_course_delivery = Order.objects.filter(
@@ -34,6 +39,7 @@ def order(request):
         status="livrée").order_by('delivery_date').reverse()
     composition = OrderBasket.objects.all()
     baskets_ordered = BasketOrdered.objects.all().order_by("category_name")
+    # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Commandes",
         "order": "active",
@@ -47,13 +53,17 @@ def order(request):
 
 
 def create_order(request):
+    """ create an order view
+    - display form to create an order
+    - save order and composition in db """
+    # form for create an order
     form = OrderForm(request.POST or None, request.FILES or None)
     categories_basket = BasketCategory.objects.all().order_by('name')
     baskets = Basket.objects.all().order_by('number')
     if request.method == 'POST':
         # order has created
         if form.is_valid():
-            order = form.save()
+            order = form.save()  # save order with default status
             for category in categories_basket:
                 quantity = request.POST.get("quantity" + category.name)
                 basket_number = request.POST.get(str(category.id))
@@ -63,10 +73,11 @@ def create_order(request):
                         order=order,
                         basket=basket,
                         quantity_basket=quantity)
-                    component.save()
-                print(quantity, " numéro ", basket_number)
+                    component.save()  # save composition
             return redirect('order')
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Créer une commande",
         "order": "active",
         "form": form,
         "categories_basket": categories_basket,

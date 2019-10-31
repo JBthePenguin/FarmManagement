@@ -3,28 +3,53 @@
 {% load static %}
 
 {% block content %}
-<!-- Crete new order -->
+<!-- Create new order -->
 <a class="btn btn-success" type="button" href="{% url 'create_order' %}">Créer une nouvelle commande</a>
 <!---->
 <!-- Orders in preparation -->
+<!-- Header -->
 <h5>{{ orders_in_preparation.count }} commande{% if orders_in_preparation.count > 1 %}s{% endif %} en préparation</h5>
+<!---->
 {% if orders_in_preparation.count > 0 %}
+    <!-- Table -->
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
             <thead>
                 <tr class="bg-secondary">
+                    <!-- col creation date -->
                     <th scope="col">Date de création</th>
+                    <!---->
+                    <!-- col client -->
                     <th scope="col">Client</th>
+                    <!---->
+                    <!-- col compositon -->
                     <th scope="col">Composition</th>
+                    <!-- -->
+                    <!-- 3 cols for button and links -->
                     <th colspan="3"></th>
+                    <!---->
                 </tr>
             </thead>
+            <!---->
+            <!-- Table lines -->
             <tbody>
                 {% for order in orders_in_preparation %}
+                    <!-- line for each order in preparation -->
                     <tr>
-                        <td style="vertical-align: middle;">{{ order.creation_date }}</td>
-                        <td style="vertical-align: middle;">{{ order.client.name }}</td>
+                        <!-- creation date -->
                         <td style="vertical-align: middle;">
+                            {{ order.creation_date }}
+                        </td>
+                        <!---->
+                        <!-- client's name -->
+                        <td style="vertical-align: middle;">
+                            {{ order.client.name }}
+                        </td>
+                        <!---->
+                        <!-- composition -->
+                        <td style="vertical-align: middle;">
+                            <!-- list of baskets -->
                             <ul style="list-style-type:none; margin-bottom:0">
                                 {% for component in composition %}
                                     {% if component.order == order %}
@@ -35,42 +60,79 @@
                                     {% endif %}
                                 {% endfor %}
                             </ul>
+                            <!---->
                         </td>
-                        <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/valid{{ order.id }}">Voir et valider</a></td>
+                        <!---->
+                        <!-- button to see and validate -->
+                        <td style="vertical-align: middle;">
+                            <a class="btn btn-success" type="button" href="/commandes/valid{{ order.id }}">Voir et valider</a>
+                        </td>
+                        <!---->
+                        <!-- link to update -->
                         <td style="vertical-align: middle;">
                             <a href="/commandes/mod-commande{{ order.id }}/" class="text-danger">modifier</a>
                         </td>
+                        <!---->
+                        <!-- button to delete -->
                         <td style="vertical-align: middle;">
                             <button onclick='DeleteOrder("{{ order.id }}", "{{ order.creation_date }}", "{{ csrf_token }}");'>
                                 <img src="{% static 'img/trash.png' %}" class="img-fluid">
                             </button>
                         </td>
+                        <!---->
                     </tr>
                 {% endfor %}
             </tbody>
+            <!---->
         </table>
     </div>
+    <!---->
 {% endif %}
 <!-- -->
 <!-- Orders in course of delivery -->
+<!-- Header -->
 <h5>{{ orders_in_course_delivery.count }} commande{% if orders_in_course_delivery.count > 1 %}s{% endif %} en cours de livraison</h5>
+<!---->
 {% if orders_in_course_delivery.count > 0 %}
+    <!-- Table -->
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
             <thead>
                 <tr class="bg-secondary">
+                    <!-- col validation date -->
                     <th scope="col">Date de validation</th>
+                    <!---->
+                    <!-- col client -->
                     <th scope="col">Client</th>
+                    <!---->
+                    <!-- col compositon -->
                     <th scope="col">Composition</th>
+                    <!-- -->
+                    <!-- 2 cols for button and links -->
                     <th colspan="2"></th>
+                    <!---->
                 </tr>
             </thead>
+            <!---->
+            <!-- Table lines -->
             <tbody>
                 {% for order in orders_in_course_delivery %}
+                    <!-- line for each order validated -->
                     <tr>
-                        <td style="vertical-align: middle;">{{ order.validation_date }}</td>
-                        <td style="vertical-align: middle;">{{ order.client.name }}</td>
+                        <!-- validation date -->
                         <td style="vertical-align: middle;">
+                            {{ order.validation_date }}
+                        </td>
+                        <!---->
+                        <!-- client's name -->
+                        <td style="vertical-align: middle;">
+                            {{ order.client.name }}
+                        </td>
+                        <!---->
+                        <!-- composition -->
+                        <td style="vertical-align: middle;">
+                            <!-- list of baskets -->
                             <ul style="list-style-type:none; margin-bottom:0">
                                 {% for basket in baskets_ordered %}
                                     {% if basket.order == order %}
@@ -81,37 +143,70 @@
                                     {% endif %}
                                 {% endfor %}
                             </ul>
+                            <!---->
                         </td>
-                        <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/deliver{{ order.id }}">Voir et valider</a></td>
+                        <!---->
+                        <!-- button to see and validate -->
+                        <td style="vertical-align: middle;">
+                            <a class="btn btn-success" type="button" href="/commandes/deliver{{ order.id }}">Voir et valider</a>
+                        </td>
+                        <!-- button to cancel -->
                         <td style="vertical-align: middle;">
                             <button onclick='CancelOrder("{{ order.id }}", "{{ order.client.name }}", "{{ order.validation_date }}", "{{ csrf_token }}");' class="btn btn-danger">Annuler</button>
                         </td>
+                        <!---->
                     </tr>
                 {% endfor %}
             </tbody>
+            <!---->
         </table>
     </div>
+    <!---->
 {% endif %}
 <!-- -->
 <!-- Orders delivered -->
+<!-- Header -->
 <h5>{{ orders_delivered.count }} commande{% if orders_delivered.count > 1 %}s{% endif %} livrée{% if orders_delivered.count > 1 %}s{% endif %}</h5>
+<!---->
 {% if orders_delivered.count > 0 %}
+    <!-- Table -->
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
             <thead>
                 <tr class="bg-secondary">
+                    <!-- col delivery date -->
                     <th scope="col">Date de livraison</th>
+                    <!---->
+                    <!-- col client -->
                     <th scope="col">Client</th>
+                    <!---->
+                    <!-- col compositon -->
                     <th scope="col">Composition</th>
+                    <!-- -->
+                    <!-- col for button -->
                     <th scope="col"></th>
                 </tr>
             </thead>
+            <!---->
+            <!-- Table lines -->
             <tbody>
                 {% for order in orders_delivered %}
+                    <!-- line for each order delivered -->
                     <tr>
-                        <td style="vertical-align: middle;">{{ order.delivery_date }}</td>
-                        <td style="vertical-align: middle;">{{ order.client.name }}</td>
+                        <!-- delivery date -->
                         <td style="vertical-align: middle;">
+                            {{ order.delivery_date }}
+                        </td>
+                        <!---->
+                        <!-- client's name -->
+                        <td style="vertical-align: middle;">
+                            {{ order.client.name }}
+                        </td>
+                        <!---->
+                        <!-- composition -->
+                        <td style="vertical-align: middle;">
+                            <!-- list of baskets -->
                             <ul style="list-style-type:none; margin-bottom:0">
                                 {% for basket in baskets_ordered %}
                                     {% if basket.order == order %}
@@ -122,13 +217,21 @@
                                     {% endif %}
                                 {% endfor %}
                             </ul>
+                            <!---->
                         </td>
-                        <td style="vertical-align: middle;"><a class="btn btn-success" type="button" href="/commandes/delivered{{ order.id }}">Voir</a></td>
+                        <!---->
+                        <!-- button to see -->
+                        <td style="vertical-align: middle;">
+                            <a class="btn btn-success" type="button" href="/commandes/delivered{{ order.id }}">Voir</a>
+                        </td>
+                        <!---->
                     </tr>
                 {% endfor %}
             </tbody>
+            <!---->
         </table>
     </div>
+    <!---->
 {% endif %}
 <!---->
 {% endblock %}

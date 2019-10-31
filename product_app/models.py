@@ -17,7 +17,7 @@ class Product(models.Model):
 class ProductOrdered(models.Model):
     """ Model for product ordered:
     - product name: str
-    - unit used: str 
+    - unit used: str
     unique together """
     name = models.CharField(db_index=True, max_length=100)
     unit = models.CharField(max_length=20)

@@ -40,7 +40,7 @@ def create_basket(browser, basket):
 
 
 def delete_all_categories_and_baskets(browser):
-    """ delete all baskets in db """
+    """ delete all baskets and categories in db """
     # delete all baskets
     baskets = Basket.objects.all()
     for basket in baskets:
@@ -186,7 +186,7 @@ class BasketTests(Browser):
         self.selenium.get('%s%s' % (self.live_server_url, "/paniers/"))
         self.assert_page_title(
             "0 catégorie de panier répertorié",
-            "0 panier répertorié")  # assert page title
+            "0 panier répertorié", "")  # assert page title
         # add client's category
         self.selenium.find_element_by_link_text("Clients").click()
         self.wait_page_loaded("Clients")
@@ -334,6 +334,7 @@ class BasketTests(Browser):
         self.assertIn(1, basket_numbers)
         self.assertIn(2, basket_numbers)
         self.assertNotIn(3, basket_numbers)
+        # delete all
         delete_all_categories_and_baskets(self)
         delete_all_products(self)
         delete_all_categories_and_clients(self)

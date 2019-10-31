@@ -31,7 +31,7 @@ class BasketProduct(models.Model):
     """ Model for basket's composition:
     - basket: foreign key Basket
     - product: foreign key Product
-    - quantity_product: float
+    - quantity of product: float
     unique_together: basket, 'product """
     basket = models.ForeignKey(
         Basket, on_delete=models.CASCADE, db_index=True)

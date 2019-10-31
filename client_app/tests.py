@@ -138,7 +138,7 @@ class ClientTests(Browser):
         self.selenium.get('%s%s' % (self.live_server_url, "/clients/"))
         self.assert_page_title(
             "0 catégorie de client répertoriée",
-            "0 client répertorié")  # assert page title
+            "0 client répertorié", "")  # assert page title
         # add some category of client
         category_names = ["restaurant", "association", "particulier"]
         for category_name in category_names:

@@ -26,12 +26,14 @@ class Browser(StaticLiveServerTestCase):
         wait = WebDriverWait(self.selenium, 10)
         wait.until(EC.title_contains(title_text))
 
-    def assert_page_title(self, title_one, title_two):
+    def assert_page_title(self, title_one, title_two, title_three):
         """ assert for page titles <h5> """
         page_title = self.selenium.find_elements_by_tag_name("h5")
         self.assertIn(title_one, page_title[0].text)
         if title_two != "":
             self.assertIn(title_two, page_title[1].text)
+        if title_three != "":
+            self.assertIn(title_three, page_title[2].text)
 
 
 class BaseTests(Browser):
@@ -70,7 +72,7 @@ class IndexTests(Browser):
     def test_index(self):
         """ test browsing in index template """
         self.selenium.get('%s%s' % (self.live_server_url, "/"))
-        self.assert_page_title("Hello world!", "")  # assert page title
+        self.assert_page_title("Hello world!", "", "")  # assert page title
 
 
 def add_product(browser, name, unit):
@@ -132,7 +134,7 @@ class ProductTests(Browser):
     def test_product_page(self):
         """ test browsing in product template """
         self.selenium.get('%s%s' % (self.live_server_url, "/produits/"))
-        self.assert_page_title("0 produit répertorié", "")  # assert page title
+        self.assert_page_title("0 produit répertorié", "", "")  # assert page title
         # add some products
         products = {
             "tomate": "kg",
