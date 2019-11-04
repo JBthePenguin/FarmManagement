@@ -107,14 +107,15 @@ def update_order(request, order_id):
             if component.basket.category == category:
                 composition_by_category[category.name] = component
     if request.method == 'POST':
-        # basket has updated
+        # order has updated
         if form.is_valid():
             order = form.save()  # save order
             for category in categories_basket:
                 component = composition_by_category[category.name]
                 new_quantity = request.POST.get("quantity" + category.name)
                 new_basket_number = request.POST.get(str(category.id))
-                if (component == "") and (new_quantity != "") and (new_basket_number != ""):
+                if (component == "") and (new_quantity != "") and (
+                        new_basket_number != ""):
                     basket = Basket.objects.get(number=new_basket_number)
                     component = OrderBasket(
                         order=order,
@@ -124,7 +125,8 @@ def update_order(request, order_id):
                 elif component != "":
                     if new_quantity == "" or new_basket_number == "":
                         component.delete()  # delete composition
-                    elif new_quantity != str(component.quantity_basket) or new_basket_number != str(component.basket.number):
+                    elif (new_quantity != str(component.quantity_basket)) or (
+                            new_basket_number != str(component.basket.number)):
                         component.quantity_basket = new_quantity
                         basket = Basket.objects.get(number=new_basket_number)
                         component.basket = basket
@@ -144,21 +146,34 @@ def update_order(request, order_id):
 
 
 def validate_order(request, order_id):
+    """ validate an order view
+    - display tables with baskets ordered with prices for an order and
+    button link to validate this order
+    - save new status (order validated) in db """
+    # get order created and baskets
     order_created = Order.objects.get(pk=order_id)
     composition = OrderBasket.objects.filter(
         order=order_created).order_by("basket__category__name")
+    # make a dict for composition for each basket in order
+    # {basket's number: componsition of basket}
+    # make a list of products used
     compositions_basket = {}
     products = []
     for component in composition:
         composition_basket = BasketProduct.objects.filter(
-            basket=component.basket)
+            basket=component.basket).order_by(
+                "product__name")
         compositions_basket[component.basket.number] = composition_basket
         for component_basket in composition_basket:
             products.append(component_basket.product)
+    # get price for each product for this client's category
     products = list(set(products))
     prices = Price.objects.filter(
         category_client=order_created.client.category,
         product__in=products)
+    # make a dict for total price for each basket in order
+    # {basket's number: total price}
+    # order's total price
     total_prices = {}
     order_price = 0
     for key, value in compositions_basket.items():
@@ -176,18 +191,16 @@ def validate_order(request, order_id):
         # order is validated
         order_created.validation_date = timezone.now()
         order_created.status = "en livraison"
-        order_created.save()
-        # save in product ordered
+        order_created.save()  # save new status
         for product in products:
             try:
                 product_ordered = ProductOrdered(
                     name=product.name,
                     unit=product.unit)
-                product_ordered.save()
+                product_ordered.save()  # save in product ordered
             except IntegrityError:
                 pass
         for key, value in compositions_basket.items():
-            # save in basket ordered
             basket = Basket.objects.get(number=key)
             composition_order = OrderBasket.objects.get(
                 order=order_created, basket=basket)
@@ -195,9 +208,8 @@ def validate_order(request, order_id):
                 order=order_created,
                 category_name=basket.category.name,
                 quantity=composition_order.quantity_basket)
-            basket_ordered.save()
+            basket_ordered.save()  # save in basket ordered
             for composition_basket in value:
-                # save in composition basket ordered
                 product_ordered = ProductOrdered.objects.get(
                     name=composition_basket.product.name,
                     unit=composition_basket.product.unit)
@@ -209,10 +221,13 @@ def validate_order(request, order_id):
                     product=product_ordered,
                     quantity_product=composition_basket.quantity_product,
                     price_product=price.value)
+                # save in composition basket ordered
                 composition_basket_ordered.save()
-            composition_order.delete()
+            composition_order.delete()  # delete in composition basket
         return redirect('order')
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Valider une commande",
         "order": "active",
         "order_created": order_created,
         "composition": composition,
@@ -246,7 +261,9 @@ def deliver_order(request, order_id):
                     component.price_product * component.quantity_product, 2)
         total_prices[basket] = total_price
         order_price += total_price * basket.quantity
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Livrer une commande",
         "order": "active",
         "order_validated": order_validated,
         "baskets_ordered": baskets_ordered,

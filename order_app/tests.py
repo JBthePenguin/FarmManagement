@@ -4,8 +4,10 @@ from client_app.tests import (
 from price_app.tests import add_product_with_price
 from basket_app.tests import (
     add_category_basket, create_basket, delete_all_categories_and_baskets)
-from basket_app.models import BasketCategory
+from basket_app.models import BasketCategory, Basket, BasketProduct
 from order_app.models import Order, OrderBasket
+from client_app.models import Client
+from price_app.models import Price
 from time import sleep
 
 
@@ -57,10 +59,10 @@ class OrderTests(Browser):
             self.assertEqual(thead_title.text, titles[i])
             i += 1
 
-    def assert_table_in_preparation(self, orders):
+    def assert_table(self, table_indice, orders):
         """ assert table of an order in preparation """
         tables = self.selenium.find_elements_by_tag_name("table")
-        body_table = tables[0].find_element_by_tag_name('tbody')
+        body_table = tables[table_indice].find_element_by_tag_name('tbody')
         lines = body_table.find_elements_by_tag_name("tr")
         i = 0
         for line in lines:
@@ -79,9 +81,10 @@ class OrderTests(Browser):
                 self.assertEqual(
                     badges[0].text,
                     orders[i][1][i_second][0])
-                self.assertEqual(
-                    badges[1].text,
-                    orders[i][1][i_second][2])
+                if table_indice == 0:
+                    self.assertEqual(
+                        badges[1].text,
+                        orders[i][1][i_second][2])
                 i_second += 1
             i += 1
 
@@ -120,6 +123,118 @@ class OrderTests(Browser):
             i += 1
         self.selenium.find_element_by_class_name("btn-success").click()
         self.wait_page_loaded("Commandes")
+
+    def assert_table_basket_header(self, table):
+        """ assert titles in the header of basket's table in validate order """
+        thead_table = table.find_element_by_tag_name('thead')
+        thead_lines = thead_table.find_elements_by_tag_name("tr")
+        first_line_titles = ["Produit", "Quantité", "Prix"]
+        second_line_titles = [
+            "par panier", "totale", "unitaire", "par panier",
+            "pour la commande"]
+        first_thead_titles = thead_lines[0].find_elements_by_tag_name("th")
+        i = 0
+        for first_thead_title in first_thead_titles:
+            self.assertEqual(first_thead_title.text, first_line_titles[i])
+            i += 1
+        second_thead_titles = thead_lines[1].find_elements_by_tag_name("th")
+        i = 0
+        for second_thead_title in second_thead_titles:
+            self.assertEqual(second_thead_title.text, second_line_titles[i])
+            i += 1
+
+    def assert_validate_page(self, order):
+        """ assert the validate page content (tables, prices,...) """
+        titles = self.selenium.find_elements_by_tag_name("h5")
+        self.assertEqual(
+            titles[1].text,
+            "Client: " + order[0])  # assert client
+        client = Client.objects.get(name=order[0])
+        tables = self.selenium.find_elements_by_tag_name("table")
+        self.assertEqual(
+            len(tables),
+            len(order[1]))  # assert number of tables
+        total_order_price = 0
+        i = 0
+        for table in tables:
+            self.assert_table_basket_header(table)  # assert header of tables
+            basket = Basket.objects.get(number=order[1][i][2])
+            composition = BasketProduct.objects.filter(basket=basket).order_by(
+                "product__name")
+            body_table = table.find_element_by_tag_name('tbody')
+            lines = body_table.find_elements_by_tag_name("tr")
+            total_price = 0
+            i_second = 0
+            for line in lines[:-1]:
+                # assert composition for each basket
+                line_values = line.find_elements_by_tag_name("td")
+                component = composition[i_second]
+                self.assertEqual(
+                    line_values[0].text,
+                    component.product.name)  # assert product name
+                # assert product quantity
+                if str(component.quantity_product)[-2:] == ".0":
+                    string_quantity = str(component.quantity_product)[:-2]
+                else:
+                    string_quantity = str(format(
+                        component.quantity_product, ".3f")).replace(
+                            ".", ",")
+                self.assertEqual(
+                    line_values[1].text,
+                    "".join([
+                        string_quantity, " ",
+                        component.product.unit]))   # by basket
+                if (
+                    str(component.quantity_product * int(order[1][i][0]))[-2:]
+                ) == ".0":
+                    string_quantity = str(
+                        component.quantity_product * int(order[1][i][0]))[:-2]
+                else:
+                    string_quantity = str(format(
+                        component.quantity_product * int(
+                            order[1][i][0]), ".3f")
+                    ).replace(".", ",")
+                self.assertEqual(
+                    line_values[2].text,
+                    "".join([
+                        string_quantity, " ",
+                        component.product.unit]))   # by order
+                # assert prices
+                unit_price = Price.objects.get(
+                    product=component.product, category_client=client.category)
+                self.assertEqual(
+                    line_values[3].text,
+                    str(unit_price.value))  # by unit
+                self.assertEqual(
+                    line_values[4].text,
+                    str(
+                        unit_price.value * component.quantity_product
+                    ))  # by basket
+                self.assertEqual(
+                    line_values[5].text,
+                    str(
+                        unit_price.value * component.quantity_product * int(
+                            order[1][i][0])
+                    ))  # by order
+                total_price += round(
+                    unit_price.value * component.quantity_product, 2)
+                i_second += 1
+            # assert total price line
+            last_line_values = lines[-1].find_elements_by_tag_name("td")
+            self.assertEqual("Total:", last_line_values[0].text)
+            self.assertEqual(
+                last_line_values[1].text,
+                str(total_price))
+            self.assertEqual(
+                last_line_values[2].text,
+                str(total_price * int(order[1][i][0])))
+            total_order_price += total_price * int(order[1][i][0])
+            i += 1
+        # assert total order price
+        self.assertEqual(
+            titles[-1].text,
+            "".join([
+                "Prix de la commande: ", str(total_order_price)]))
 
     def test_order_page(self):
         """ test browsing in order template """
@@ -193,8 +308,8 @@ class OrderTests(Browser):
             ("rest test", [
                 ("2", "gourmand", "1"),
                 ("3", "petit", "2"), ]), ]
-        self.assert_table_in_preparation(
-            orders_created)  # assert orders in table
+        self.assert_table(
+            0, orders_created)  # assert orders in table
         # update created order
         update_links = self.selenium.find_elements_by_link_text("modifier")
         self.update_order(
@@ -224,8 +339,8 @@ class OrderTests(Browser):
             ("asso test", [
                 ("3", "gourmand", "3"),
                 ("2", "moyen", "4"), ]), ]
-        self.assert_table_in_preparation(
-            orders_updated)  # assert orders updated in table
+        self.assert_table(
+            0, orders_updated)  # assert orders updated in table
         # delete an order
         orders = Order.objects.all()
         self.assertEqual(
@@ -245,6 +360,63 @@ class OrderTests(Browser):
             order_clients.append(order.client.name)
         self.assertNotIn(
             "asso test", order_clients)  # no order for this client
+        # validate an order
+        validate_buttons = self.selenium.find_elements_by_link_text(
+            "Voir et valider")
+        validate_buttons[1].click()
+        self.wait_page_loaded("Valider une commande")
+        self.assert_validate_page(("rest test", [
+            ("1", "gourmand", "3"),
+            ("6", "moyen", "4"),
+            ("5", "petit", "2"), ]))  # assert display on validate page
+        self.selenium.find_element_by_tag_name(
+            "form").find_element_by_tag_name("button").click()
+        self.wait_page_loaded("Commandes")
+        order_validated = Order.objects.get(client__name="rest test")
+        self.assertEqual(
+            order_validated.status,
+            "en livraison")  # assert status changed in db
+        self.assert_table_header(1, [
+            "Date de validation", "Client", "Composition", ""])
+        self.assert_table(
+            0, [("part test", [("2", "petit", "2"), ]), ]
+        )  # assert order created in table
+        self.assert_table(
+            1, [("rest test", [
+                ("1", "gourmand"),
+                ("6", "moyen"),
+                ("5", "petit"), ]), ]
+        )  # assert order validated in table
+        # cancel order validated
+        tables = self.selenium.find_elements_by_tag_name("table")
+        body_table = tables[1].find_element_by_tag_name('tbody')
+        body_table.find_element_by_tag_name("button").click()
+        alert = self.selenium.switch_to_alert()
+        alert.accept()
+        sleep(2)
+        orders = Order.objects.all()
+        self.assertEqual(
+            len(orders), 1)  # number of orders after calcel
+        # assert order delivered
+        self.selenium.find_element_by_link_text(
+            "Voir et valider").click()
+        self.wait_page_loaded("Valider une commande")
+        self.assert_validate_page(
+            ("part test", [("2", "petit", "2"), ])
+        )  # assert display on validate page
+        self.selenium.find_element_by_tag_name(
+            "form").find_element_by_tag_name("button").click()
+        self.wait_page_loaded("Commandes")
+        order_validated = Order.objects.get(client__name="part test")
+        self.assertEqual(
+            order_validated.status,
+            "en livraison")  # assert status changed in db
+        self.selenium.find_element_by_link_text(
+            "Voir et valider").click()
+        self.wait_page_loaded("Livrer une commande")
+        ####
+        # assert delivered page
+        ####
         # delete all
         delete_all_orders(self)
         delete_all_categories_and_baskets(self)
