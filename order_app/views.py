@@ -240,17 +240,26 @@ def validate_order(request, order_id):
 
 
 def deliver_order(request, order_id):
+    """ deliver an order view
+    - display tables with baskets with prices for an order validated and
+    button link to deliverer this order
+    - save new status (order delivered) in db """
+    # get order validated
     order_validated = Order.objects.get(pk=order_id)
     if request.method == 'POST':
         # order is validated
         order_validated.delivery_date = timezone.now()
         order_validated.status = "livrée"
-        order_validated.save()
+        order_validated.save()  # update status in db
         return redirect('order')
+    # get baskets ordered and compositions
     baskets_ordered = BasketOrdered.objects.filter(
         order=order_validated).order_by("category_name")
     compositions_basket = BasketProductOrdered.objects.filter(
         basket__in=baskets_ordered).order_by("product__name")
+    # make a dict for total price for each basket in order
+    # {basket's number: total price}
+    # order's total price
     total_prices = {}
     order_price = 0
     for basket in baskets_ordered:
@@ -275,11 +284,18 @@ def deliver_order(request, order_id):
 
 
 def delivered_order(request, order_id):
+    """ order delivered view
+    - display tables with baskets with prices for an order delivered """
+    # get order delivered
     order_delivered = Order.objects.get(pk=order_id)
+    # get baskets ordered and compositions
     baskets_ordered = BasketOrdered.objects.filter(
         order=order_delivered).order_by("category_name")
     compositions_basket = BasketProductOrdered.objects.filter(
         basket__in=baskets_ordered).order_by("product__name")
+    # make a dict for total price for each basket in order
+    # {basket's number: total price}
+    # order's total price
     total_prices = {}
     order_price = 0
     for basket in baskets_ordered:
@@ -290,7 +306,9 @@ def delivered_order(request, order_id):
                     component.price_product * component.quantity_product, 2)
         total_prices[basket] = total_price
         order_price += total_price * basket.quantity
+    # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "| Commande livrée",
         "order": "active",
         "order_delivered": order_delivered,
         "baskets_ordered": baskets_ordered,

@@ -414,9 +414,25 @@ class OrderTests(Browser):
         self.selenium.find_element_by_link_text(
             "Voir et valider").click()
         self.wait_page_loaded("Livrer une commande")
-        ####
-        # assert delivered page
-        ####
+        self.assert_validate_page(
+            ("part test", [("2", "petit", "2"), ])
+        )  # assert display on deliver page
+        self.selenium.find_element_by_tag_name(
+            "form").find_element_by_tag_name("button").click()
+        self.wait_page_loaded("Commandes")
+        order_validated = Order.objects.get(client__name="part test")
+        self.assertEqual(
+            order_validated.status,
+            "livrée")  # assert status changed in db
+        self.selenium.find_element_by_link_text(
+            "Voir").click()
+        self.wait_page_loaded("Commande livrée")
+        self.assert_validate_page(
+            ("part test", [("2", "petit", "2"), ])
+        )  # assert display on delivered page
+        self.selenium.find_element_by_link_text(
+            "Retour").click()
+        self.wait_page_loaded("Commandes")
         # delete all
         delete_all_orders(self)
         delete_all_categories_and_baskets(self)

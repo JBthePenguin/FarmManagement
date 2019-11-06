@@ -5,44 +5,112 @@
 {% load mathfilters %}
 
 {% block content %}
+<!-- titles -->
+<!-- validation date -->
 <h5>Commande validée le {{ order_validated.validation_date }}</h5>
+<!---->
+<!-- client's name -->
 <h5>Client: {{ order_validated.client.name }}</h5>
+<!---->
+<!-- composition -->
 <h5>Composition</h5>
+<!---->
+<!---->
 {% for basket in baskets_ordered %}
+    <!-- basket's title, quantity and number-->
     <strong style="padding-left:2rem;">
         <span class="badge badge-secondary badge-pill">{{ basket.quantity }}</span> panier{% if basket.quantity > 1 %}s{% endif %} {{ basket.category_name }}</span>
     </strong>
+    <!---->
+    <!-- table order -->
     <div class="table-responsive-md" style="padding-top:0.5rem;">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
             <thead>
+                <!-- first line -->
                 <tr class="bg-secondary">
+                    <!-- col product name -->
                     <th scope="col" rowspan="2" style="vertical-align: middle;">Produit</th>
+                    <!---->
+                    <!-- cols for quantities -->
                     <th colspan="2">Quantité</th>
+                    <!---->
+                    <!-- cols for prices -->
                     <th colspan="3">Prix</th>
+                    <!---->
                 </tr>
+                <!---->
+                <!-- second line -->
                 <tr class="bg-secondary">
+                    <!-- col quantity -->
+                    <!-- by basket -->
                     <th scope="col">par panier</th>
+                    <!---->
+                    <!-- total -->
                     <th scope="col">totale</th>
+                    <!---->
+                    <!---->
+                    <!-- col price -->
+                    <!-- by unit -->
                     <th scope="col">unitaire</th>
+                    <!---->
+                    <!-- by basket -->
                     <th scope="col">par panier</th>
+                    <!---->
+                    <!-- total -->
                     <th scope="col">pour la commande</th>
+                    <!---->
+                    <!---->
                 </tr>
+                <!---->
             </thead>
+            <!---->
+            <!-- Table lines -->
             <tbody>
                 {% for component in compositions_basket%}
                     {% if basket == component.basket %}
+                        <!-- line for each product -->
                         <tr>
-                            <td>{{ component.product.name }}</td>
-                            <td>{{ component.quantity_product|floatformat:"-3" }} {{ component.product.unit }}</td>
-                            <td>{{ component.quantity_product|mul:basket.quantity|floatformat:"-3" }} {{ component.product.unit }}</td>
-                            <td>{{ component.price_product }}</td>
-                            <td>{{ component.price_product|mul:component.quantity_product }}</td>
-                            <td>{{ component.price_product|mul:component.quantity_product|mul:basket.quantity }}</td>
+                            <!-- product name -->
+                            <td>
+                                {{ component.product.name }}
+                            </td>
+                            <!---->
+                            <!-- quantity by basket -->
+                            <td>
+                                {{ component.quantity_product|floatformat:"-3" }} {{ component.product.unit }}
+                            </td>
+                            <!---->
+                            <!-- quantity total by order -->
+                            <td>
+                                {{ component.quantity_product|mul:basket.quantity|floatformat:"-3" }} {{ component.product.unit }}
+                            </td>
+                            <!---->
+                            <!-- price by unit -->
+                            <td>
+                                {{ component.price_product }}
+                            </td>
+                            <!---->
+                            <!-- price by basket -->
+                            <td>
+                                {{ component.price_product|mul:component.quantity_product }}
+                            </td>
+                            <!---->
+                            <!-- price by order -->
+                            <td>
+                                {{ component.price_product|mul:component.quantity_product|mul:basket.quantity }}
+                            </td>
+                            <!---->
                         </tr>
+                        <!---->
                     {% endif %}
                 {% endfor %}
+                <!-- last line -->
                 <tr class="bg-success">
+                    <!-- Total title -->
                     <td colspan="4" class="text-right">Total:</td>
+                    <!---->
+                    <!-- total price by basket-->
                     <td>
                         {% for key, value in total_prices.items %}
                             {% if key == basket %}
@@ -50,6 +118,8 @@
                             {% endif %}
                         {% endfor %}
                     </td>
+                    <!---->
+                    <!-- total price by order-->
                     <td>
                         {% for key, value in total_prices.items %}
                             {% if key == basket %}
@@ -57,15 +127,23 @@
                             {% endif %}
                         {% endfor %}
                     </td>
+                    <!---->
                 </tr>
+                <!---->
             </tbody>
+            <!---->
         </table>
     </div>
+    <!---->
 {% endfor %}
+<!-- total price for the order -->
 <h5>Prix de la commande: {{ order_price }}</h5>
+<!---->
+<!-- button link to deliver order and cancel -->
 <form id="valid-order-form" role="form" action="" method="post">
     {% csrf_token %}
     <button class="btn btn-success" type="submit">Marquer la commande comme livrée</button>
     <a class="btn btn-danger" href="{% url 'order' %}">Retour</a>
 </form>
+<!---->
 {% endblock %}
