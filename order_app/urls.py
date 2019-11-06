@@ -9,4 +9,5 @@ urlpatterns = [
     path('commandes/mod-commande<int:order_id>/', views.update_order),
     path('commandes/deliver<int:order_id>/', views.deliver_order),
     path('commandes/delivered<int:order_id>/', views.delivered_order),
+    path('commandes/client<int:client_id>/', views.client_orders),
 ]

@@ -68,24 +68,46 @@ class OrderTests(Browser):
         for line in lines:
             # assert client and compositions for each order
             line_values = line.find_elements_by_tag_name("td")
-            self.assertEqual(
-                line_values[1].text, orders[i][0])
-            composition_list = line_values[2].find_element_by_tag_name("ul")
-            list_elements = composition_list.find_elements_by_tag_name("li")
-            i_second = 0
-            for list_element in list_elements:
+            if orders[i][0] != "":
                 self.assertEqual(
-                    list_element.find_element_by_tag_name("strong").text,
-                    orders[i][1][i_second][1])
-                badges = list_element.find_elements_by_tag_name("span")
-                self.assertEqual(
-                    badges[0].text,
-                    orders[i][1][i_second][0])
-                if table_indice == 0:
+                    line_values[1].text, orders[i][0])
+                composition_list = line_values[2].find_element_by_tag_name(
+                    "ul")
+                list_elements = composition_list.find_elements_by_tag_name(
+                    "li")
+                i_second = 0
+                for list_element in list_elements:
                     self.assertEqual(
-                        badges[1].text,
-                        orders[i][1][i_second][2])
-                i_second += 1
+                        list_element.find_element_by_tag_name("strong").text,
+                        orders[i][1][i_second][1])
+                    badges = list_element.find_elements_by_tag_name("span")
+                    self.assertEqual(
+                        badges[0].text,
+                        orders[i][1][i_second][0])
+                    if table_indice == 0:
+                        self.assertEqual(
+                            badges[1].text,
+                            orders[i][1][i_second][2])
+                    i_second += 1
+            else:
+                composition_list = line_values[1].find_element_by_tag_name(
+                    "ul")
+                list_elements = composition_list.find_elements_by_tag_name(
+                    "li")
+                i_second = 0
+                for list_element in list_elements:
+                    self.assertEqual(
+                        list_element.find_element_by_tag_name("strong").text,
+                        orders[i][1][i_second][1])
+                    badges = list_element.find_elements_by_tag_name("span")
+                    self.assertEqual(
+                        badges[0].text,
+                        orders[i][1][i_second][0])
+                    if table_indice == 0:
+                        self.assertEqual(
+                            badges[1].text,
+                            orders[i][1][i_second][2])
+                    i_second += 1
             i += 1
 
     def update_order(self, link, old_order, new_order, categories_basket):
@@ -102,7 +124,7 @@ class OrderTests(Browser):
         ).click()
         inputs = self.selenium.find_elements_by_tag_name("input")
         i = 1
-        for input_tag in inputs[1:]:
+        for input_tag in inputs[1:-1]:
             # assert quantity and basket number in form
             self.assertEqual(
                 input_tag.get_attribute('value'),
@@ -310,7 +332,24 @@ class OrderTests(Browser):
                 ("3", "petit", "2"), ]), ]
         self.assert_table(
             0, orders_created)  # assert orders in table
+        # orders by client
+        self.selenium.find_element_by_link_text("Clients").click()
+        self.wait_page_loaded("Clients")
+        self.selenium.find_elements_by_link_text("commandes")[2].click()
+        self.wait_page_loaded("Commandes - " + "rest test")
+        client_orders = [
+            ("", [
+                ("1", "gourmand", "3"),
+                ("6", "moyen", "4"),
+                ("5", "petit", "2"), ]),
+            ("", [
+                ("2", "gourmand", "1"),
+                ("3", "petit", "2"), ]), ]
+        self.assert_table(
+            0, client_orders)  # assert orders in table
         # update created order
+        self.selenium.find_element_by_link_text("Commandes").click()
+        self.wait_page_loaded("Commandes")
         update_links = self.selenium.find_elements_by_link_text("modifier")
         self.update_order(
             update_links[2],

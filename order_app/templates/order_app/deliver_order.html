@@ -142,8 +142,9 @@
 <!-- button link to deliver order and cancel -->
 <form id="valid-order-form" role="form" action="" method="post">
     {% csrf_token %}
+    <input id="origin-address" name="origin-address" type="hidden" value="{{ origin_address }}">
     <button class="btn btn-success" type="submit">Marquer la commande comme livrée</button>
-    <a class="btn btn-danger" href="{% url 'order' %}">Retour</a>
+    <a class="btn btn-danger" href="{{ origin_address }}">Retour</a>
 </form>
 <!---->
 {% endblock %}

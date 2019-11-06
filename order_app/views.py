@@ -10,7 +10,7 @@ from product_app.models import ProductOrdered
 
 
 def order(request):
-    """ basket view used to:
+    """ order view used to:
     - display table with orders ordered by status and date
     - delete or cancel an order with ajax post request """
     if request.method == 'POST' and request.is_ajax():
@@ -131,7 +131,14 @@ def update_order(request, order_id):
                         basket = Basket.objects.get(number=new_basket_number)
                         component.basket = basket
                         component.save()  # save composition
-            return redirect('order')
+            # origin request
+            origin_address = request.POST.get("origin-address")
+            return redirect(origin_address)
+    # origin request
+    try:
+        origin_address = request.META['HTTP_REFERER']
+    except KeyError:
+        origin_address = "/commandes/"
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Modifier une commande",
@@ -141,6 +148,7 @@ def update_order(request, order_id):
         "form": form,
         "categories_basket": categories_basket,
         "composition_by_category": composition_by_category,
+        "origin_address": origin_address,
     }
     return render(request, 'order_app/update_order.html', context)
 
@@ -224,7 +232,14 @@ def validate_order(request, order_id):
                 # save in composition basket ordered
                 composition_basket_ordered.save()
             composition_order.delete()  # delete in composition basket
-        return redirect('order')
+        # origin request
+        origin_address = request.POST.get("origin-address")
+        return redirect(origin_address)
+    # origin request
+    try:
+        origin_address = request.META['HTTP_REFERER']
+    except KeyError:
+        origin_address = "/commandes/"
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Valider une commande",
@@ -235,6 +250,7 @@ def validate_order(request, order_id):
         "prices": prices,
         "total_prices": total_prices,
         "order_price": order_price,
+        "origin_address": origin_address,
     }
     return render(request, 'order_app/validate_order.html', context)
 
@@ -251,7 +267,9 @@ def deliver_order(request, order_id):
         order_validated.delivery_date = timezone.now()
         order_validated.status = "livrée"
         order_validated.save()  # update status in db
-        return redirect('order')
+        # origin request
+        origin_address = request.POST.get("origin-address")
+        return redirect(origin_address)
     # get baskets ordered and compositions
     baskets_ordered = BasketOrdered.objects.filter(
         order=order_validated).order_by("category_name")
@@ -270,6 +288,11 @@ def deliver_order(request, order_id):
                     component.price_product * component.quantity_product, 2)
         total_prices[basket] = total_price
         order_price += total_price * basket.quantity
+    # origin request
+    try:
+        origin_address = request.META['HTTP_REFERER']
+    except KeyError:
+        origin_address = "/commandes/"
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Livrer une commande",
@@ -279,6 +302,7 @@ def deliver_order(request, order_id):
         "compositions_basket": compositions_basket,
         "total_prices": total_prices,
         "order_price": order_price,
+        "origin_address": origin_address,
     }
     return render(request, 'order_app/deliver_order.html', context)
 
@@ -306,6 +330,11 @@ def delivered_order(request, order_id):
                     component.price_product * component.quantity_product, 2)
         total_prices[basket] = total_price
         order_price += total_price * basket.quantity
+    # origin request
+    try:
+        origin_address = request.META['HTTP_REFERER']
+    except KeyError:
+        origin_address = "/commandes/"
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Commande livrée",
@@ -315,5 +344,58 @@ def delivered_order(request, order_id):
         "compositions_basket": compositions_basket,
         "total_prices": total_prices,
         "order_price": order_price,
+        "origin_address": origin_address,
     }
     return render(request, 'order_app/delivered_order.html', context)
+
+
+def client_orders(request, client_id):
+    """ client's orders view used to:
+    - display table with a client's orders ordered by status and date
+    - delete or cancel an order with ajax post request """
+    if request.method == 'POST' and request.is_ajax():
+        # ajax post
+        action = request.POST.get('action')
+        if action == "delete order" or action == "cancel order":
+            # delete order
+            order_id = request.POST.get('order_id')
+            order = Order.objects.get(pk=order_id)
+            order.delete()
+            if action == "cancel order":
+                # delete products ordered not used in an order validated
+                products_ordered = ProductOrdered.objects.all()
+                for product_ordered in products_ordered:
+                    try:
+                        product_ordered.delete()
+                    except ProtectedError:
+                        pass
+            return HttpResponse("")
+    # get client
+    client = Client.objects.get(pk=client_id)
+    # get all orders for this client
+    # by status, all compositions and all baskets ordered
+    orders_in_preparation = Order.objects.filter(
+        client=client, status="en préparation").order_by(
+            'creation_date').reverse()
+    orders_in_course_delivery = Order.objects.filter(
+        client=client, status="en livraison").order_by(
+            'validation_date').reverse()
+    orders_delivered = Order.objects.filter(
+        client=client, status="livrée").order_by(
+            'delivery_date').reverse()
+    composition = OrderBasket.objects.filter(
+        order__client=client).order_by("basket__category__name")
+    baskets_ordered = BasketOrdered.objects.filter(
+        order__client=client).order_by("category_name")
+    # prepare and send all elements needed to construct the template
+    context = {
+        "page_title": "| Commandes - " + client.name,
+        "client": "active",
+        "client_name": client.name,
+        "orders_in_preparation": orders_in_preparation,
+        "orders_in_course_delivery": orders_in_course_delivery,
+        "orders_delivered": orders_delivered,
+        "composition": composition,
+        "baskets_ordered": baskets_ordered,
+    }
+    return render(request, 'order_app/client_orders.html', context)

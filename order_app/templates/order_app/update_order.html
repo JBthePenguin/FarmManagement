@@ -47,8 +47,9 @@
         {% endfor %}
     {% endfor %}
     <!-- Button save and cancel -->
+    <input id="origin-address" name="origin-address" type="hidden" value="{{ origin_address }}">
     <button class="btn btn-success" type="submit">Enregistrer</button>
-    <a class="btn btn-danger" href="{% url 'order' %}">Annuler</a>
+    <a class="btn btn-danger" href="{{ origin_address }}">Annuler</a>
     <!---->
 </form>
 <!---->
