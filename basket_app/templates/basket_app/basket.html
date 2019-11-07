@@ -54,7 +54,7 @@
         {% for basket in baskets %}
             {% if basket.category == category %}
                 <!-- Table's title, link to update basket and button to delete basket  -->
-                <strong style="padding-left:2rem;">panier numéro {{ basket.number }}:</strong><a href="/paniers/numero{{ basket.number }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteBasket("{{ basket.id }}", "{{ basket.number }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
+                <strong style="padding-left:2rem;">panier numéro {{ basket.number }}:</strong><a href="/paniers/numero{{ basket.number }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteBasket("{{ basket.id }}", "{{ basket.number }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem; background-color: transparent; margin-top: 0;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
                 <!---->
                 <!-- Table -->
                 <div class="table-responsive-md">

@@ -1,0 +1,17 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<h5>Catégorie de panier</h5>
+<!-- Update cost's category form -->
+<form id="update-category-cost-form" role="form" action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <!-- Button save and cancel -->
+    <button class="btn btn-success" type="submit">Enregistrer</button>
+    <a class="btn btn-danger" href="{% url 'cost' %}">Annuler</a>
+    <!---->
+</form>
+<!-- -->
+{% endblock %}

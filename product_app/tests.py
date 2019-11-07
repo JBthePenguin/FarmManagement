@@ -49,7 +49,7 @@ class BaseTests(Browser):
         nav_links = self.selenium.find_elements_by_css_selector(
             ".nav-link"
         )
-        self.assertEqual(len(nav_links), 4)  # assert number of links
+        self.assertEqual(len(nav_links), 5)  # assert number of links
 
         def assert_link_url(link_text, link_url):
             """ assert if a click on the link go to the correct url """
@@ -64,6 +64,7 @@ class BaseTests(Browser):
         assert_link_url('Produits', '/produits/')  # assert product link
         assert_link_url('Paniers', '/paniers/')  # assert basket link
         assert_link_url('Commandes', '/commandes/')  # assert order link
+        assert_link_url('Coûts', '/couts/')  # assert cost link
 
 
 class IndexTests(Browser):

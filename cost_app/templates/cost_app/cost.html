@@ -1,0 +1,30 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<!-- Costs as a percentage of turnoverr-->
+<!-- Title and button link to add a category of cost -->
+<h5>Coûts en pourcentage du chiffre d'affaire <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-percent/">Ajouter une catégorie</a></h5>
+<!---->
+{% for category in categories_percent %}
+    <!-- subtitle category name -->
+    <strong style="padding-left:2rem;">{{ category.name }}</strong><a href="/couts/mod-category-{{ category.id }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteCategoryCost("{{ category.id }}", "{{ category.name }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem; background-color: transparent; margin-top: 0;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
+    <!---->
+{% endfor %}
+<!---->
+<!-- Costs in relation to product quantity -->
+<!-- Title and button link to add a category of cost -->
+<h5>Coûts par rapport à la quantité de produits <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-quantity/">Ajouter une catégorie</a></h5>
+<!---->
+{% for category in categories_quantity %}
+    <!-- subtitle category name, link to update cost and button to delete cost -->
+    <strong style="padding-left:2rem;">{{ category.name }}</strong><a href="/couts/mod-category-{{ category.id }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteCategoryCost("{{ category.id }}", "{{ category.name }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem; background-color: transparent; margin-top: 0;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
+    <!---->
+{% endfor %}
+<!---->
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/cost/script.js' %}"></script>
+{% endblock %}
