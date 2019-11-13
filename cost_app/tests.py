@@ -84,3 +84,13 @@ class CostTests(Browser):
             category_names.append(category.name)
         self.assertNotIn(
             "engrais", category_names)  # assert category deleted in db
+        category_names = ["travail du sol", "irrigation"]
+        categories_in_template = self.selenium.find_elements_by_tag_name(
+            "strong")
+        i = 0
+        for category_in_template in categories_in_template:
+            # assert categories updated is ordered by calcul mode
+            self.assertEqual(
+                category_in_template.text,
+                category_names[i])
+            i += 1

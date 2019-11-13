@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse
-from cost_app.models import CostCategory
-from cost_app.forms import CostCategoryForm
+from django.db.models.deletion import ProtectedError
+from cost_app.models import CostCategory, Cost
+from cost_app.forms import CostCategoryForm, CostForm, CostUpdateForm
 
 
 def cost(request):
@@ -15,19 +16,37 @@ def cost(request):
             # delete category
             category_id = request.POST.get('category_id')
             category = CostCategory.objects.get(pk=category_id)
-            category.delete()
+            try:
+                category.delete()
+            except ProtectedError:
+                # No delete because a cost use this category
+                return HttpResponse("Cette catégorie ne peut pas être supprimée car des coûts lui appartiennent.")
+            else:
+                return HttpResponse("")
+        elif action == "delete cost":
+            # delete cost
+            cost_id = request.POST.get('cost_id')
+            cost = Cost.objects.get(pk=cost_id)
+            cost.delete()
             return HttpResponse("")
     # get all categories by calcul mode
     categories_percent = CostCategory.objects.filter(
         calcul_mode="percent").order_by("name")
     categories_quantity = CostCategory.objects.filter(
         calcul_mode="quantity").order_by("name")
+    # get all costs by categories calcul mode
+    costs_percent = Cost.objects.filter(
+        category__calcul_mode="percent").order_by("category__name", "name")
+    costs_quantity = Cost.objects.filter(
+        category__calcul_mode="quantity").order_by("category__name", "name")
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Coûts",
         "cost": "active",
         "categories_percent": categories_percent,
         "categories_quantity": categories_quantity,
+        "costs_percent": costs_percent,
+        "costs_quantity": costs_quantity,
     }
     return render(request, 'cost_app/cost.html', context)
 
@@ -73,3 +92,88 @@ def update_category_cost(request, category_id):
         "form": form,
     }
     return render(request, 'cost_app/update_category_cost.html', context)
+
+
+def add_cost(request, category_id):
+    """ add a cost view used to
+    - display form to add a cost
+    - save cost with category in db """
+    # form for Cost
+    form = CostForm(request.POST or None, request.FILES or None)
+    # get cost's category
+    category = CostCategory.objects.get(pk=category_id)
+    if request.method == 'POST':
+        # category cost has added
+        if form.is_valid():
+            # save category in db
+            cost = form.save(commit=False)
+            cost.category = category
+            cost.save()
+            return redirect('cost')
+    context = {
+        "page_title": "| Ajouter un coût",
+        "cost": "active",
+        "form": form,
+        "cost_category": category.name,
+    }
+    return render(request, 'cost_app/add_cost.html', context)
+
+
+def update_cost(request, cost_id):
+    """ update a cost view
+    - display form to update a cost
+    - save changes in db """
+    # form for update a cost with his values in inputs values
+    cost = Cost.objects.get(pk=cost_id)
+    form = CostUpdateForm(request.POST or None, instance=cost)
+    if request.method == 'POST':
+        # cost has updated
+        if form.is_valid():
+            form.save()  # save cost updated in db
+            return redirect('cost')
+    # prepare and send all elements needed to construct the template
+    context = {
+        "page_title": "| Modifier un coût",
+        "cost": "active",
+        "form": form,
+
+    }
+    return render(request, 'cost_app/update_cost.html', context)
+
+
+def calcul_percent(request):
+    """ calculate cost percent with revenue
+    - display form to calculate costs
+    """
+    # get all categories and costs for this calcul mode
+    categories = CostCategory.objects.filter(
+        calcul_mode="percent").order_by("name")
+    costs = Cost.objects.filter(
+        category__calcul_mode="percent").order_by("category__name", "name")
+    # prepare and send all elements needed to construct the template
+    context = {
+        "page_title": "| Calculer coût en pourcentage du chiffre d'affaire",
+        "cost": "active",
+        "categories": categories,
+        "costs": costs,
+    }
+    return render(request, 'cost_app/calculate_percent.html', context)
+
+
+def calcul_quantity(request):
+    """ calculate cost with product's quantity
+    - display form to calculate costs
+    """
+    # get all categories and costs for this calcul mode
+    categories = CostCategory.objects.filter(
+        calcul_mode="quantity").order_by("name")
+    costs = Cost.objects.filter(
+        category__calcul_mode="quantity").order_by("category__name", "name")
+    # prepare and send all elements needed to construct the template
+    context = {
+        "page_title": "| Calculer coût par rapport à la quantité de produits",
+        "cost": "active",
+        "categories": categories,
+        "costs": costs,
+    }
+    return render(request, 'cost_app/calculate_quantity.html', context)

@@ -1,5 +1,7 @@
 env/
 
+static/
+
 db.sqlite3
 
 geckodriver.log

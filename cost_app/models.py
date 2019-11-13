@@ -1,4 +1,5 @@
 from django.db import models
+from djmoney.models.fields import MoneyField
 
 
 class CostCategory(models.Model):
@@ -11,3 +12,21 @@ class CostCategory(models.Model):
 
     class Meta:
         unique_together = ('calcul_mode', 'name')
+
+
+class Cost(models.Model):
+    """ Model for cost:
+    - category: foreign key CostCategory
+    - name: str
+    - amount: Decimal (use django-money)
+    - unit used: str
+    unique_together: category, name """
+    category = models.ForeignKey(
+        CostCategory, on_delete=models.PROTECT, db_index=True)
+    name = models.CharField(db_index=True, max_length=100)
+    amount = MoneyField(
+        max_digits=14, decimal_places=2, default_currency='EUR')
+    unit = models.CharField(max_length=20)
+
+    class Meta:
+        unique_together = ('category', 'name')

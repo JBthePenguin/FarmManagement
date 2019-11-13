@@ -5,21 +5,145 @@
 {% block content %}
 <!-- Costs as a percentage of turnoverr-->
 <!-- Title and button link to add a category of cost -->
-<h5>Coûts en pourcentage du chiffre d'affaire <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-percent/">Ajouter une catégorie</a></h5>
+<h5>Coûts en pourcentage du chiffre d'affaire <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-percent/">Ajouter une catégorie</a> <a class="btn btn-danger" type="button" href="{% url 'calcul_percent' %}">Calculer</a></h5>
 <!---->
 {% for category in categories_percent %}
     <!-- subtitle category name -->
     <strong style="padding-left:2rem;">{{ category.name }}</strong><a href="/couts/mod-category-{{ category.id }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteCategoryCost("{{ category.id }}", "{{ category.name }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem; background-color: transparent; margin-top: 0;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
     <!---->
+    <!-- Table with costs -->
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
+            <thead>
+                <tr class="bg-secondary">
+                    <!-- col name with add button in header-->
+                    <th scope="col"><a class="btn btn-success btn-sm" type="button" href="{% url 'cost' %}add-cout-{{ category.id }}/" style="vertical-align: middle;">Ajouter un coût</a></th>
+                    <!---->
+                    <!-- col amount -->
+                    <th scope="col" style="vertical-align: middle;">Coût</th>
+                    <!---->
+                    <!-- col unit -->
+                    <th scope="col" style="vertical-align: middle;">Unité</th>
+                    <!-- -->
+                    <!-- 2 cols for button and links -->
+                    <th colspan="2"></th>
+                    <!---->
+                </tr>
+            </thead>
+            <!---->
+            <!-- Table lines -->
+            <tbody>
+                {% for cost in costs_percent %}
+                    {% if cost.category == category %}
+                    <!-- line for each order in preparation -->
+                    <tr>
+                        <!-- name -->
+                        <td style="vertical-align: middle;">
+                            {{ cost.name }}
+                        </td>
+                        <!---->
+                        <!-- amount -->
+                        <td style="vertical-align: middle;">
+                            {{ cost.amount }}
+                        </td>
+                        <!---->
+                        <!-- unit -->
+                        <td style="vertical-align: middle;">
+                            {{ cost.unit }}
+                        </td>
+                        <!---->
+                        <!-- link to update -->
+                        <td style="vertical-align: middle;">
+                            <a href="/couts/mod-cout-{{ cost.id }}/" class="text-danger">modifier</a>
+                        </td>
+                        <!---->
+                        <!-- button to delete -->
+                        <td style="vertical-align: middle;">
+                            <button onclick='DeleteCost("{{ cost.id }}", "{{ cost.name }}", "{{ csrf_token }}");'>
+                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                            </button>
+                        </td>
+                        <!---->
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+            <!---->
+        </table>
+    </div>
+    <!---->
 {% endfor %}
 <!---->
 <!-- Costs in relation to product quantity -->
 <!-- Title and button link to add a category of cost -->
-<h5>Coûts par rapport à la quantité de produits <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-quantity/">Ajouter une catégorie</a></h5>
+<h5>Coûts par rapport à la quantité de produits <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-quantity/">Ajouter une catégorie</a> <a class="btn btn-danger" type="button" href="{% url 'calcul_quantity' %}">Calculer</a></h5>
 <!---->
 {% for category in categories_quantity %}
     <!-- subtitle category name, link to update cost and button to delete cost -->
     <strong style="padding-left:2rem;">{{ category.name }}</strong><a href="/couts/mod-category-{{ category.id }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteCategoryCost("{{ category.id }}", "{{ category.name }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem; background-color: transparent; margin-top: 0;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
+    <!---->
+    <!-- Table with costs -->
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
+            <thead>
+                <tr class="bg-secondary">
+                    <!-- col name with add button in header-->
+                    <th scope="col"><a class="btn btn-success btn-sm" type="button" href="{% url 'cost' %}add-cout-{{ category.id }}/">Ajouter un coût</a></th>
+                    <!---->
+                    <!-- col amount -->
+                    <th scope="col">Coût</th>
+                    <!---->
+                    <!-- col unit -->
+                    <th scope="col">Unité</th>
+                    <!-- -->
+                    <!-- 2 cols for button and links -->
+                    <th colspan="2"></th>
+                    <!---->
+                </tr>
+            </thead>
+            <!---->
+            <!-- Table lines -->
+            <tbody>
+                {% for cost in costs_quantity %}
+                    {% if cost.category == category %}
+                    <!-- line for each order in preparation -->
+                    <tr>
+                        <!-- name -->
+                        <td style="vertical-align: middle;">
+                            {{ cost.name }}
+                        </td>
+                        <!---->
+                        <!-- amount -->
+                        <td style="vertical-align: middle;">
+                            {{ cost.amount }}
+                        </td>
+                        <!---->
+                        <!-- unit -->
+                        <td style="vertical-align: middle;">
+                            {{ cost.unit }}
+                        </td>
+                        <!---->
+                        <!-- link to update -->
+                        <td style="vertical-align: middle;">
+                            <a href="/couts/mod-cout-{{ cost.id }}/" class="text-danger">modifier</a>
+                        </td>
+                        <!---->
+                        <!-- button to delete -->
+                        <td style="vertical-align: middle;">
+                            <button onclick='DeleteCost("{{ cost.id }}", "{{ cost.name }}", "{{ csrf_token }}");'>
+                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                            </button>
+                        </td>
+                        <!---->
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+            <!---->
+        </table>
+    </div>
     <!---->
 {% endfor %}
 <!---->
