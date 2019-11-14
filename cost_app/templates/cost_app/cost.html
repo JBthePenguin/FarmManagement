@@ -36,36 +36,36 @@
             <tbody>
                 {% for cost in costs_percent %}
                     {% if cost.category == category %}
-                    <!-- line for each order in preparation -->
-                    <tr>
-                        <!-- name -->
-                        <td style="vertical-align: middle;">
-                            {{ cost.name }}
-                        </td>
-                        <!---->
-                        <!-- amount -->
-                        <td style="vertical-align: middle;">
-                            {{ cost.amount }}
-                        </td>
-                        <!---->
-                        <!-- unit -->
-                        <td style="vertical-align: middle;">
-                            {{ cost.unit }}
-                        </td>
-                        <!---->
-                        <!-- link to update -->
-                        <td style="vertical-align: middle;">
-                            <a href="/couts/mod-cout-{{ cost.id }}/" class="text-danger">modifier</a>
-                        </td>
-                        <!---->
-                        <!-- button to delete -->
-                        <td style="vertical-align: middle;">
-                            <button onclick='DeleteCost("{{ cost.id }}", "{{ cost.name }}", "{{ csrf_token }}");'>
-                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
-                            </button>
-                        </td>
-                        <!---->
-                    </tr>
+                        <!-- line for each order in preparation -->
+                        <tr>
+                            <!-- name -->
+                            <td style="vertical-align: middle;">
+                                {{ cost.name }}
+                            </td>
+                            <!---->
+                            <!-- amount -->
+                            <td style="vertical-align: middle;">
+                                {{ cost.amount }}
+                            </td>
+                            <!---->
+                            <!-- unit -->
+                            <td style="vertical-align: middle;">
+                                {{ cost.unit }}
+                            </td>
+                            <!---->
+                            <!-- link to update -->
+                            <td style="vertical-align: middle;">
+                                <a href="/couts/mod-cout-{{ cost.id }}/" class="text-danger">modifier</a>
+                            </td>
+                            <!---->
+                            <!-- button to delete -->
+                            <td style="vertical-align: middle;">
+                                <button onclick='DeleteCost("{{ cost.id }}", "{{ cost.name }}", "{{ csrf_token }}");'>
+                                    <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                                </button>
+                            </td>
+                            <!---->
+                        </tr>
                     {% endif %}
                 {% endfor %}
             </tbody>

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.db.models.deletion import ProtectedError
 from cost_app.models import CostCategory, Cost
 from cost_app.forms import CostCategoryForm, CostForm, CostUpdateForm
+from djmoney.money import Money
 
 
 def cost(request):
@@ -150,12 +151,51 @@ def calcul_percent(request):
         calcul_mode="percent").order_by("name")
     costs = Cost.objects.filter(
         category__calcul_mode="percent").order_by("category__name", "name")
+    cost_quantities = {}
+    total_revenue = False
+    totals_by_category = {}
+    total_costs = 0
+    if request.method == 'POST':
+        # calculate
+        i = 0
+        for cost in costs:
+            # get cost's value
+            cost_quantity = request.POST.get(str(cost.id))
+            if cost_quantity == "":
+                i += 1
+            cost_quantities[cost.id] = cost_quantity
+        if i == len(cost_quantities):
+            # no cost's value
+            cost_quantities = {}
+        # get total revenue
+        total_revenue = request.POST.get("total-revenue")
+        if total_revenue == "0":
+            # total revenue is 0
+            total_revenue = False
+        else:
+            total_revenue = Money(total_revenue, 'EUR')
+        if total_revenue is not False and len(cost_quantities) != 0:
+            # calculate total cost by category
+            for category in categories:
+                total = 0
+                for cost in costs:
+                    if cost.category == category:
+                        quantity = cost_quantities[cost.id]
+                        if quantity != "":
+                            total += (cost.amount * quantity)
+                totals_by_category[category.id] = total
+            for category, total in totals_by_category.items():
+                total_costs += total
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Calculer coût en pourcentage du chiffre d'affaire",
         "cost": "active",
         "categories": categories,
         "costs": costs,
+        "cost_quantities": cost_quantities,
+        "total_revenue": total_revenue,
+        "totals_by_category": totals_by_category,
+        'total_costs': total_costs,
     }
     return render(request, 'cost_app/calculate_percent.html', context)
 

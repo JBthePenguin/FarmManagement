@@ -2,6 +2,137 @@
 
 {% load static %}
 
+{% load mathfilters %}
+
 {% block content %}
-calculate percent page
+{% if cost_quantities|length != 0 and total_revenue != False %}
+    <!-- Tables result -->
+    <!-- Tables' title -->
+    <h5 class="mt-4">Coûts en pourcentage d'un chiffre d'affaire de {{ total_revenue }}</h5>
+    {% for category in categories %}
+        <div class="table-responsive-md">
+            <table class="table table-hover table-bordered table-sm table-dark text-center">
+                <!-- Table header -->
+                <thead>
+                    <tr class="bg-secondary">
+                        <!-- col cost's name with category's name in header-->
+                        <th scope="col"><strong>{{ category.name }}</strong></th>
+                        <!---->
+                        <!-- col quantity -->
+                        <th scope="col" style="vertical-align: middle;">Quantité</th>
+                        <!-- -->
+                        <!-- col amount -->
+                        <th scope="col" style="vertical-align: middle;">Coût</th>
+                        <!---->
+                        <!-- col result -->
+                        <th scope="col" style="vertical-align: middle;">% du CA de {{ total_revenue }}</th>
+                        <!---->
+                    </tr>
+                </thead>
+                <!---->
+                <!-- Table lines -->
+                <tbody>
+                    {% for cost in costs %}
+                        {% if cost.category == category %}
+                            <!-- line for each cost -->
+                            <tr>
+                                <!-- name -->
+                                <td style="vertical-align: middle;">
+                                    {{ cost.name }}
+                                </td>
+                                <!---->
+                                {% for cost_id, quantity in cost_quantities.items %}
+                                    {% if cost_id == cost.id %}
+                                        <!-- quantity -->
+                                        <td style="vertical-align: middle;">
+                                            {% if quantity != "" %}
+                                                {{ quantity }} {{ cost.unit }}
+                                            {% endif %}
+                                        </td>
+                                        <!-- amount -->
+                                        <td style="vertical-align: middle;">
+                                            {% if quantity != "" %}
+                                                {{ cost.amount|mul:quantity }}
+                                            {% endif %}
+                                        </td>
+                                        <!---->
+                                        <!-- result -->
+                                        <td style="vertical-align: middle;">
+                                            {% if quantity != "" %}
+                                                {{ 100|mul:cost.amount|mul:quantity|div:total_revenue|floatformat:"-2" }} %
+                                            {% endif %}
+                                        </td>
+                                        <!---->
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                    <!-- last line -->
+                    <tr class="bg-success">
+                        <!-- titlte line -->
+                        <td colspan="2" class="text-right" style="vertical-align: middle;">
+                            Total:
+                        </td>
+                        <!---->
+                        <!-- total cost for category -->
+                        <td style="vertical-align: middle;">
+                            {% for category_id, total in totals_by_category.items %}
+                                {% if category_id == category.id %}
+                                    {% if total != 0 %}
+                                        {{ total }}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <!---->
+                        <!-- percent for total cost -->
+                        <td style="vertical-align: middle;">
+                            {% for category_id, total in totals_by_category.items %}
+                                {% if category_id == category.id %}
+                                    {% if total != 0 %}
+                                        {{ 100|mul:total|div:total_revenue|floatformat:"-2" }} %
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <!---->
+                    </tr>
+                </tbody>
+                <!---->
+            </table>
+        </div>
+        <!---->
+    {% endfor %}
+    <!---->
+    <!---->
+    <h5 class="mb-4">Total des coûts: {{ total_costs }} soit {{ 100|mul:total_costs|div:total_revenue|floatformat:"-2" }} % d'un chiffre d'affaire de {{ total_revenue }}</h5>
+{% endif %}
+<!-- Calculate percent form -->
+<form id="calculate-percent-form" role="form" action="" method="post" class="mb-4">
+    {% csrf_token %}
+    {% for category in categories %}
+        <h5>{{ category.name }}</h5>
+        {% for cost in costs %}
+            {% if cost.category == category %}
+                {% if cost_quantities|length != 0 %}
+                    {% for cost_id, quantity in cost_quantities.items %}
+                        {% if cost_id == cost.id %}
+                            <label>{{ cost.name }} : <input type="number" step="0.01" name="{{ cost.id }}" class="text-center" value="{{ quantity }}"> {{ cost.unit }}</label><br>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <label>{{ cost.name }} : <input type="number" step="0.01" name="{{ cost.id }}" class="text-center"> {{ cost.unit }}</label><br>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    <h5>
+        <label>Chiffre d'affaire: {% if total_revenue == False %}<input type="number" step="0.01" name="total-revenue" class="text-center" required="required">{% else %}<input type="number" step="0.01" name="total-revenue" class="text-center" required="required" value="{{ total_revenue.amount }}">{% endif %} €</label>
+    </h5>
+    <!-- Button save and cancel -->
+    <button class="btn btn-success" type="submit">Calculer</button>
+    <a class="btn btn-danger" href="{% url 'cost' %}">Annuler</a>
+    <!---->
+</form>
 {% endblock %}
