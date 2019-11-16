@@ -103,7 +103,7 @@ class OrderTests(Browser):
                     self.assertEqual(
                         badges[0].text,
                         orders[i][1][i_second][0])
-                    if table_indice == 0:
+                    if (table_indice == 0) and (len(badges) == 2):
                         self.assertEqual(
                             badges[1].text,
                             orders[i][1][i_second][2])
@@ -472,6 +472,39 @@ class OrderTests(Browser):
         self.selenium.find_element_by_link_text(
             "Retour").click()
         self.wait_page_loaded("Commandes")
+        # orders by client
+        self.selenium.find_element_by_link_text("Clients").click()
+        self.wait_page_loaded("Clients")
+        self.selenium.find_elements_by_link_text("commandes")[1].click()
+        self.wait_page_loaded("Commandes - " + "part test")
+        client_orders = [
+            ("", [("2", "petit", "2"), ]), ]
+        self.assert_table(
+            0, client_orders)  # assert orders in table
+        self.assertEqual(
+            self.selenium.find_elements_by_tag_name("h5")[4].text,
+            "Gain total: 4,12 € soit 100 % du chiffre d'affaire")
+        # assert table summary for client
+        table_summary = self.selenium.find_elements_by_tag_name("table")[1]
+        # assert titles
+        first_line = table_summary.find_elements_by_tag_name("th")
+        self.assertEqual(first_line[0].text, "Produit")
+        self.assertEqual(first_line[1].text, "Quantité")
+        self.assertEqual(first_line[2].text, "Gain")
+        self.assertEqual(first_line[3].text, "% du CA")
+        # assert lines's values
+        body = table_summary.find_element_by_tag_name("tbody")
+        lines_body = body.find_elements_by_tag_name("tr")
+        values = lines_body[0].find_elements_by_tag_name("td")
+        self.assertEqual(values[0].text, "ail")
+        self.assertEqual(values[1].text, "1,5 kg\n100 % de la quantité vendue")
+        self.assertEqual(values[2].text, "3,22 €")
+        self.assertEqual(values[3].text, "78,18 %")
+        values = lines_body[1].find_elements_by_tag_name("td")
+        self.assertEqual(values[0].text, "tomate")
+        self.assertEqual(values[1].text, "2,0 kg\n100 % de la quantité vendue")
+        self.assertEqual(values[2].text, "0,90 €")
+        self.assertEqual(values[3].text, "21,82 %")
         # delete all
         delete_all_orders(self)
         delete_all_categories_and_baskets(self)

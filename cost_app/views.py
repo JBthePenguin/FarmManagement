@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.db.models.deletion import ProtectedError
 from cost_app.models import CostCategory, Cost
 from cost_app.forms import CostCategoryForm, CostForm, CostUpdateForm
+from cost_app.utils import get_total_revenue, get_total_by_products
 from djmoney.money import Money
 
 
@@ -48,6 +49,8 @@ def cost(request):
         "categories_quantity": categories_quantity,
         "costs_percent": costs_percent,
         "costs_quantity": costs_quantity,
+        "total_revenue": get_total_revenue(),
+        "total_by_products": get_total_by_products(),
     }
     return render(request, 'cost_app/cost.html', context)
 

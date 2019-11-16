@@ -2,7 +2,70 @@
 
 {% load static %}
 
+{% load mathfilters %}
+
 {% block content %}
+<!-- Total revenue -->
+<h5>Chiffre d'affaire: {{ total_revenue }}</h5>
+<!---->
+<!-- total by product-->
+{% if total_revenue != 0 %}
+    <!-- Table -->
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
+            <thead>
+                <tr class="bg-secondary">
+                     <!-- col name -->
+                    <th scope="col">Produit</th>
+                    <!---->
+                    <!-- col quantity -->
+                    <th scope="col">Quantité</th>
+                    <!-- -->
+                    <!-- col total gain -->
+                    <th scope="col">Gain</th>
+                    <!-- -->
+                    <!-- col percent gain with revenue-->
+                    <th scope="col">% du CA</th>
+                    <!-- -->
+                </tr>
+            </thead>
+            <!---->
+            <!-- Table lines -->
+            <tbody>
+                {% for key, value in total_by_products.items %}
+                    <!-- line for each order delivered -->
+                    <tr>
+                        <!-- name -->
+                        <td style="vertical-align: middle;">
+                            {{ key.name }}
+                        </td>
+                        <!---->
+                        <!-- quantity -->
+                        <td style="vertical-align: middle;">
+                            {{ value.0 }} {{ key.unit }}
+                        </td>
+                        <!---->
+                        <!-- gain -->
+                        <td style="vertical-align: middle;">
+                            {{ value.1 }}
+                        </td>
+                        <!---->
+                        <!-- percent gain with revenue -->
+                        <td style="vertical-align: middle;">
+                            {{ 100|mul:value.1|div:total_revenue|floatformat:"-2" }} %
+                        </td>
+                        <!---->
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <!---->
+        </table>
+    </div>
+    <!---->
+{% endif %}
+<!---->
+<!---->
 <!-- Costs as a percentage of turnoverr-->
 <!-- Title and button link to add a category of cost -->
 <h5>Coûts en pourcentage du chiffre d'affaire <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-percent/">Ajouter une catégorie</a> <a class="btn btn-danger" type="button" href="{% url 'calcul_percent' %}">Calculer</a></h5>
@@ -36,7 +99,7 @@
             <tbody>
                 {% for cost in costs_percent %}
                     {% if cost.category == category %}
-                        <!-- line for each order in preparation -->
+                        <!-- line for each cost -->
                         <tr>
                             <!-- name -->
                             <td style="vertical-align: middle;">

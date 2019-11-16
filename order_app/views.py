@@ -4,6 +4,8 @@ from django.db.models.deletion import ProtectedError
 from django.utils import timezone
 from order_app.models import *
 from order_app.forms import OrderForm
+from order_app.utils import get_products_client
+from cost_app.utils import get_total_revenue, get_total_by_products
 from basket_app.models import BasketCategory, Basket, BasketProduct
 from price_app.models import Price
 from product_app.models import ProductOrdered
@@ -387,6 +389,11 @@ def client_orders(request, client_id):
         order__client=client).order_by("basket__category__name")
     baskets_ordered = BasketOrdered.objects.filter(
         order__client=client).order_by("category_name")
+    # get total gain for the client
+    products_client = get_products_client(client)
+    total_gain = 0
+    for key, value in products_client.items():
+        total_gain += value[1]
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Commandes - " + client.name,
@@ -397,5 +404,9 @@ def client_orders(request, client_id):
         "orders_delivered": orders_delivered,
         "composition": composition,
         "baskets_ordered": baskets_ordered,
+        "total_revenue": get_total_revenue(),
+        "total_by_products": get_total_by_products(),
+        "products_client": products_client,
+        "total_gain": total_gain,
     }
     return render(request, 'order_app/client_orders.html', context)
