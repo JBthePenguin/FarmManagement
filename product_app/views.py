@@ -1,3 +1,5 @@
+import sys
+from django.core.management import call_command
 from django.shortcuts import render, redirect, HttpResponse
 from django.db.models.deletion import ProtectedError
 from djmoney.money import Money
@@ -9,7 +11,19 @@ from price_app.models import Price
 
 def index(request):
     """ index view """
-    return render(request, 'product_app/index.html')
+    msg = ""
+    if request.method == 'POST':
+        sysout = sys.stdout
+        sys.stdout = open('db_save.json', 'w')
+        call_command(
+            'dumpdata', 'product_app', 'client_app',
+            'basket_app', 'price_app', 'order_app', 'cost_app')
+        sys.stdout = sysout
+        msg = "Données sauvegardées"
+    context = {
+        "msg": msg,
+    }
+    return render(request, 'product_app/index.html', context)
 
 
 def product(request):

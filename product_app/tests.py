@@ -73,7 +73,10 @@ class IndexTests(Browser):
     def test_index(self):
         """ test browsing in index template """
         self.selenium.get('%s%s' % (self.live_server_url, "/"))
-        self.assert_page_title("Hello world!", "", "")  # assert page title
+        save_button = self.selenium.find_element_by_class_name("btn-success")
+        self.assertEqual(
+            save_button.text,
+            "Sauvegarder les données")  # assert button text
 
 
 def add_product(browser, name, unit):
