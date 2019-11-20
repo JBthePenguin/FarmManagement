@@ -30,3 +30,14 @@ class Cost(models.Model):
 
     class Meta:
         unique_together = ('category', 'name')
+
+
+class AdditionalCost(models.Model):
+    """ Model for additional cost:
+    - cost: foreign key Cost
+    - quantity: float
+    - date added: Datetime"""
+    cost = models.ForeignKey(
+        Cost, on_delete=models.PROTECT, db_index=True)
+    quantity = models.FloatField()
+    date_added = models.DateTimeField(db_index=True, auto_now_add=True)

@@ -3,6 +3,7 @@
 {% load static %}
 
 {% block content %}
+<h5>Coût {% if calcul_mode == "percent" %}généraux{% else %}par produit{% endif %}</h5>
 <h5>{{ cost_category }}</h5>
 <!-- Add cost form -->
 <form id="add-cost-form" role="form" action="" method="post">

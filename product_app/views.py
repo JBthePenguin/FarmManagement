@@ -13,6 +13,7 @@ def index(request):
     """ index view """
     msg = ""
     if request.method == 'POST':
+        # dump db
         sysout = sys.stdout
         sys.stdout = open('db_save.json', 'w')
         call_command(
@@ -20,6 +21,7 @@ def index(request):
             'basket_app', 'price_app', 'order_app', 'cost_app')
         sys.stdout = sysout
         msg = "Données sauvegardées"
+    # prepare and send all elements needed to construct the template
     context = {
         "msg": msg,
     }

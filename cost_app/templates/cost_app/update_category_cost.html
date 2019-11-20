@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block content %}
-<h5>Catégorie de panier</h5>
+<h5>Catégorie de coûts {% if calcul_mode == "percent" %}généraux{% else %}par produit{% endif %}</h5>
 <!-- Update cost's category form -->
 <form id="update-category-cost-form" role="form" action="" method="post">
     {% csrf_token %}

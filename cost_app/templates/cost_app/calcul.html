@@ -1,0 +1,183 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% load mathfilters %}
+
+{% block content %}
+<!-- Total revenue -->
+<h5>Chiffre d'affaire: {{ total_revenue }}</h5>
+<!---->
+<!-- total by product-->
+{% if total_revenue != 0 %}
+    <!-- Table -->
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
+            <thead>
+                <tr class="bg-secondary">
+                     <!-- col name -->
+                    <th scope="col">Produit</th>
+                    <!---->
+                    <!-- col quantity -->
+                    <th scope="col">Quantité</th>
+                    <!-- -->
+                    <!-- col total gain -->
+                    <th scope="col">Gain</th>
+                    <!-- -->
+                    <!-- col percent gain with revenue-->
+                    <th scope="col">% du CA</th>
+                    <!-- -->
+                </tr>
+            </thead>
+            <!---->
+            <!-- Table lines -->
+            <tbody>
+                {% for key, value in total_by_products.items %}
+                    <!-- line for each product -->
+                    <tr>
+                        <!-- name -->
+                        <td style="vertical-align: middle;">
+                            {{ key.name }}
+                        </td>
+                        <!---->
+                        <!-- quantity -->
+                        <td style="vertical-align: middle;">
+                            {{ value.0 }} {{ key.unit }}
+                        </td>
+                        <!---->
+                        <!-- gain -->
+                        <td style="vertical-align: middle;">
+                            {{ value.1 }}
+                        </td>
+                        <!---->
+                        <!-- percent gain with revenue -->
+                        <td style="vertical-align: middle;">
+                            {{ 100|mul:value.1|div:total_revenue|floatformat:"-2" }} %
+                        </td>
+                        <!---->
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <!---->
+        </table>
+    </div>
+    <!---->
+{% endif %}
+<!---->
+<hr style="border-top: 2px solid #8c8b8b;">
+<!---->
+<!-- Costs -->
+<!-- General cost -->
+<h5 class="mt-4">Coûts généraux</h5>
+<!---->
+<!-- Tables general costs  -->
+{% for category in general_categories %}
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
+            <thead>
+                <tr class="bg-secondary">
+                    <!-- col cost's name with category's name in header-->
+                    <th scope="col"><strong>{{ category.name }}</strong></th>
+                    <!---->
+                    <!-- col quantity -->
+                    <th scope="col" style="vertical-align: middle;">Quantité</th>
+                    <!-- -->
+                    <!-- col amount -->
+                    <th scope="col" style="vertical-align: middle;">Coût</th>
+                    <!---->
+                    <!-- col result -->
+                    <th scope="col" style="vertical-align: middle;">% du CA</th>
+                    <!---->
+                </tr>
+            </thead>
+            <!---->
+            <!-- Table lines -->
+            <tbody>
+                {% for cost in general_costs %}
+                    {% if cost.category == category %}
+                        <!-- line for each cost -->
+                        <tr>
+                            <!-- name -->
+                            <td style="vertical-align: middle;">
+                                {{ cost.name }}
+                            </td>
+                            <!---->
+                            {% for cost_id, quantity in general_cost_quantities.items %}
+                                {% if cost_id == cost.id %}
+                                    <!-- quantity -->
+                                    <td style="vertical-align: middle;">
+                                        {% if quantity != 0 %}
+                                            {{ quantity }} {{ cost.unit }}
+                                        {% endif %}
+                                        <a href="{% url 'calcul' %}ajouter-couts-generaux/{{ cost.id }}/" class="btn btn-sm btn-outline-light">ajouter / historique</a>
+                                    </td>
+                                    <!-- amount -->
+                                    <td style="vertical-align: middle;">
+                                        {% if quantity != 0 %}
+                                            {{ cost.amount|mul:quantity }}
+                                        {% endif %}
+                                    </td>
+                                    <!---->
+                                    <!-- result -->
+                                    <td style="vertical-align: middle;">
+                                        {% if quantity != 0 %}
+                                            {{ 100|mul:cost.amount|mul:quantity|div:total_revenue|floatformat:"-2" }} %
+                                        {% endif %}
+                                    </td>
+                                    <!---->
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+                <!-- last line -->
+                <tr class="bg-success">
+                    <!-- titlte line -->
+                    <td colspan="2" class="text-right" style="vertical-align: middle;">
+                        Total:
+                    </td>
+                    <!---->
+                    <!-- total cost for category -->
+                    <td style="vertical-align: middle;">
+                        {% for category_id, total in totals_by_general_category.items %}
+                            {% if category_id == category.id %}
+                                {% if total != 0 %}
+                                    {{ total }}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <!---->
+                    <!-- percent for total cost -->
+                    <td style="vertical-align: middle;">
+                        {% for category_id, total in totals_by_general_category.items %}
+                            {% if category_id == category.id %}
+                                {% if total != 0 %}
+                                    {{ 100|mul:total|div:total_revenue|floatformat:"-2" }} %
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <!---->
+                </tr>
+            </tbody>
+            <!---->
+        </table>
+    </div>
+    <!---->
+{% endfor %}
+<!---->
+<!---->
+<!-- total for general costs -->
+{% if total_general_costs != 0 %}
+    <h5 class="mb-4">Total des coûts généraux: {{ total_general_costs }} soit {{ 100|mul:total_general_costs|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire de {{ total_revenue }}</h5>
+{% endif %}
+<!---->
+<hr style="border-top: 1.5px solid #8c8b8b;">
+<!---->
+<!-- Cost per product-->
+<h5 class="mt-4">Coûts par produits</h5>
+<!---->
+{% endblock %}

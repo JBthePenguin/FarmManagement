@@ -8,10 +8,8 @@ urlpatterns = [
     path('couts/mod-category-<int:category_id>/', views.update_category_cost),
     path('couts/add-cout-<int:category_id>/', views.add_cost),
     path('couts/mod-cout-<int:cost_id>/', views.update_cost),
+    path('couts/calcul/', views.calcul, name='calcul'),
     path(
-        'couts/calcul-pourcentage-ca/', views.calcul_percent,
-        name='calcul_percent'),
-    path(
-        'couts/calcul-quantite-produit/', views.calcul_quantity,
-        name='calcul_quantity'),
+        'couts/calcul/ajouter-couts-generaux/<int:cost_id>/',
+        views.add_genaral_cost)
 ]

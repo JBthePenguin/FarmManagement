@@ -40,3 +40,25 @@ function DeleteCost(cost_id, cost_name, csrf_token) {
         });
     }
 }
+
+// Confirm delete added cost before Ajax request to do it
+function DeleteAddedCost(added_cost_id, added_date, csrf_token) {
+    r = confirm("Confirmer la suppression du coût ajouté le " + added_date)
+    if (r == true) {
+        $.post({
+            // url: 'couts/calcul/ajouter-couts-generaux/' + cost_id + "/",
+            url: '',
+            data: {
+                'action': 'delete added cost',
+                'added_cost_id': added_cost_id,
+                'csrfmiddlewaretoken': csrf_token
+            },
+            success: function (data) {
+                if (data != "") {
+                    alert(data);
+                }
+                location.reload();
+            },
+        });
+    }
+}

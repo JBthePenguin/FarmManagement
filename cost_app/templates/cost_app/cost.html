@@ -5,70 +5,13 @@
 {% load mathfilters %}
 
 {% block content %}
-<!-- Total revenue -->
-<h5>Chiffre d'affaire: {{ total_revenue }}</h5>
+<!-- Button to see and update costs-->
+<a class="btn btn-danger" type="button" href="{% url 'calcul' %}">Voir et mettre à jour les coûts</a>
 <!---->
-<!-- total by product-->
-{% if total_revenue != 0 %}
-    <!-- Table -->
-    <div class="table-responsive-md">
-        <table class="table table-hover table-bordered table-sm table-dark text-center">
-            <!-- Table header -->
-            <thead>
-                <tr class="bg-secondary">
-                     <!-- col name -->
-                    <th scope="col">Produit</th>
-                    <!---->
-                    <!-- col quantity -->
-                    <th scope="col">Quantité</th>
-                    <!-- -->
-                    <!-- col total gain -->
-                    <th scope="col">Gain</th>
-                    <!-- -->
-                    <!-- col percent gain with revenue-->
-                    <th scope="col">% du CA</th>
-                    <!-- -->
-                </tr>
-            </thead>
-            <!---->
-            <!-- Table lines -->
-            <tbody>
-                {% for key, value in total_by_products.items %}
-                    <!-- line for each order delivered -->
-                    <tr>
-                        <!-- name -->
-                        <td style="vertical-align: middle;">
-                            {{ key.name }}
-                        </td>
-                        <!---->
-                        <!-- quantity -->
-                        <td style="vertical-align: middle;">
-                            {{ value.0 }} {{ key.unit }}
-                        </td>
-                        <!---->
-                        <!-- gain -->
-                        <td style="vertical-align: middle;">
-                            {{ value.1 }}
-                        </td>
-                        <!---->
-                        <!-- percent gain with revenue -->
-                        <td style="vertical-align: middle;">
-                            {{ 100|mul:value.1|div:total_revenue|floatformat:"-2" }} %
-                        </td>
-                        <!---->
-                    </tr>
-                {% endfor %}
-            </tbody>
-            <!---->
-        </table>
-    </div>
-    <!---->
-{% endif %}
-<!---->
-<!---->
-<!-- Costs as a percentage of turnoverr-->
+<hr style="border-top: 2px solid #8c8b8b;">
+<!-- General costs-->
 <!-- Title and button link to add a category of cost -->
-<h5>Coûts en pourcentage du chiffre d'affaire <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-percent/">Ajouter une catégorie</a> <a class="btn btn-danger" type="button" href="{% url 'calcul_percent' %}">Calculer</a></h5>
+<h5>Coûts généraux <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-percent/">Ajouter une catégorie</a></h5>
 <!---->
 {% for category in categories_percent %}
     <!-- subtitle category name -->
@@ -138,9 +81,10 @@
     <!---->
 {% endfor %}
 <!---->
-<!-- Costs in relation to product quantity -->
+<!-- Costs in relation with product -->
+<hr style="border-top: 1.5px solid #8c8b8b;">
 <!-- Title and button link to add a category of cost -->
-<h5>Coûts par rapport à la quantité de produits <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-quantity/">Ajouter une catégorie</a> <a class="btn btn-danger" type="button" href="{% url 'calcul_quantity' %}">Calculer</a></h5>
+<h5>Coûts par produit <a class="btn btn-success" type="button" href="{% url 'cost' %}add-category-quantity/">Ajouter une catégorie</a></h5>
 <!---->
 {% for category in categories_quantity %}
     <!-- subtitle category name, link to update cost and button to delete cost -->

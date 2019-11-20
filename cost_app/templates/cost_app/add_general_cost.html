@@ -1,0 +1,84 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<!-- Title -->
+<h5 class="mt-4">Coûts généraux</h5>
+<h5 class="mt-4">{{ general_cost.category.name }}</h5>
+<!---->
+<!-- form -->
+<!---->
+<form id="add-general-cost-form" role="form" action="" method="post">
+    {% csrf_token %}
+    <!-- title with cost name -->
+    <h5><h5 class="mt-4">{{ general_cost.name }}</h5></h5>
+    <!---->
+    <!-- input for quantity -->
+    <label>Quantité à ajouter: <input type="number" step="0.001" name="added-quantity" class="text-center"> {{ general_cost.unit }}</label><br>
+    <!---->
+    <!-- Button save and cancel -->
+    <button class="btn btn-success" type="submit">Ajouter</button>
+    <a class="btn btn-danger" href="{% url 'calcul' %}">Annuler</a>
+    <!---->
+</form>
+<!---->
+<hr style="border-top: 2px solid #8c8b8b;">
+<!-- historic of added cost -->
+{% if additional_costs.count != 0 %}
+    <h5 class="mt-4">Quantité totale: {{ total_quantity }} {{ general_cost.unit }}</h5>
+    <h5 class="mt-4">Historique des ajouts</h5>
+    <!-- Table of historic -->
+    <div class="table-responsive-md">
+        <table class="table table-hover table-bordered table-sm table-dark text-center">
+            <!-- Table header -->
+            <thead>
+                <tr class="bg-secondary">
+                     <!-- col date added -->
+                    <th scope="col">Ajouté le</th>
+                    <!---->
+                    <!-- col quantity -->
+                    <th scope="col">Quantité</th>
+                    <!-- -->
+                    <!-- col delete -->
+                    <th scope="col"></th>
+                    <!-- -->
+                </tr>
+            </thead>
+            <!---->
+            <!-- Table lines -->
+            <tbody>
+                {% for additional_cost in additional_costs %}
+                    <!-- line for each order -->
+                    <tr>
+                        <!-- added date -->
+                        <td style="vertical-align: middle;">
+                            {{ additional_cost.date_added }}
+                        </td>
+                        <!---->
+                        <!-- quantity -->
+                        <td style="vertical-align: middle;">
+                            {{ additional_cost.quantity }} {{ general_cost.unit }}
+                        </td>
+                        <!---->
+                        <!-- button to delete added cost -->
+                        <td style="vertical-align: middle;">
+                            <button onclick='DeleteAddedCost("{{ additional_cost.id }}", "{{ additional_cost.date_added }}", "{{ csrf_token }}");'>
+                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                            </button>
+                        </td>
+                        <!---->
+                    </tr>
+                    <!---->
+                {% endfor %}
+            </tbody>
+            <!---->
+        </table>
+    </div>
+    <!---->
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/cost/script.js' %}"></script>
+{% endblock %}
