@@ -11,5 +11,8 @@ urlpatterns = [
     path('couts/calcul/', views.calcul, name='calcul'),
     path(
         'couts/calcul/ajouter-couts-generaux/<int:cost_id>/',
-        views.add_genaral_cost)
+        views.add_genaral_cost),
+    path(
+        'couts/calcul/couts-par-produit/<int:product_id>/',
+        views.costs_per_product),
 ]

@@ -1,5 +1,6 @@
 from django.db import models
 from djmoney.models.fields import MoneyField
+from product_app.models import Product
 
 
 class CostCategory(models.Model):
@@ -41,3 +42,16 @@ class AdditionalCost(models.Model):
         Cost, on_delete=models.PROTECT, db_index=True)
     quantity = models.FloatField()
     date_added = models.DateTimeField(db_index=True, auto_now_add=True)
+
+
+class AdditionalCostProduct(models.Model):
+    """ Model for additional costper product:
+    - additional cost: foreign key AdditionalCost
+    - product: foreign key Product"""
+    additional_cost = models.ForeignKey(
+        AdditionalCost, on_delete=models.CASCADE, db_index=True)
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, db_index=True)
+
+    class Meta:
+        unique_together = ('additional_cost', 'product')

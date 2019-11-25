@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib import admin
-from cost_app.models import CostCategory, Cost, AdditionalCost
+from cost_app.models import (
+    CostCategory, Cost, AdditionalCost, AdditionalCostProduct)
+from product_app.models import Product
 
 
 @admin.register(CostCategory)
@@ -69,3 +71,50 @@ class AdditionalCostAdmin(admin.ModelAdmin):
         return "%s" % (obj.cost.name)
 
     get_cost.short_description = 'Cost'
+
+
+class CostProductModelChoiceField(forms.ModelChoiceField):
+    """ Model to display cost's category's names in select cost's category
+    for save a cost in admin site"""
+    def label_from_instance(self, obj):
+        return "%s" % (obj.cost.name)
+
+
+class ProductModelChoiceField(forms.ModelChoiceField):
+    """ Model to display product name in select product
+    for save a composition in admin site"""
+    def label_from_instance(self, obj):
+        return "%s" % (obj.name)
+
+
+class AdditionalCostProductAdminForm(forms.ModelForm):
+    """ Form to save a cost in admin site"""
+    additional_cost = CostProductModelChoiceField(
+        queryset=AdditionalCost.objects.filter(
+            cost__category__calcul_mode="quantity").order_by('date_added'))
+    product = ProductModelChoiceField(
+        queryset=Product.objects.all())
+
+    class Meta:
+        model = AdditionalCostProduct
+        fields = "__all__"
+
+
+@admin.register(AdditionalCostProduct)
+class AdditionalCostProductAdmin(admin.ModelAdmin):
+    """ Model for cost in admin site """
+    form = AdditionalCostProductAdminForm
+    list_display = ('get_additional_cost', 'get_product')
+
+    def get_additional_cost(self, obj):
+        """ return the name of the additional cost's
+        for additionnal cost product table in admin site"""
+        return "%s" % (obj.additional_cost.cost.name)
+
+    def get_product(self, obj):
+        """ return the name of the additional cost's
+        for additionnal cost product table in admin site"""
+        return "%s" % (obj.product.name)
+
+    get_additional_cost.short_description = 'Cost'
+    get_product.short_description = 'Product'

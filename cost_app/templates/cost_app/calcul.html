@@ -69,7 +69,9 @@
 <!---->
 <!-- Costs -->
 <!-- General cost -->
-<h5 class="mt-4">Coûts généraux</h5>
+<!-- total for general costs -->
+<h5 class="mt-3">Coûts généraux{% if total_general_costs != 0 %}: {{ total_general_costs }} soit {{ 100|mul:total_general_costs|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire{% endif %}</h5>
+<!---->
 <!---->
 <!-- Tables general costs  -->
 {% for category in general_categories %}
@@ -170,14 +172,64 @@
 {% endfor %}
 <!---->
 <!---->
-<!-- total for general costs -->
-{% if total_general_costs != 0 %}
-    <h5 class="mb-4">Total des coûts généraux: {{ total_general_costs }} soit {{ 100|mul:total_general_costs|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire de {{ total_revenue }}</h5>
-{% endif %}
-<!---->
 <hr style="border-top: 1.5px solid #8c8b8b;">
 <!---->
 <!-- Cost per product-->
-<h5 class="mt-4">Coûts par produits</h5>
+<!-- total for cost per products -->
+<h5 class="mt-3">Coûts par produit{% if total_costs_product != 0 %}: {{ total_costs_product }} soit {{ 100|mul:total_costs_product|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire{% endif %}</h5>
+<!-- Table -->
+<div class="table-responsive-md">
+    <table class="table table-hover table-bordered table-sm table-dark text-center">
+        <!-- Table header -->
+        <thead>
+            <tr class="bg-secondary">
+                <!-- col name -->
+                <th scope="col">Produit</th>
+                <!---->
+                <!-- col total cost -->
+                <th scope="col">Total des coûts</th>
+                <!-- -->
+                <!-- col percent cost with revenue-->
+                <th scope="col">% du CA</th>
+                <!-- -->
+            </tr>
+        </thead>
+        <!---->
+        <!-- Table lines -->
+        <tbody>
+            {% for product in products %}
+                <!-- line for each product -->
+                <tr>
+                    <!-- name -->
+                    <td style="vertical-align: middle;">
+                        {{ product.name }} <a href="{% url 'calcul' %}couts-par-produit/{{ product.id }}/" class="btn btn-sm btn-outline-light">détail des coûts</a>
+                    </td>
+                    <!---->
+                    {% for key, value in total_cost_by_product.items %}
+                        {% if key == product.id %}
+                            <!-- total costs -->
+                            <td style="vertical-align: middle;">
+                                {% if value != 0 %}
+                                    {{ value }}
+                                {% endif %}
+                            </td>
+                            <!---->
+                            <!-- percent cost with revenue -->
+                            <td style="vertical-align: middle;">
+                                {% if value != 0 %}
+                                    {{ 100|mul:value|div:total_revenue|floatformat:"-2" }} %
+                                {% endif %}
+                                
+                            </td>
+                            <!---->
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <!---->
+    </table>
+</div>
+<!---->
 <!---->
 {% endblock %}

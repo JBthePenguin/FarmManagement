@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load mathfilters %}
+
 {% block content %}
 <!-- Title -->
 <h5 class="mt-4">Coûts généraux</h5>
@@ -58,7 +60,7 @@
                         <!---->
                         <!-- quantity -->
                         <td style="vertical-align: middle;">
-                            {{ additional_cost.quantity }} {{ general_cost.unit }}
+                            {% if additional_cost.quantity|mod:1|mul:1000|floatformat:"0" == "0" %}{{ additional_cost.quantity|floatformat:"-1" }} {% else %}{{ additional_cost.quantity }} {% endif %}{{ general_cost.unit }}
                         </td>
                         <!---->
                         <!-- button to delete added cost -->
