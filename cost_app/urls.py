@@ -15,4 +15,7 @@ urlpatterns = [
     path(
         'couts/calcul/couts-par-produit/<int:product_id>/',
         views.costs_per_product),
+    path(
+        'couts/calcul/ajouter-couts-par-produit/cost<int:cost_id>/product<int:product_id>/',
+        views.add_cost_per_product),
 ]

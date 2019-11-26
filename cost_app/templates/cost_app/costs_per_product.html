@@ -6,7 +6,7 @@
 
 {% block content %}
 <!-- Title -->
-<h5>Coûts pour {{ product.name }}</h5>
+<h5>Coûts pour {{ product.name }}{% if total_costs != 0 %}: {{ total_costs }} soit {{ 100|mul:total_costs|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire{% endif %}</h5>
 <!---->
 <!-- Tables general costs  -->
 {% for category in cost_product_categories %}
@@ -48,7 +48,7 @@
                                         {% if quantity != 0 %}
                                             {{ quantity }} {{ cost.unit }}
                                         {% endif %}
-                                        <a href="{% url 'calcul' %}ajouter-couts-generaux/{{ cost.id }}/" class="btn btn-sm btn-outline-light">ajouter / historique</a>
+                                        <a href="{% url 'calcul' %}ajouter-couts-par-produit/cost{{ cost.id }}/product{{ product.id }}/" class="btn btn-sm btn-outline-light">ajouter / historique</a>
                                     </td>
                                     <!-- amount -->
                                     <td style="vertical-align: middle;">
@@ -105,5 +105,8 @@
     </div>
     <!---->
 {% endfor %}
+<!---->
+<!-- return button -->
+<a class="btn btn-danger mb-2" href="{% url 'calcul' %}" style="margin-left:2rem;">Retour</a>
 <!---->
 {% endblock %}
