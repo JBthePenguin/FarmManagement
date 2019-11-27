@@ -1,0 +1,201 @@
+{% load static %}
+
+{% load mathfilters %}
+
+<div class="table-responsive-md">
+    <table class="table table-hover table-bordered table-sm table-dark text-center">
+        <!-- Table header -->
+        <thead>
+            <tr class="bg-secondary">
+                <!-- col cost's name with category's name in header-->
+                <th scope="col" rowspan='2' style="vertical-align: middle;"><strong>{{ category.name }}</strong></th>
+                <!---->
+                <!-- 2 cols quantity -->
+                <th colspan="2" style="vertical-align: middle;">Quantité</th>
+                <!-- col amount -->
+                <th scope="col" rowspan='2' style="vertical-align: middle;">Coût</th>
+                <!---->
+                <!-- 5 cols costs % -->
+                <th colspan="6" style="vertical-align: middle;">% des coûts</th>
+                <!---->
+                <!-- col total revenue % -->
+                <th scope="col" rowspan='2' style="vertical-align: middle;">% du CA</th>
+                <!---->
+            </tr>
+            <tr class="bg-secondary">
+                <!-- cols quantity -->
+                <th scope="col">totale</th>
+                <th scope="col"></th>
+                <!-- -->
+                <!-- cols costs % -->
+                <th scope="col">du coût</th>
+                <th scope="col">{{ category.name }} | {{ product.name }}</th>
+                <th scope="col">{{ category.name }}</th>
+                <th scope="col">{{ product.name }}</th>
+                <th scope="col">par produit</th>
+                <th scope="col">totaux</th>
+                <!---->
+            </tr>
+        </thead>
+        <!---->
+        <!-- Table lines -->
+        <tbody>
+            {% for cost in costs_product %}
+                {% if cost.category == category %}
+                    <!-- line for each cost -->
+                    <tr>
+                        <!-- name -->
+                        <td style="vertical-align: middle;">
+                            {{ cost.name }}
+                        </td>
+                        <!---->
+                        {% for cost_id, quantity in cost_product_quantities.items %}
+                            {% if cost_id == cost.id %}
+                                <!-- total quantity -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ quantity }} {{ cost.unit }}
+                                    {% endif %}
+                                </td>
+                                <!-- add link -->
+                                <td style="vertical-align: middle;">
+                                    <a href="{% url 'calcul' %}ajouter-couts-par-produit/cost{{ cost.id }}/product{{ product.id }}/" class="btn btn-sm btn-outline-light m-0">ajouter</a>
+                                </td>
+                                <!---->
+                                <!-- amount -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ cost.amount|mul:quantity }}
+                                    {% endif %}
+                                </td>
+                                <!---->
+                                <!-- cost % -->
+                                {% for new_cost_id, total in totals_by_cost_product.items %}
+                                    {% if new_cost_id == cost.id %}
+                                        <td style="vertical-align: middle;">
+                                            {% if quantity != 0 %}
+                                                {{ 100|mul:cost.amount|mul:quantity|div:total|floatformat:"-2" }} %
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                                <!---->
+                                <!-- category product costs % -->
+                                {% for category_id, total in totals_by_cost_product_category.items %}
+                                    {% if category_id == category.id %}
+                                        <td style="vertical-align: middle;">
+                                            {% if quantity != 0 %}
+                                                {{ 100|mul:cost.amount|mul:quantity|div:total|floatformat:"-2" }} %
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                                <!---->
+                                <!-- category costs % -->
+                                {% for category_id, total in totals_by_costs_product_category.items %}
+                                    {% if category_id == category.id %}
+                                        <td style="vertical-align: middle;">
+                                            {% if quantity != 0 %}
+                                                {{ 100|mul:cost.amount|mul:quantity|div:total|floatformat:"-2" }} %
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                                <!---->
+                                <!-- cost for product % -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ 100|mul:cost.amount|mul:quantity|div:total_cost_product|floatformat:"-2" }} %
+                                    {% endif %}
+                                </td>
+                                <!---->
+                                <!-- costs products % -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ 100|mul:cost.amount|mul:quantity|div:total_cost_per_product|floatformat:"-2" }} %
+                                    {% endif %}
+                                </td>
+                                <!---->
+                                <!-- total costs % -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ 100|mul:cost.amount|mul:quantity|div:total_costs|floatformat:"-2" }} %
+                                    {% endif %}
+                                </td>
+                                <!---->
+                                <!-- total revenue % -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ 100|mul:cost.amount|mul:quantity|div:total_revenue|floatformat:"-2" }} %
+                                    {% endif %}
+                                </td>
+                                <!---->
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            <!-- last line -->
+            <tr class="bg-success">
+                <!-- titlte line -->
+                <td colspan="3" class="text-right" style="vertical-align: middle;">
+                    Total:
+                </td>
+                <!---->
+                {% for category_id, total in totals_by_cost_product_category.items %}
+                    {% if category_id == category.id %}
+                        <!-- total cost for category -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ total }}
+                            {% endif %}
+                        </td>
+                        <!---->
+                        <td></td>
+                        <td></td>
+                        <!-- total cost category % -->
+                        {% for all_category_id, all_total in totals_by_costs_product_category.items %}
+                            {% if all_category_id == category.id %}
+                                <td style="vertical-align: middle;">
+                                    {% if total != 0 %}
+                                        {{ 100|mul:total|div:all_total|floatformat:"-2" }} %
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                        <!---->
+                        <!-- total cost for product % -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ 100|mul:total|div:total_cost_product|floatformat:"-2" }} %
+                            {% endif %}
+                        </td>
+                        <!---->
+                        <!-- total cost for product % -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ 100|mul:total|div:total_cost_per_product|floatformat:"-2" }} %
+                            {% endif %}
+                        </td>
+                        <!---->
+                        <!-- total costs % -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ 100|mul:total|div:total_costs|floatformat:"-2" }} %
+                            {% endif %}
+                        </td>
+                        <!---->
+                        <!-- total revenue % -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ 100|mul:total|div:total_revenue|floatformat:"-2" }} %
+                            {% endif %}
+                        </td>
+                        <!---->
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </tbody>
+        <!---->
+    </table>
+</div>

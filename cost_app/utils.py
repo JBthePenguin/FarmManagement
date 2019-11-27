@@ -1,6 +1,6 @@
 from order_app.models import BasketProductOrdered, BasketOrdered
 from product_app.models import ProductOrdered
-from cost_app.models import AdditionalCostProduct
+from cost_app.models import AdditionalCostProduct, AdditionalCost
 
 
 def get_total_revenue():
@@ -48,3 +48,17 @@ def get_total_cost_product(product):
     for additional_cost_product in additional_costs_product:
         total += additional_cost_product.additional_cost.quantity * additional_cost_product.additional_cost.cost.amount
     return total
+
+
+def get_totals_by_costs_product_category(cost_product_categories):
+    """ return a dict
+    {category id: total}"""
+    totals_by_costs_product_category = {}
+    for category in cost_product_categories:
+        additional_costs = AdditionalCost.objects.filter(
+            cost__category=category)
+        total = 0
+        for additional_cost in additional_costs:
+            total += additional_cost.quantity * additional_cost.cost.amount
+        totals_by_costs_product_category[category.id] = total
+    return totals_by_costs_product_category

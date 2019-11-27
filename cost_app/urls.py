@@ -18,4 +18,10 @@ urlpatterns = [
     path(
         'couts/calcul/ajouter-couts-par-produit/cost<int:cost_id>/product<int:product_id>/',
         views.add_cost_per_product),
+    path(
+        'couts/calcul/ajouter-couts-par-produit/<int:cost_id>/',
+        views.add_cost_product),
+    path(
+        'couts/calcul/cout-produits/<int:cost_id>/',
+        views.cost_products),
 ]

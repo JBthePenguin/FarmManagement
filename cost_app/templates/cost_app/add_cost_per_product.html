@@ -6,7 +6,7 @@
 
 {% block content %}
 <!-- Title -->
-<h5 class="mt-4">Coût par produit</h5>
+<h5 class="mt-4">Coûts pour {{ product.name }}</h5>
 <h5 class="mt-4">{{ cost_per_product.category.name }}</h5>
 <!---->
 <!-- form -->
@@ -14,17 +14,14 @@
 <form id="add-cost-product-form" role="form" action="" method="post">
     {% csrf_token %}
     <!-- title with cost name -->
-    <h5 class="mt-4">{{ cost_per_product.name }}</h5>
+    <h5><h5 class="mt-4">{{ cost_per_product.name }}</h5></h5>
     <!---->
-    <!-- inputs for quantity for each product -->
-    Quantité à ajouter pour<br>
-    {% for product in products %}
-        <label>{{ product.name }}: <input type="number" step="0.001" name="added-quantity-{{ product.id }}" class="text-center"> {{ cost_per_product.unit }}</label><br>
-    {% endfor %}
+    <!-- input for quantity -->
+    <label>Quantité à ajouter: <input type="number" step="0.001" name="added-quantity" class="text-center"> {{ cost_per_product.unit }}</label><br>
     <!---->
     <!-- Button save and cancel -->
     <button class="btn btn-success" type="submit">Ajouter</button>
-    <a class="btn btn-danger" href="{% url 'calcul' %}">Annuler</a>
+    <a class="btn btn-danger" href="/couts/calcul/couts-par-produit/{{ product.id }}/">Annuler</a>
     <!---->
 </form>
 <!---->
@@ -45,9 +42,6 @@
                     <!-- col quantity -->
                     <th scope="col">Quantité</th>
                     <!-- -->
-                    <!--  col product -->
-                    <th scope="col">Produit</th>
-                    <!---->
                     <!-- col delete -->
                     <th scope="col"></th>
                     <!-- -->
@@ -69,11 +63,6 @@
                             {% if additional_cost_product.additional_cost.quantity|mod:1|mul:1000|floatformat:"0" == "0" %}{{ additional_cost_product.additional_cost.quantity|floatformat:"-1" }} {% else %}{{ additional_cost_product.additional_cost.quantity }} {% endif %}{{ cost_per_product.unit }}
                         </td>
                         <!---->
-                        <!-- product -->
-                        <td style="vertical-align: middle;">
-                            {{ additional_cost_product.product.name }}
-                        </td>
-                        <!----> 
                         <!-- button to delete added cost -->
                         <td style="vertical-align: middle;">
                             <button onclick='DeleteAddedCost("{{ additional_cost_product.additional_cost.id }}", "{{ additional_cost_product.additional_cost.date_added }}", "{{ csrf_token }}");'>

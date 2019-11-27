@@ -1,0 +1,88 @@
+{% load static %}
+
+{% load mathfilters %}
+
+<div class="table-responsive-md">
+    <table class="table table-hover table-bordered table-sm table-dark text-center">
+        <!-- Table header -->
+        <thead>
+            <tr class="bg-secondary">
+                <!-- col name -->
+                <th scope="col" rowspan='2' style="vertical-align: middle;">Produit</th>
+                <!---->
+                <!-- 2 cols total cost -->
+                <th colspan="2" style="vertical-align: middle;">Coût</th>
+                <!-- -->
+                <!---->
+                <!-- 2 cols costs % -->
+                <th colspan="2" style="vertical-align: middle;">% des coûts</th>
+                <!---->
+                <!-- col percent cost with revenue-->
+                <th scope="col" rowspan='2' style="vertical-align: middle;">% du CA</th>
+                <!-- -->
+            </tr>
+            <tr class="bg-secondary">
+                <!-- col total cost -->
+                <th scope="col">total</th>
+                <th scope="col"></th>
+                <!-- cols costs % -->
+                <th scope="col">par produit</th>
+                <th scope="col">totaux</th>
+                <!---->
+            </tr>
+        </thead>
+        <!---->
+        <!-- Table lines -->
+        <tbody>
+            {% for product in products %}
+                <!-- line for each product -->
+                <tr>
+                    <!-- name -->
+                    <td style="vertical-align: middle;">
+                        {{ product.name }}
+                    </td>
+                    <!---->
+                    {% for key, value in total_cost_by_product.items %}
+                        {% if key == product.id %}
+                            <!-- total costs -->
+                            <td style="vertical-align: middle;">
+                                {% if value != 0 %}
+                                    {{ value }}
+                                {% endif %}
+                            </td>
+                            <!---->
+                            <!-- link detail -->
+                            <td style="vertical-align: middle;">
+                                <a href="{% url 'calcul' %}couts-par-produit/{{ product.id }}/" class="btn btn-sm btn-outline-light m-0">détail</a>
+                            </td>
+                            <!---->
+                            <!-- costs product % -->
+                            <td style="vertical-align: middle;">
+                                {% if value != 0 %}
+                                    {{ 100|mul:value|div:total_costs_product|floatformat:"-2" }} %
+                                {% endif %}
+                            </td>
+                            <!---->
+                            <!-- costs % -->
+                            <td style="vertical-align: middle;">
+                                {% if value != 0 %}
+                                    {{ 100|mul:value|div:total_costs|floatformat:"-2" }} %
+                                {% endif %}
+                            </td>
+                            <!---->
+                            <!-- percent cost with revenue -->
+                            <td style="vertical-align: middle;">
+                                {% if value != 0 %}
+                                    {{ 100|mul:value|div:total_revenue|floatformat:"-2" }} %
+                                {% endif %}
+                                
+                            </td>
+                            <!---->
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <!---->
+    </table>
+</div>

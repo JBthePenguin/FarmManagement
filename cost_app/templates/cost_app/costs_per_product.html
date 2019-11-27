@@ -6,104 +6,11 @@
 
 {% block content %}
 <!-- Title -->
-<h5>Coûts pour {{ product.name }}{% if total_costs != 0 %}: {{ total_costs }} soit {{ 100|mul:total_costs|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire{% endif %}</h5>
+<h5>Coûts pour {{ product.name }}{% if total_cost_product != 0 %}: {{ total_cost_product }} <strong class="text-danger">||</strong> {{ 100|mul:total_cost_product|div:total_cost_per_product|floatformat:"-2" }} % des coûts par produit <strong class="text-danger">||</strong> {{ 100|mul:total_cost_product|div:total_costs|floatformat:"-2" }} % des coûts totaux <strong class="text-danger">||</strong> {{ 100|mul:total_cost_product|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire{% endif %}</h5>
 <!---->
-<!-- Tables general costs  -->
+<!-- Tables costs product -->
 {% for category in cost_product_categories %}
-    <div class="table-responsive-md">
-        <table class="table table-hover table-bordered table-sm table-dark text-center">
-            <!-- Table header -->
-            <thead>
-                <tr class="bg-secondary">
-                    <!-- col cost's name with category's name in header-->
-                    <th scope="col"><strong>{{ category.name }}</strong></th>
-                    <!---->
-                    <!-- col quantity -->
-                    <th scope="col" style="vertical-align: middle;">Quantité</th>
-                    <!-- -->
-                    <!-- col amount -->
-                    <th scope="col" style="vertical-align: middle;">Coût</th>
-                    <!---->
-                    <!-- col result -->
-                    <th scope="col" style="vertical-align: middle;">% du CA</th>
-                    <!---->
-                </tr>
-            </thead>
-            <!---->
-            <!-- Table lines -->
-            <tbody>
-                {% for cost in costs_product %}
-                    {% if cost.category == category %}
-                        <!-- line for each cost -->
-                        <tr>
-                            <!-- name -->
-                            <td style="vertical-align: middle;">
-                                {{ cost.name }}
-                            </td>
-                            <!---->
-                            {% for cost_id, quantity in cost_product_quantities.items %}
-                                {% if cost_id == cost.id %}
-                                    <!-- quantity -->
-                                    <td style="vertical-align: middle;">
-                                        {% if quantity != 0 %}
-                                            {{ quantity }} {{ cost.unit }}
-                                        {% endif %}
-                                        <a href="{% url 'calcul' %}ajouter-couts-par-produit/cost{{ cost.id }}/product{{ product.id }}/" class="btn btn-sm btn-outline-light">ajouter / historique</a>
-                                    </td>
-                                    <!-- amount -->
-                                    <td style="vertical-align: middle;">
-                                        {% if quantity != 0 %}
-                                            {{ cost.amount|mul:quantity }}
-                                        {% endif %}
-                                    </td>
-                                    <!---->
-                                    <!-- result -->
-                                    <td style="vertical-align: middle;">
-                                        {% if quantity != 0 %}
-                                            {{ 100|mul:cost.amount|mul:quantity|div:total_revenue|floatformat:"-2" }} %
-                                        {% endif %}
-                                    </td>
-                                    <!---->
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-                <!-- last line -->
-                <tr class="bg-success">
-                    <!-- titlte line -->
-                    <td colspan="2" class="text-right" style="vertical-align: middle;">
-                        Total:
-                    </td>
-                    <!---->
-                    <!-- total cost for category -->
-                    <td style="vertical-align: middle;">
-                        {% for category_id, total in totals_by_cost_product_category.items %}
-                            {% if category_id == category.id %}
-                                {% if total != 0 %}
-                                    {{ total }}
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    <!---->
-                    <!-- percent for total cost -->
-                    <td style="vertical-align: middle;">
-                        {% for category_id, total in totals_by_cost_product_category.items %}
-                            {% if category_id == category.id %}
-                                {% if total != 0 %}
-                                    {{ 100|mul:total|div:total_revenue|floatformat:"-2" }} %
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    <!---->
-                </tr>
-            </tbody>
-            <!---->
-        </table>
-    </div>
-    <!---->
+    {% include 'cost_app/table_costs_per_product.html' %}
 {% endfor %}
 <!---->
 <!-- return button -->

@@ -1,0 +1,152 @@
+{% load static %}
+
+{% load mathfilters %}
+
+<div class="table-responsive-md">
+    <table class="table table-hover table-bordered table-sm table-dark text-center">
+        <!-- Table header -->
+        <thead>
+            <tr class="bg-secondary">
+                <!-- col cost's name with category's name in header-->
+                <th scope="col" rowspan='2' style="vertical-align: middle;"><strong>{{ category.name }}</strong></th>
+                <!---->
+                <!-- 2 cols quantity -->
+                <th colspan="2" style="vertical-align: middle;">Quantité</th>
+                <!-- -->
+                <!-- col amount -->
+                <th scope="col" rowspan='2' style="vertical-align: middle;">Coût</th>
+                <!---->
+                <!-- 3 cols costs % -->
+                <th colspan="3" style="vertical-align: middle;">% des coûts</th>
+                <!---->
+                <!-- col total revenue % -->
+                <th scope="col" rowspan='2' style="vertical-align: middle;">% du CA</th>
+                <!---->
+            </tr>
+            <tr class="bg-secondary">
+                <!-- cols quantity -->
+                <th scope="col">totale</th>
+                <th scope="col"></th>
+                <!-- -->
+                <!-- cols costs % -->
+                <th scope="col">{{ category.name }}</th>
+                <th scope="col">généraux</th>
+                <th scope="col">totaux</th>
+                <!---->
+            </tr>
+        </thead>
+        <!---->
+        <!-- Table lines -->
+        <tbody>
+            {% for cost in general_costs %}
+                {% if cost.category == category %}
+                    <!-- line for each cost -->
+                    <tr>
+                        <!-- name -->
+                        <td style="vertical-align: middle;">
+                            {{ cost.name }}
+                        </td>
+                        <!---->
+                        {% for cost_id, quantity in general_cost_quantities.items %}
+                            {% if cost_id == cost.id %}
+                                <!-- total quantity -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ quantity }} {{ cost.unit }}
+                                    {% endif %}
+                                </td>
+                                <!-- -->
+                                <!-- add link -->
+                                <td style="vertical-align: middle;">
+                                    <a href="{% url 'calcul' %}ajouter-couts-generaux/{{ cost.id }}/" class="btn btn-sm btn-outline-light m-0">ajouter</a>
+                                </td>
+                                <!---->
+                                <!-- amount -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ cost.amount|mul:quantity }}
+                                    {% endif %}
+                                </td>
+                                <!---->
+                                <!-- category costs % -->
+                                {% for category_id, total in totals_by_general_category.items %}
+                                    {% if category_id == category.id %}
+                                        <td style="vertical-align: middle;">
+                                            {% if quantity != 0 %}
+                                                {{ 100|mul:cost.amount|mul:quantity|div:total|floatformat:"-2" }} %
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                                <!---->
+                                <!-- general costs % -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ 100|mul:cost.amount|mul:quantity|div:total_general_costs|floatformat:"-2" }} %
+                                    {% endif %}
+                                </td>
+                                <!---->
+                                <!-- total costs % -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ 100|mul:cost.amount|mul:quantity|div:total_costs|floatformat:"-2" }} %
+                                    {% endif %}
+                                </td>
+                                <!---->
+                                <!-- total revenue % -->
+                                <td style="vertical-align: middle;">
+                                    {% if quantity != 0 %}
+                                        {{ 100|mul:cost.amount|mul:quantity|div:total_revenue|floatformat:"-2" }} %
+                                    {% endif %}
+                                </td>
+                                <!---->
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            <!-- last line -->
+            <tr class="bg-success">
+                <!-- titlte line -->
+                <td colspan="3" class="text-right" style="vertical-align: middle;">
+                    Total:
+                </td>
+                <!---->
+                {% for category_id, total in totals_by_general_category.items %}
+                    {% if category_id == category.id %}
+                        <!-- total cost for category -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ total }}
+                            {% endif %}
+                        </td>
+                        <!---->
+                        <td></td>
+                        <!-- general costs % -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ 100|mul:total|div:total_general_costs|floatformat:"-2" }} %
+                            {% endif %}
+                        </td>
+                        <!---->
+                        <!-- total costs % -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ 100|mul:total|div:total_costs|floatformat:"-2" }} %
+                            {% endif %}
+                        </td>
+                        <!---->
+                        <!-- total revenue % -->
+                        <td style="vertical-align: middle;">
+                            {% if total != 0 %}
+                                {{ 100|mul:total|div:total_revenue|floatformat:"-2" }} %
+                            {% endif %}
+                        </td>
+                        <!---->
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </tbody>
+        <!---->
+    </table>
+</div>

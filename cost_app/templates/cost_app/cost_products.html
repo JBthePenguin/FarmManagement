@@ -1,0 +1,21 @@
+{% extends 'product_app/base.html' %}
+
+{% load static %}
+
+{% load mathfilters %}
+
+{% block content %}
+<!-- Title -->
+<h5 class="mt-4">Coût par produit</h5>
+<h5 class="mt-4">{{ cost_per_product.category.name }}</h5>
+<h5 class="mt-4">{{ cost_per_product.name }}</h5>
+<!---->
+<h5 class="mt-4">Quantité total: {{ total_quantity }} {{ cost_per_product.unit }}</h5>
+<h5 class="mt-4">Coût total: {{ total_quantity|mul:cost_per_product.amount }}</h5>
+<!-- Table with detail for each product -->
+{% include 'cost_app/table_cost_products.html' %}
+<!---->
+<!-- return button -->
+<a class="btn btn-danger mb-2" href="{% url 'calcul' %}" style="margin-left:2rem;">Retour</a>
+<!---->
+{% endblock %}
