@@ -2,6 +2,8 @@
 
 {% load mathfilters %}
 
+{% load use_dict %}
+
 <div class="table-responsive-md">
     <table class="table table-hover table-bordered table-sm table-dark text-center">
         <!-- Table header -->
@@ -35,6 +37,7 @@
         <!-- Table lines -->
         <tbody>
             {% for product in products %}
+                {% with total_cost_by_product|get_value:product.id as cost %}
                 <!-- line for each product -->
                 <tr>
                     <!-- name -->
@@ -42,45 +45,41 @@
                         {{ product.name }}
                     </td>
                     <!---->
-                    {% for key, value in total_cost_by_product.items %}
-                        {% if key == product.id %}
-                            <!-- total costs -->
-                            <td style="vertical-align: middle;">
-                                {% if value != 0 %}
-                                    {{ value }}
-                                {% endif %}
-                            </td>
-                            <!---->
-                            <!-- link detail -->
-                            <td style="vertical-align: middle;">
-                                <a href="{% url 'calcul' %}couts-par-produit/{{ product.id }}/" class="btn btn-sm btn-outline-light m-0">détail</a>
-                            </td>
-                            <!---->
-                            <!-- costs product % -->
-                            <td style="vertical-align: middle;">
-                                {% if value != 0 %}
-                                    {{ 100|mul:value|div:total_costs_product|floatformat:"-2" }} %
-                                {% endif %}
-                            </td>
-                            <!---->
-                            <!-- costs % -->
-                            <td style="vertical-align: middle;">
-                                {% if value != 0 %}
-                                    {{ 100|mul:value|div:total_costs|floatformat:"-2" }} %
-                                {% endif %}
-                            </td>
-                            <!---->
-                            <!-- percent cost with revenue -->
-                            <td style="vertical-align: middle;">
-                                {% if value != 0 %}
-                                    {{ 100|mul:value|div:total_revenue|floatformat:"-2" }} %
-                                {% endif %}
-                                
-                            </td>
-                            <!---->
+                    <!-- total cost -->
+                    <td style="vertical-align: middle;">
+                        {% if cost != 0 %}
+                            {{ cost }}
                         {% endif %}
-                    {% endfor %}
+                    </td>
+                    <!---->
+                    <!-- link detail -->
+                    <td style="vertical-align: middle;">
+                        <a href="{% url 'calcul' %}couts-par-produit/{{ product.id }}/" class="btn btn-sm btn-outline-light m-0">détail</a>
+                    </td>
+                    <!---->
+                    <!-- costs product % -->
+                    <td style="vertical-align: middle;">
+                        {% if cost != 0 %}
+                            {{ 100|mul:cost|div:total_costs_product|floatformat:"-2" }} %
+                        {% endif %}
+                    </td>
+                    <!---->
+                    <!-- costs % -->
+                    <td style="vertical-align: middle;">
+                        {% if cost != 0 %}
+                            {{ 100|mul:cost|div:total_costs|floatformat:"-2" }} %
+                        {% endif %}
+                    </td>
+                    <!---->
+                    <!-- percent cost with revenue -->
+                    <td style="vertical-align: middle;">
+                        {% if cost != 0 %}
+                            {{ 100|mul:cost|div:total_revenue|floatformat:"-2" }} %
+                        {% endif %}
+                    </td>
+                    <!---->
                 </tr>
+                {% endwith %}
             {% endfor %}
         </tbody>
         <!---->

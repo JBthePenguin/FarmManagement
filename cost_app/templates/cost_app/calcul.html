@@ -65,4 +65,8 @@
 <hr style="border-top: 2px solid #8c8b8b;">
 <h5 class="mt-3">Bénéfices par produit (sans compter les coûts généraux){% if total_costs_product != 0 %}: {{ total_revenue|sub:total_costs_product  }} <strong class="text-danger">||</strong> {{ total_revenue|sub:total_costs_product|mul:100|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire{% endif %}</h5>
 <!---->
+<hr style="border-top: 2px solid #8c8b8b;">
+<!-- Table benefit per product -->
+{% include 'cost_app/table_benefecit_products.html' %}
+<!---->
 {% endblock %}
