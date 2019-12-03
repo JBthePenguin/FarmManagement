@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load product_price %}
+
 {% block content %}
 <!-- Update product form -->
 <form id="update-product-form" role="form" action="" method="post">
@@ -14,11 +16,7 @@
         <!-- inputs for prices -->
         <h5>Prix</h5>
         {% for category_client in categories_client %}
-            {% for key, value in prices.items %}
-                {% if category_client.name == key %}
-                    <label>{{ key }} : <input type="number" step="0.01" name="{{ key }}" value="{{ value }}" class="text-center"></label> €<br>
-                {% endif %}
-            {% endfor %}
+            <label>{{ category_client.name }} : <input type="number" step="0.01" name="{{ category_client.name }}" value="{{ product_updated|get_price_amount:category_client }}" class="text-center"></label> €<br>
         {% endfor %}
         <!---->
     {% endif %}

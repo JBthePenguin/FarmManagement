@@ -4,7 +4,6 @@ from basket_app.models import Basket, BasketCategory, BasketProduct
 from basket_app.forms import *
 from product_app.models import Product
 from client_app.models import CategoryClient
-from price_app.models import Price
 from order_app.models import OrderBasket
 
 
@@ -24,7 +23,9 @@ def basket(request):
                 category.delete()
             except ProtectedError:
                 # No delete because this category have a basket created
-                return HttpResponse("Cette catégorie ne peut pas être supprimée car un (ou des) panier(s) lui appartien(nen)t.")
+                return HttpResponse("".join([
+                    "Cette catégorie ne peut pas être supprimée",
+                    " car un (ou des) panier(s) lui appartien(nen)t."]))
             else:
                 return HttpResponse("")
         elif action == "delete basket":
@@ -35,53 +36,32 @@ def basket(request):
                 basket.delete()
             except ProtectedError:
                 # No delete because this basket is used in order in preparation
-                return HttpResponse("Ce panier ne peut pas être supprimé car il appartient à une (ou des) commande(s) en préparation.")
+                return HttpResponse("".join([
+                    "Ce panier ne peut pas être supprimé",
+                    " car il appartient à une (ou des) commande(s)",
+                    " en préparation."]))
             else:
                 # update all basket's numbers
                 baskets = Basket.objects.all().order_by('number')
                 number = 1
                 for basket in baskets:
-                    basket.number = number
-                    basket.save()
+                    if basket.number != number:
+                        basket.number = number
+                        basket.save()
                     number += 1
                 return HttpResponse("")
-    # get all baskets, basket's categories, compositons,
-    # client's categories and prices
-    baskets = Basket.objects.all().order_by('number')
+    # get basket's categories, number of baskets
+    # client's categories
     categories = BasketCategory.objects.all().order_by('name')
-    compositions = BasketProduct.objects.all().order_by(
-        'basket__number', 'product__name')
+    number_of_baskets = Basket.objects.all().count()
     categories_client = CategoryClient.objects.all().order_by('name')
-    prices = Price.objects.all()
-    # make a dict for total price by basket for each client's category
-    # {basket number: total prices by client's category}
-    total_prices_by_basket = {}
-    for basket in baskets:
-        # make a dict for total price by client's category
-        # {client's category name: total price}
-        total_prices_by_category = {}
-        for category in categories_client:
-            total_price = 0
-            for component in compositions:
-                if component.basket == basket:
-                    for price in prices:
-                        if (
-                            (price.product == component.product) and (
-                                price.category_client == category)):
-                            total_price += round(
-                                price.value * component.quantity_product, 2)
-            total_prices_by_category[category.name] = total_price
-        total_prices_by_basket[basket.number] = total_prices_by_category
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Paniers",
+        "page_title": "Paniers",
         "basket": "active",
-        "baskets": baskets,
         "categories": categories,
-        "compositions": compositions,
+        "number_of_baskets": number_of_baskets,
         "categories_client": categories_client,
-        "prices": prices,
-        "total_prices": total_prices_by_basket,
     }
     return render(request, 'basket_app/basket.html', context)
 
@@ -100,7 +80,7 @@ def add_category_basket(request):
             return redirect('basket')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Ajouter une catégorie de paniers",
+        "page_title": "Ajouter une catégorie de paniers",
         "basket": "active",
         "form": form,
     }
@@ -121,7 +101,7 @@ def update_category_basket(request, category_id):
             return redirect('basket')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Modifier une catégorie de panier",
+        "page_title": "Modifier une catégorie de paniers",
         "basket": "active",
         "form": form,
     }

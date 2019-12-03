@@ -2,6 +2,10 @@
 
 {% load static %}
 
+{% load product_price %}
+
+{% load basket_price %}
+
 {% load mathfilters %}
 
 {% block content %}
@@ -23,7 +27,7 @@
                     <!---->
                     <!-- link to update category -->
                     <td>
-                        <a href="/paniers/categorie{{ category.id }}/" class="text-danger">modifier</a>
+                        <a href="{% url 'basket' %}categorie{{ category.id }}/" class="text-danger">modifier</a>
                     </td>
                     <!---->
                     <!--button to delete category -->
@@ -43,7 +47,7 @@
 <!---->
 <!-- Basket -->
 <!-- Header -->
-<h5>{{ baskets.count }} panier{% if baskets.count > 1 %}s{% endif %} répertorié{% if baskets.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'create_basket' %}">Créer un nouveau panier</a></h5>
+<h5>{{ number_of_baskets }} panier{% if number_of_baskets > 1 %}s{% endif %} répertorié{% if number_of_baskets > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'create_basket' %}">Créer un nouveau panier</a></h5>
 <!---->
 <!-- Tables of basket by category -->
 {% for category in categories %}
@@ -51,117 +55,101 @@
         <!-- category name -->
         <h5>{{ category.name }}</h5>
         <!---->
-        {% for basket in baskets %}
-            {% if basket.category == category %}
-                <!-- Table's title, link to update basket and button to delete basket  -->
-                <strong style="padding-left:2rem;">panier numéro {{ basket.number }}:</strong><a href="/paniers/numero{{ basket.number }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteBasket("{{ basket.id }}", "{{ basket.number }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem; background-color: transparent; margin-top: 0;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
-                <!---->
-                <!-- Table -->
-                <div class="table-responsive-md">
-                    <table class="table table-hover table-bordered table-sm table-dark text-center">
-                        <!-- Table header -->
-                        <thead>
-                            <!-- first line -->
+        {% for basket in category|get_baskets %}
+            <!-- Table's title, link to update basket and button to delete basket  -->
+            <strong style="padding-left:2rem;">panier numéro {{ basket.number }}:</strong><a href="{% url 'basket' %}numero{{ basket.number }}/" class="text-danger" style="padding-left:1rem;">modifier</a><button onclick='DeleteBasket("{{ basket.id }}", "{{ basket.number }}", "{{ csrf_token }}");' style="padding-left:1rem; padding-bottom:1rem; background-color: transparent; margin-top: 0;"><img src="{% static 'img/trash.png' %}" class="img-fluid"></button>
+            <!---->
+            <!-- Table -->
+            <div class="table-responsive-md">
+                <table class="table table-hover table-bordered table-sm table-dark text-center">
+                    <!-- Table header -->
+                    <thead>
+                        <!-- first line -->
+                        <tr class="bg-secondary">
+                            <!-- col product name -->
+                            <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">
+                                Produit
+                            </th>
+                            <!---->
+                            <!-- col quantity -->
+                            <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">
+                                Quantité
+                            </th>
+                            <!---->
+                            {% if categories_client.count > 0 %}
+                                <!-- cols for prices -->
+                                <th colspan="{{ categories_client.count }}">
+                                    Prix
+                                </th>
+                                <!---->
+                            {% endif %}
+                        </tr>
+                        <!---->
+                        {% if categories_client.count > 0 %}
+                            <!-- second line -->
                             <tr class="bg-secondary">
-                                <!-- col product name -->
-                                <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">
-                                    Produit
-                                </th>
-                                <!---->
-                                <!-- col quantity -->
-                                <th scope="col" rowspan="{% if categories_client.count > 0 %}2{% else %}1{% endif %}" style="vertical-align: middle;">
-                                    Quantité
-                                </th>
-                                <!---->
-                                {% if categories_client.count > 0 %}
-                                    <!-- cols for prices -->
-                                    <th colspan="{{ categories_client.count }}">
-                                        Prix
+                                {% for category_client in categories_client %}
+                                    <!-- col for price for each client's category -->
+                                    <th scope="col">
+                                    {{ category_client.name }}
                                     </th>
                                     <!---->
+                                {% endfor %}
+                            </tr>
+                            <!---->
+                        {% endif %}
+                    </thead>
+                    <!---->
+                    <!-- Table lines -->
+                    <tbody>
+                        {% for component in basket|get_composition %}
+                            <!-- line for each product -->
+                            <tr>
+                                <!-- product name -->
+                                <td>
+                                    {{ component.product.name }}
+                                </td>
+                                <!---->
+                                <!-- quantity -->
+                                <td>
+                                    {{ component.quantity_product|floatformat:"-3" }} {{ component.product.unit }}
+                                </td>
+                                <!---->
+                                {% if categories_client.count > 0 %}
+                                    {% for category_client in categories_client %}
+                                        <!-- prices for each category -->
+                                        <td>
+                                            {% with component.product|get_price:category_client as price %}
+                                            {{ price|mul:component.quantity_product }}
+                                            {% endwith %} 
+                                        </td>
+                                        <!---->
+                                    {% endfor %}
                                 {% endif %}
                             </tr>
                             <!---->
+                        {% endfor %}
+                        <!-- last line -->
+                        <tr class="bg-success">
+                            <!-- Total title -->
+                            <td colspan="2" class="text-right">Total:</td>
+                            <!---->
                             {% if categories_client.count > 0 %}
-                                <!-- second line -->
-                                <tr class="bg-secondary">
-                                    {% for category_client in categories_client %}
-                                        <!-- col for price for each client's category -->
-                                        <th scope="col">
-                                        {{ category_client.name }}
-                                        </th>
-                                        <!---->
-                                    {% endfor %}
-                                </tr>
-                                <!---->
-                            {% endif %}
-                        </thead>
-                        <!---->
-                        <!-- Table lines -->
-                        <tbody>
-                            {% for component in compositions %}
-                                {% if component.basket == basket %}
-                                    <!-- line for each product -->
-                                    <tr>
-                                        <!-- product name -->
-                                        <td>
-                                            {{ component.product.name }}
-                                        </td>
-                                        <!---->
-                                        <!-- quantity -->
-                                        <td>
-                                            {{ component.quantity_product|floatformat:"-3" }} {{ component.product.unit }}
-                                        </td>
-                                        <!---->
-                                        {% if categories_client.count > 0 %}
-                                            {% for category_client in categories_client %}
-                                                <!-- prices for each category -->
-                                                <td>
-                                                    {% for price in prices %}
-                                                        {% if component.product == price.product and category_client == price.category_client %}
-                                                            {{ price.value|mul:component.quantity_product }}
-                                                        {% endif %}
-                                                    {% endfor %} 
-                                                </td>
-                                                <!---->
-                                            {% endfor %}
-                                        {% endif %}
-                                    </tr>
+                                {% for category_client in categories_client %}
+                                    <!-- Total for each category -->
+                                    <td>
+                                        {{ basket|get_basket_total_price:category_client }}
+                                    </td>
                                     <!---->
-                                {% endif %}
-                            {% endfor %}
-                            <!-- last line -->
-                            <tr class="bg-success">
-                                <!-- Total title -->
-                                <td colspan="2" class="text-right">Total:</td>
-                                <!---->
-                                {% if categories_client.count > 0 %}
-                                    {% for category_client in categories_client %}
-                                        <!-- Total for each category -->
-                                        <td>
-                                            {% for key, value in total_prices.items %}
-                                                {% if key == basket.number %}
-                                                    {% for category, total_price in value.items %}
-                                                        {% if category_client.name == category %}
-                                                            {% if total_price != 0 %}
-                                                                {{ total_price }}
-                                                            {% endif %}
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </td>
-                                        <!---->
-                                    {% endfor %}
-                                {% endif %}
-                            </tr>
-                            <!-- -->
-                        </tbody>
-                        <!---->
-                    </table>
-                </div>
-                <!---->
-            {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </tr>
+                        <!-- -->
+                    </tbody>
+                    <!---->
+                </table>
+            </div>
+            <!---->
         {% endfor %}
     </div>
 {% endfor %}

@@ -20,7 +20,9 @@ def client(request):
                 category.delete()
             except ProtectedError:
                 # No delete because a client use this category
-                return HttpResponse("Cette catégorie ne peut pas être supprimée car des clients lui appartiennent.")
+                return HttpResponse("".join([
+                    "Cette catégorie ne peut pas être supprimée",
+                    " car des clients lui appartiennent."]))
             else:
                 return HttpResponse("")
         elif action == "delete client":
@@ -31,7 +33,9 @@ def client(request):
                 client.delete()
             except ProtectedError:
                 # No delete because this client have order(s)
-                return HttpResponse("Ce client ne peut pas être supprimé car une (ou des) commande(s) lui appartien(nen)t.")
+                return HttpResponse("".join([
+                    "Ce client ne peut pas être supprimé",
+                    " car une (ou des) commande(s) lui appartien(nen)t."]))
             else:
                 return HttpResponse("")
     # get all clients and  categories
@@ -39,7 +43,7 @@ def client(request):
     clients = Client.objects.all().order_by('category__name', 'name')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Clients",
+        "page_title": "Clients",
         "client": "active",
         "categories": categories,
         "clients": clients,
@@ -61,7 +65,7 @@ def add_category(request):
             return redirect('client')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Ajouter une catégorie de client",
+        "page_title": "Ajouter une catégorie de client",
         "client": "active",
         "form": form,
     }
@@ -82,7 +86,7 @@ def update_category(request, category_id):
             return redirect('client')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Modifier une catégorie de client",
+        "page_title": "Modifier une catégorie de client",
         "client": "active",
         "form": form,
     }
@@ -102,7 +106,7 @@ def add_client(request):
             return redirect('client')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Ajouter un client",
+        "page_title": "Ajouter un client",
         "client": "active",
         "form": form,
     }
@@ -123,7 +127,7 @@ def update_client(request, client_id):
             return redirect('client')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Modifier un client",
+        "page_title": "Modifier un client",
         "client": "active",
         "form": form,
     }

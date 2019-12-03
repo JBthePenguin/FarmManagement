@@ -3,7 +3,7 @@ function DeleteProduct(product_id, product_name, csrf_token) {
     r = confirm("Confirmer la suppression du produit " + product_name)
     if (r == true) {
         $.post({
-            url: '/produits/',
+            url: '',
             data: {
                 'action': 'delete',
                 'product_id': product_id,

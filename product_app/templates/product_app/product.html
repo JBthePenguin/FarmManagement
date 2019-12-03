@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load product_price %}
+
 {% block content %}
 <!-- Header with number of products saved and button link to add a product -->
 <h5>{{ products.count }} produit{% if products.count > 1 %}s{% endif %} répertorié{% if products.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_product' %}">Ajouter un produit</a></h5>
@@ -72,11 +74,7 @@
                             {% for category_client in categories_client %}
                                 <!-- price for each client's category -->
                                 <td style="vertical-align: middle;">
-                                    {% for price in prices %}
-                                        {% if product == price.product and category_client == price.category_client %}
-                                            {{ price.value }}
-                                        {% endif %}
-                                    {% endfor %} 
+                                    {{ product|get_price:category_client }} 
                                 </td>
                                 <!---->
                             {% endfor %}
@@ -84,7 +82,7 @@
                         {% endif %}
                         <!-- link to update product -->
                         <td style="vertical-align: middle;">
-                            <a href="/produits/{{ product.id }}/" class="text-danger">modifier</a>
+                            <a href="{% url 'product' %}{{ product.id }}/" class="text-danger">modifier</a>
                         </td>
                         <!---->
                         <!--button to delete product -->

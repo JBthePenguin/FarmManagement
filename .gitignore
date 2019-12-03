@@ -16,6 +16,8 @@ product_app/migrations/__pycache__/
 
 product_app/migrations/0*.py
 
+product_app/templatetags/__pycache__/
+
 client_app/__pycache__/
 
 client_app/migrations/__pycache__/
@@ -33,6 +35,8 @@ basket_app/__pycache__/
 basket_app/migrations/__pycache__/
 
 basket_app/migrations/0*.py
+
+basket_app/templatetags/__pycache__/
 
 order_app/__pycache__/
 

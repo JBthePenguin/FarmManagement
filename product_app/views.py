@@ -23,6 +23,7 @@ def index(request):
         msg = "Données sauvegardées"
     # prepare and send all elements needed to construct the template
     context = {
+        "page_title": "Accueil",
         "msg": msg,
     }
     return render(request, 'product_app/index.html', context)
@@ -45,21 +46,22 @@ def product(request):
                 product.delete()
             except ProtectedError:
                 # No delete because product is used in a basket
-                return HttpResponse("Ce produit ne peut pas être supprimé car il appartient à un (ou des) panier(s).")
+                return HttpResponse("".join([
+                    "Ce produit ne peut pas être supprimé",
+                    " car il appartient à un (ou des) panier(s) ",
+                    "ou à des coûts."]))
             else:
                 # product deleted
                 return HttpResponse("")
-    # get all products, client's categories, prices
+    # get all products, client's categories
     products = Product.objects.all().order_by('name')
     categories_client = CategoryClient.objects.all().order_by('name')
-    prices = Price.objects.all()
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Produits",
+        "page_title": "Produits",
         "product": "active",
         "products": products,
         "categories_client": categories_client,
-        "prices": prices,
     }
     return render(request, 'product_app/product.html', context)
 
@@ -87,7 +89,7 @@ def add_product(request):
             return redirect('product')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Ajouter produit",
+        "page_title": "Ajouter produit",
         "product": "active",
         "form": form,
         "categories_client": categories_client,
@@ -100,19 +102,9 @@ def update_product(request, product_id):
     - display form to update a product
     - save changes in db """
     # form for update a product with his values in inputs values
-    product = Product.objects.get(pk=product_id)
-    form = ProductForm(request.POST or None, instance=product)
+    product_updated = Product.objects.get(pk=product_id)
+    form = ProductForm(request.POST or None, instance=product_updated)
     categories_client = CategoryClient.objects.all().order_by('name')
-    prices = {}
-    for category_client in categories_client:
-        try:
-            price = Price.objects.get(
-                product=product, category_client=category_client)
-            price_value = str(price.value.amount)
-        except Price.DoesNotExist:
-            # no price saved for this category
-            price_value = ""
-        prices[category_client.name] = price_value
     if request.method == 'POST':
         # product has updated
         if form.is_valid():
@@ -121,7 +113,8 @@ def update_product(request, product_id):
                 new_price_value = request.POST.get(category_client.name)
                 try:
                     price = Price.objects.get(
-                        product=product, category_client=category_client)
+                        product=product_updated,
+                        category_client=category_client)
                     price_value = str(price.value.amount)
                     if price_value != new_price_value:
                         # price changed
@@ -136,17 +129,17 @@ def update_product(request, product_id):
                     if new_price_value != "":
                         # save new price in db
                         price = Price(
-                            product=product,
+                            product=product_updated,
                             category_client=category_client,
                             value=new_price_value)
                         price.save()
             return redirect('product')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Modifier produit",
+        "page_title": "Modifier produit",
         "product": "active",
+        "product_updated": product_updated,
         "form": form,
         "categories_client": categories_client,
-        "prices": prices,
     }
     return render(request, 'product_app/update_product.html', context)
