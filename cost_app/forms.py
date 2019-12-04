@@ -1,5 +1,5 @@
 from django import forms
-from cost_app.models import CostCategory, Cost, AdditionalCost
+from cost_app.models import CostCategory, Cost
 from django.core.exceptions import NON_FIELD_ERRORS
 
 

@@ -33,5 +33,4 @@ def get_basket_total_price(basket, category_client):
             total_price += round(price.value * component.quantity_product, 2)
     if total_price == 0:
         return ""
-    else:
-        return total_price
+    return total_price

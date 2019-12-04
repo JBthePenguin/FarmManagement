@@ -1,0 +1,70 @@
+{% load static %}
+
+{% load cost_display %}
+
+<!-- Table with costs -->
+<div class="table-responsive-md">
+    <table class="table table-hover table-bordered table-sm table-dark text-center">
+        <!-- Table header -->
+        <thead>
+            <tr class="bg-secondary">
+                <!-- col name with add button in header-->
+                <th scope="col">
+                    <a class="btn btn-success btn-sm" type="button" href="{% url 'cost' %}add-cout-{{ category.id }}/" style="vertical-align: middle;">Ajouter un coût</a>
+                </th>
+                <!---->
+                <!-- col amount -->
+                <th scope="col" style="vertical-align: middle;">
+                    Coût
+                </th>
+                <!---->
+                <!-- col unit -->
+                <th scope="col" style="vertical-align: middle;">
+                    Unité
+                </th>
+                <!-- -->
+                <!-- 2 cols for button and links -->
+                <th colspan="2"></th>
+                <!---->
+            </tr>
+        </thead>
+        <!---->
+        <!-- Table lines -->
+        <tbody>
+            {% for cost in category|get_costs_by_category %}
+                <!-- line for each cost -->
+                <tr>
+                    <!-- name -->
+                    <td style="vertical-align: middle;">
+                        {{ cost.name }}
+                    </td>
+                    <!---->
+                    <!-- amount -->
+                    <td style="vertical-align: middle;">
+                        {{ cost.amount }}
+                    </td>
+                    <!---->
+                    <!-- unit -->
+                    <td style="vertical-align: middle;">
+                        {{ cost.unit }}
+                    </td>
+                    <!---->
+                    <!-- link to update -->
+                    <td style="vertical-align: middle;">
+                        <a href="/couts/mod-cout-{{ cost.id }}/" class="text-danger">modifier</a>
+                    </td>
+                    <!---->
+                    <!-- button to delete -->
+                    <td style="vertical-align: middle;">
+                        <button onclick='DeleteCost("{{ cost.id }}", "{{ cost.name }}", "{{ csrf_token }}");'>
+                            <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                        </button>
+                    </td>
+                    <!---->
+                </tr>
+            {% endfor %}
+        </tbody>
+        <!---->
+    </table>
+</div>
+<!---->

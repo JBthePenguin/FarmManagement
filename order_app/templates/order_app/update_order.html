@@ -2,6 +2,10 @@
 
 {% load static %}
 
+{% load basket_display %}
+
+{% load basket_update %}
+
 {% block content %}
 <!-- Update order form -->
 <form id="update-order-form" role="form" action="" method="post">
@@ -14,37 +18,31 @@
     <!---->
     <h5>Composition</h5>
     {% for category in categories_basket %}
-        {% for key, value in composition_by_category.items %}
-            {% if category.name == key %}
-                {% if value == "" %}
-                    <!-- input for quantity and select for basket number for each basket's category without value-->
-                    <label><input type="number" name="quantity{{ category.name }}" class="text-center"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
-                        <option value="" selected>--</option>
-                        {% for basket in baskets %}
-                            {% if basket.category == category %}
-                                <option value="{{ basket.number }}">{{ basket.number }}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select><br>
-                    <!---->
-                {% else %}
-                    <!-- input for quantity and select for basket number for each basket's category with value-->
-                    <label><input type="number" name="quantity{{ category.name }}" class="text-center" value="{{ value.quantity_basket }}"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
-                        <option value="">--</option>
-                        {% for basket in baskets %}
-                            {% if basket.category == category %}
-                                {% if basket == value.basket %}
-                                    <option value="{{ basket.number }}" selected>{{ basket.number }}</option>
-                                {% else %}
-                                    <option value="{{ basket.number }}">{{ basket.number }}</option>
-                                {% endif %}
-                            {% endif%}
-                        {% endfor %}
-                    </select><br>
-                    <!---->
-                {% endif %}
-            {% endif %}
-        {% endfor %}
+        {% with composition_by_category|get_value_in_dict:category as component %}
+        {% if component == "" %}
+            <!-- input for quantity and select for basket number for each basket's category without value-->
+            <label><input type="number" name="quantity{{ category.name }}" class="text-center"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
+                <option value="" selected>--</option>
+                {% for basket in category|get_baskets %}
+                    <option value="{{ basket.number }}">{{ basket.number }}</option>
+                {% endfor %}
+            </select><br>
+            <!---->
+        {% else %}
+            <!-- input for quantity and select for basket number for each basket's category with value-->
+            <label><input type="number" name="quantity{{ category.name }}" class="text-center" value="{{ component.quantity_basket }}"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
+                <option value="">--</option>
+                {% for basket in category|get_baskets %}
+                    {% if basket == component.basket %}
+                        <option value="{{ basket.number }}" selected>{{ basket.number }}</option>
+                    {% else %}
+                        <option value="{{ basket.number }}">{{ basket.number }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select><br>
+            <!---->
+        {% endif %}
+        {% endwith %}
     {% endfor %}
     <!-- Button save and cancel -->
     <input id="origin-address" name="origin-address" type="hidden" value="{{ origin_address }}">

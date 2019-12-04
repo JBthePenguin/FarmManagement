@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load basket_update %}
+
 {% block content %}
 <!-- Update basket form -->
 <form id="update-basket-form" role="form" action="" method="post">
@@ -21,13 +23,9 @@
     <!---->
     <h5>Produits</h5>
     {% for product in products %}
-        {% for key, value in composition.items %}
-            {% if key == product.name %}
-                <!-- input for quantity of each product -->
-                <label>{{ product.name }} : <input type="number" step="0.001" name="{{ product.name }}" value="{{ value }}" class="text-center"></label> {{ product.unit }}<br>
-                <!---->
-            {% endif %}
-        {% endfor %}
+        <!-- input for quantity of each product -->
+        <label>{{ product.name }} : <input type="number" step="0.001" name="{{ product.name }}" value="{{ composition|get_value_in_dict:product }}" class="text-center"></label> {{ product.unit }}<br>
+        <!---->
     {% endfor %}
     <!-- Button save and cancel -->
     <button class="btn btn-success" type="submit">Enregistrer</button>

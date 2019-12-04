@@ -1,12 +1,12 @@
 from order_app.models import BasketProductOrdered
-from product_app.models import ProductOrdered
+from product_app.models import Product
 
 
 def get_products_client(client):
     """ return a dict
     key: product ordered by a client
     value: (total_quantity, total_price)"""
-    products_ordered = ProductOrdered.objects.all().order_by("name")
+    products_ordered = Product.objects.all().order_by("name")
     total_by_products = {}
     for product in products_ordered:
         products_delivered = BasketProductOrdered.objects.filter(
@@ -19,6 +19,6 @@ def get_products_client(client):
             total_quantity += quantity
             price = quantity * product_delivered.price_product
             total_price += price
-        if total_quantity != 0:
-            total_by_products[product] = (total_quantity, total_price)
+        # if total_quantity != 0:
+        total_by_products[product] = (total_quantity, total_price)
     return total_by_products

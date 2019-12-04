@@ -1,0 +1,70 @@
+{% load static %}
+
+{% load order_display %}
+
+<!-- Table -->
+<div class="table-responsive-md">
+    <table class="table table-hover table-bordered table-sm table-dark text-center">
+        <!-- Table header -->
+        <thead>
+            <tr class="bg-secondary">
+                <!-- col validation date -->
+                <th scope="col">Date de validation</th>
+                <!---->
+                <!-- col client -->
+                <th scope="col">Client</th>
+                <!---->
+                <!-- col compositon -->
+                <th scope="col">Composition</th>
+                <!-- -->
+                <!-- 2 cols for button and links -->
+                <th colspan="2"></th>
+                <!---->
+            </tr>
+        </thead>
+        <!---->
+        <!-- Table lines -->
+        <tbody>
+            {% for order in orders_in_course_delivery %}
+                <!-- line for each order validated -->
+                <tr>
+                    <!-- validation date -->
+                    <td style="vertical-align: middle;">
+                        {{ order.validation_date }}
+                    </td>
+                    <!---->
+                    <!-- client's name -->
+                    <td style="vertical-align: middle;">
+                        {{ order.client.name }}
+                    </td>
+                    <!---->
+                    <!-- composition -->
+                    <td style="vertical-align: middle;">
+                        <!-- list of baskets -->
+                        <ul style="list-style-type:none; margin-bottom:0">
+                            {% for basket in order|get_composition_order_validated %}
+                                <li>
+                                    <span class="badge badge-secondary badge-pill">{{ basket.quantity }}</span>
+                                    panier{% if basket.quantity > 1 %}s{% endif %} <strong>{{ basket.category_name }}</strong></span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <!---->
+                    </td>
+                    <!---->
+                    <!-- button to see and validate -->
+                    <td style="vertical-align: middle;">
+                        <a class="btn btn-success" type="button" href="{% url 'order' %}deliver{{ order.id }}">Voir et valider</a>
+                    </td>
+                    <!-- button to cancel -->
+                    <td style="vertical-align: middle;">
+                        <button onclick='CancelOrder("{{ order.id }}", "{{ order.client.name }}", "{{ order.validation_date }}", "{{ csrf_token }}");' class="btn btn-danger">Annuler</button>
+                    </td>
+                    <!---->
+                </tr>
+            {% endfor %}
+        </tbody>
+        <!---->
+    </table>
+</div>
+<!---->

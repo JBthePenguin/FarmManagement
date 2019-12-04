@@ -1,0 +1,68 @@
+{% load static %}
+
+{% load mathfilters %}
+
+{% load basket_update %}
+
+<!-- Table -->
+<div class="table-responsive-md">
+    <table class="table table-hover table-bordered table-sm table-dark text-center">
+        <!-- Table header -->
+        <thead>
+            <tr class="bg-secondary">
+                <!-- col name -->
+                <th scope="col">Produit</th>
+                <!---->
+                <!-- col quantity -->
+                <th scope="col">Quantité</th>
+                <!-- -->
+                <!-- col total gain -->
+                <th scope="col">Gain</th>
+                <!-- -->
+                <!-- col percent gain with revenue-->
+                <th scope="col">% du CA</th>
+                <!-- -->
+            </tr>
+        </thead>
+        <!---->
+        <!-- Table lines -->
+        <tbody>
+            {% for product, totals in total_by_products.items %}
+                <!-- line for each order delivered -->
+                <tr>
+                    <!-- name -->
+                    <td style="vertical-align: middle;">
+                        {{ product.name }}
+                    </td>
+                    <!---->
+                    {% with products_client|get_value_in_dict:product as totals_by_client %}
+                    <!-- quantity -->
+                    <td style="vertical-align: middle;">
+                        {% if totals_by_client.0 != 0 %}
+                            {{ totals_by_client.0 }} {{ product.unit }}<br>
+                            {{ 100|mul:totals_by_client.0|div:totals.0|floatformat:"-2" }} % de la quantité vendue
+                        {% endif %}
+                    </td>
+                    <!---->
+                    <!-- gain -->
+                    <td style="vertical-align: middle;">
+                        {% if totals_by_client.1 != 0 %}
+                            {{ totals_by_client.1 }}
+                        {% endif %}
+                    </td>
+                    <!---->
+                    <!-- percent gain with revenue -->
+                    <td style="vertical-align: middle;">
+                        {% if totals_by_client.1 != 0 %}
+                            {{ 100|mul:totals_by_client.1|div:total_revenue|floatformat:"-2" }} %
+                        {% endif %}
+                    </td>
+                    <!---->
+                    {% endwith %}
+                </tr>
+            {% endfor %}
+        </tbody>
+        <!---->
+    </table>
+</div>
+<!---->

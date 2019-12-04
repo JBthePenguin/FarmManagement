@@ -1,19 +1,18 @@
-from order_app.models import BasketProductOrdered, BasketOrdered
-from product_app.models import ProductOrdered
+from order_app.models import BasketProductOrdered, Order
+from product_app.models import Product
 from cost_app.models import AdditionalCostProduct, AdditionalCost
+from order_app.templatetags.order_display import (
+    get_total_price_order_validated)
 
 
 def get_total_revenue():
     """ return total revenue: sum of total price of delivered order """
-    baskets_ordered = BasketOrdered.objects.filter(
-        order__status="livrée")
+    orders = Order.objects.filter(status="livrée")
     total_revenue = 0
-    for basket in baskets_ordered:
-        products_ordered = BasketProductOrdered.objects.filter(
-            basket=basket)
-        for product in products_ordered:
-            price = basket.quantity * product.quantity_product * product.price_product
-            total_revenue += price
+    for order in orders:
+        total_price_order = get_total_price_order_validated(order)
+        if total_price_order != "":
+            total_revenue += total_price_order
     return total_revenue
 
 
@@ -21,22 +20,22 @@ def get_total_by_products():
     """ return a dict
     key: product ordered
     value: (total_quantity, total_price)"""
-    products_ordered = ProductOrdered.objects.all().order_by("name")
+    products = Product.objects.all().order_by("name")
     total_by_products = {}
-    for product in products_ordered:
-        products_delivered = BasketProductOrdered.objects.filter(
+    for product in products:
+        components = BasketProductOrdered.objects.filter(
             basket__order__status="livrée", product=product)
         total_quantity = 0
         total_price = 0
-        for product_delivered in products_delivered:
-            quantity = product_delivered.quantity_product * product_delivered.basket.quantity
+        for component in components:
+            quantity = component.quantity_product * component.basket.quantity
             total_quantity += quantity
-            price = quantity * product_delivered.price_product
+            price = quantity * component.price_product
             total_price += price
         if total_quantity != 0:
             if str(total_quantity)[-2:] == ".0":
                 total_quantity = int(str(total_quantity)[:-2])
-            total_by_products[product] = (total_quantity, total_price)
+        total_by_products[product] = (total_quantity, total_price)
     return total_by_products
 
 

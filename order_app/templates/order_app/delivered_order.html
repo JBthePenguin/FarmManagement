@@ -4,6 +4,8 @@
 
 {% load mathfilters %}
 
+{% load order_display %}
+
 {% block content %}
 <!-- titles -->
 <!-- delivered date -->
@@ -16,7 +18,7 @@
 <h5>Composition</h5>
 <!---->
 <!---->
-{% for basket in baskets_ordered %}
+{% for basket in order_delivered|get_composition_order_validated %}
     <!-- basket's title, quantity and number-->
     <strong style="padding-left:2rem;">
         <span class="badge badge-secondary badge-pill">{{ basket.quantity }}</span> panier{% if basket.quantity > 1 %}s{% endif %} {{ basket.category_name }}</span>
@@ -67,43 +69,41 @@
             <!---->
             <!-- Table lines -->
             <tbody>
-                {% for component in compositions_basket%}
-                    {% if basket == component.basket %}
-                        <!-- line for each product -->
-                        <tr>
-                            <!-- product name -->
-                            <td>
-                                {{ component.product.name }}
-                            </td>
-                            <!---->
-                            <!-- quantity by basket -->
-                            <td>
-                                {{ component.quantity_product|floatformat:"-3" }} {{ component.product.unit }}
-                            </td>
-                            <!---->
-                            <!-- quantity total by order -->
-                            <td>
-                                {{ component.quantity_product|mul:basket.quantity|floatformat:"-3" }} {{ component.product.unit }}
-                            </td>
-                            <!---->
-                            <!-- price by unit -->
-                            <td>
-                                {{ component.price_product }}
-                            </td>
-                            <!---->
-                            <!-- price by basket -->
-                            <td>
-                                {{ component.price_product|mul:component.quantity_product }}
-                            </td>
-                            <!---->
-                            <!-- price by order -->
-                            <td>
-                                {{ component.price_product|mul:component.quantity_product|mul:basket.quantity }}
-                            </td>
-                            <!---->
-                        </tr>
+                {% for component in basket|get_composition_basket_ordered %}
+                    <!-- line for each product -->
+                    <tr>
+                        <!-- product name -->
+                        <td>
+                            {{ component.product.name }}
+                        </td>
                         <!---->
-                    {% endif %}
+                        <!-- quantity by basket -->
+                        <td>
+                            {{ component.quantity_product|floatformat:"-3" }} {{ component.product.unit }}
+                        </td>
+                        <!---->
+                        <!-- quantity total by order -->
+                        <td>
+                            {{ component.quantity_product|mul:basket.quantity|floatformat:"-3" }} {{ component.product.unit }}
+                        </td>
+                        <!---->
+                        <!-- price by unit -->
+                        <td>
+                            {{ component.price_product }}
+                        </td>
+                        <!---->
+                        <!-- price by basket -->
+                        <td>
+                            {{ component.price_product|mul:component.quantity_product }}
+                        </td>
+                        <!---->
+                        <!-- price by order -->
+                        <td>
+                            {{ component.price_product|mul:component.quantity_product|mul:basket.quantity }}
+                        </td>
+                        <!---->
+                    </tr>
+                    <!---->
                 {% endfor %}
                 <!-- last line -->
                 <tr class="bg-success">
@@ -111,22 +111,16 @@
                     <td colspan="4" class="text-right">Total:</td>
                     <!---->
                     <!-- total price by basket-->
+                    {% with basket|get_basket_ordered_total_price as total_price_basket %}
                     <td>
-                        {% for key, value in total_prices.items %}
-                            {% if key == basket %}
-                                {{ value }}
-                            {% endif %}
-                        {% endfor %}
+                        {{ total_price_basket }}
                     </td>
                     <!---->
                     <!-- total price by order-->
                     <td>
-                        {% for key, value in total_prices.items %}
-                            {% if key == basket %}
-                                {{ value|mul:basket.quantity }}
-                            {% endif %}
-                        {% endfor %}
+                        {{ total_price_basket|mul:basket.quantity }}
                     </td>
+                    {% endwith %}
                     <!---->
                 </tr>
                 <!---->
@@ -137,7 +131,7 @@
     <!---->
 {% endfor %}
 <!-- total price for the order -->
-<h5>Prix de la commande: {{ order_price }}</h5>
+<h5>Prix de la commande: {{ order_delivered|get_total_price_order_validated }}</h5>
 <!---->
 <!-- button link to cancel -->
 <a class="btn btn-danger mb-2" href="{{ origin_address }}" style="margin-left:2rem;">Retour</a>

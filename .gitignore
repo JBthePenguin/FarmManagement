@@ -44,6 +44,8 @@ order_app/migrations/__pycache__/
 
 order_app/migrations/0*.py
 
+order_app/templatetags/__pycache__/
+
 cost_app/__pycache__/
 
 cost_app/migrations/__pycache__/

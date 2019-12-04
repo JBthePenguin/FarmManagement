@@ -50,8 +50,7 @@ def basket(request):
                         basket.save()
                     number += 1
                 return HttpResponse("")
-    # get basket's categories, number of baskets
-    # client's categories
+    # get basket's categories, number of baskets and client's categories
     categories = BasketCategory.objects.all().order_by('name')
     number_of_baskets = Basket.objects.all().count()
     categories_client = CategoryClient.objects.all().order_by('name')
@@ -136,7 +135,7 @@ def create_basket(request):
             return redirect('basket')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Créer un panier",
+        "page_title": "Créer un panier",
         "basket": "active",
         "form": form,
         "basket_number": basket_number,
@@ -152,7 +151,7 @@ def update_basket(request, basket_number):
     # form for update a client with his values in inputs values
     basket = Basket.objects.get(number=basket_number)
     form = BasketForm(request.POST or None, instance=basket)
-    # make a dict for composition's values
+    # make a dict for composition's values with "" if not
     # {product name: quantity}
     products = Product.objects.all().order_by('name')
     composition = {}
@@ -163,7 +162,7 @@ def update_basket(request, basket_number):
             quantity = str(component.quantity_product)
         except BasketProduct.DoesNotExist:
             quantity = ""
-        composition[product.name] = quantity
+        composition[product] = quantity
     # error message
     old_basket_category = basket.category
     msg = ""
@@ -208,7 +207,9 @@ def update_basket(request, basket_number):
                 new_basket_category = form.instance.category
                 if old_basket_category != new_basket_category:
                     # raise error because basket is used in an created order
-                    msg = "Ce panier ne peut pas changer de catégorie car il appartient à une commande en préparation."
+                    msg = "".join([
+                        "Ce panier ne peut pas changer de catégorie car ",
+                        "il appartient à une commande en préparation."])
                     basket.category = old_basket_category
                     # form for update a client with old values in inputs values
                     form = BasketForm(None, instance=basket)
@@ -216,12 +217,12 @@ def update_basket(request, basket_number):
                     composition = {}
                     for product in products:
                         quantity = request.POST.get(product.name)
-                        composition[product.name] = quantity
+                        composition[product] = quantity
                 else:
                     return save_basket_changes()
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Modifier un panier",
+        "page_title": "Modifier un panier",
         "basket": "active",
         "basket_number": basket_number,
         "form": form,

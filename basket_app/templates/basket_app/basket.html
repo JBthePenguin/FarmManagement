@@ -4,7 +4,7 @@
 
 {% load product_price %}
 
-{% load basket_price %}
+{% load basket_display %}
 
 {% load mathfilters %}
 
@@ -91,7 +91,7 @@
                                 {% for category_client in categories_client %}
                                     <!-- col for price for each client's category -->
                                     <th scope="col">
-                                    {{ category_client.name }}
+                                        {{ category_client.name }}
                                     </th>
                                     <!---->
                                 {% endfor %}

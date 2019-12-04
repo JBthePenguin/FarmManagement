@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load basket_display %}
+
 {% block content %}
 <h5>Commande</h5>
 <!-- Create order form -->
@@ -15,10 +17,8 @@
         <!-- input for quantity and select for basket number for each basket's category -->
         <label><input type="number" name="quantity{{ category.name }}" class="text-center"> panier(s) {{ category.name }} numéro</label> <select name="{{ category.id }}">
             <option value="" selected>--</option>
-            {% for basket in baskets %}
-                {% if basket.category == category %}
-                    <option value="{{ basket.number }}">{{ basket.number }}</option>
-                {% endif %}
+            {% for basket in category|get_baskets %}
+                <option value="{{ basket.number }}">{{ basket.number }}</option>
             {% endfor %}
         </select><br>
         <!---->

@@ -49,7 +49,7 @@ def product(request):
                 return HttpResponse("".join([
                     "Ce produit ne peut pas être supprimé",
                     " car il appartient à un (ou des) panier(s) ",
-                    "ou à des coûts."]))
+                    ", ou a une commande validée ou à des coûts."]))
             else:
                 # product deleted
                 return HttpResponse("")

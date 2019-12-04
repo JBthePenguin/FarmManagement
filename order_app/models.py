@@ -2,7 +2,7 @@ from django.db import models
 from djmoney.models.fields import MoneyField
 from client_app.models import Client
 from basket_app.models import Basket
-from product_app.models import ProductOrdered
+from product_app.models import Product
 
 
 class Order(models.Model):
@@ -56,7 +56,7 @@ class BasketProductOrdered(models.Model):
     basket = models.ForeignKey(
         BasketOrdered, on_delete=models.CASCADE, db_index=True)
     product = models.ForeignKey(
-        ProductOrdered, on_delete=models.PROTECT, db_index=True)
+        Product, on_delete=models.PROTECT, db_index=True)
     quantity_product = models.FloatField()
     price_product = MoneyField(
         max_digits=14, decimal_places=2, default_currency='EUR')

@@ -1,0 +1,78 @@
+{% load static %}
+
+{% load order_display %}
+
+<!-- Table -->
+<div class="table-responsive-md">
+    <table class="table table-hover table-bordered table-sm table-dark text-center">
+        <!-- Table header -->
+        <thead>
+            <tr class="bg-secondary">
+                <!-- col creation date -->
+                <th scope="col">Date de création</th>
+                <!---->
+                <!-- col client -->
+                <th scope="col">Client</th>
+                <!---->
+                <!-- col compositon -->
+                <th scope="col">Composition</th>
+                <!-- -->
+                <!-- 3 cols for button and links -->
+                <th colspan="3"></th>
+                <!---->
+            </tr>
+        </thead>
+        <!---->
+        <!-- Table lines -->
+        <tbody>
+            {% for order in orders_in_preparation %}
+                <!-- line for each order in preparation -->
+                <tr>
+                    <!-- creation date -->
+                    <td style="vertical-align: middle;">
+                        {{ order.creation_date }}
+                    </td>
+                    <!---->
+                    <!-- client's name -->
+                    <td style="vertical-align: middle;">
+                        {{ order.client.name }}
+                    </td>
+                    <!---->
+                    <!-- composition -->
+                    <td style="vertical-align: middle;">
+                        <!-- list of baskets -->
+                        <ul style="list-style-type:none; margin-bottom:0">
+                            {% for component in order|get_composition_order %}
+                                <li>
+                                    <span class="badge badge-secondary badge-pill">{{ component.quantity_basket }}</span>
+                                    panier{% if component.quantity_basket > 1 %}s{% endif %} <strong>{{ component.basket.category.name }}</strong> numéro <span class="badge badge-secondary badge-pill">{{ component.basket.number }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <!---->
+                    </td>
+                    <!---->
+                    <!-- button to see and validate -->
+                    <td style="vertical-align: middle;">
+                        <a class="btn btn-success" type="button" href="{% url 'order' %}valid{{ order.id }}">Voir et valider</a>
+                    </td>
+                    <!---->
+                    <!-- link to update -->
+                    <td style="vertical-align: middle;">
+                        <a href="{% url 'order' %}mod-commande{{ order.id }}/" class="text-danger">modifier</a>
+                    </td>
+                    <!---->
+                    <!-- button to delete -->
+                    <td style="vertical-align: middle;">
+                        <button onclick='DeleteOrder("{{ order.id }}", "{{ order.creation_date }}", "{{ csrf_token }}");'>
+                            <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                        </button>
+                    </td>
+                    <!---->
+                </tr>
+            {% endfor %}
+        </tbody>
+        <!---->
+    </table>
+</div>
+<!---->

@@ -25,7 +25,10 @@ def cost(request):
                 category.delete()
             except ProtectedError:
                 # No delete because a cost use this category
-                return HttpResponse("Cette catégorie ne peut pas être supprimée car des coûts lui appartiennent.")
+                return HttpResponse("".join([
+                    "Cette catégorie ne peut pas être",
+                    " supprimée car des coûts lui",
+                    " appartiennent."]))
             else:
                 return HttpResponse("")
         elif action == "delete cost":
@@ -39,19 +42,12 @@ def cost(request):
         calcul_mode="percent").order_by("name")
     categories_quantity = CostCategory.objects.filter(
         calcul_mode="quantity").order_by("name")
-    # get all costs by categories calcul mode
-    costs_percent = Cost.objects.filter(
-        category__calcul_mode="percent").order_by("category__name", "name")
-    costs_quantity = Cost.objects.filter(
-        category__calcul_mode="quantity").order_by("category__name", "name")
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Coûts",
+        "page_title": "Coûts",
         "cost": "active",
         "categories_percent": categories_percent,
         "categories_quantity": categories_quantity,
-        "costs_percent": costs_percent,
-        "costs_quantity": costs_quantity,
     }
     return render(request, 'cost_app/cost.html', context)
 
@@ -70,7 +66,7 @@ def add_cost_category(request, calcul_mode):
             form.save()
             return redirect('cost')
     context = {
-        "page_title": "| Ajouter une catégorie de coût",
+        "page_title": "Ajouter une catégorie de coût",
         "cost": "active",
         "form": form,
         'calcul_mode': calcul_mode,
@@ -92,7 +88,7 @@ def update_category_cost(request, category_id):
             return redirect('cost')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Modifier une catégorie de coût",
+        "page_title": "Modifier une catégorie de coût",
         "cost": "active",
         "form": form,
         'calcul_mode': category.calcul_mode,
