@@ -33,7 +33,7 @@
         <!-- Table lines -->
         <tbody>
             {% for product in products %}
-                {% with total_cost_by_product|get_value:product.id as cost %}
+                {% with total_cost_by_product|get_value:product as cost %}
                 <!-- line for each product -->
                 <tr>
                     <!-- name -->
@@ -41,13 +41,12 @@
                         {{ product.name }}
                     </td>
                     <!---->
+                    {% with total_by_products|get_value:product as totals %}
                     <!-- gain -->
                     <td style="vertical-align: middle;">
-                        {% for key, value in total_by_products.items %}
-                            {% if key.name == product.name %}
-                                {{ value.1 }}
-                            {% endif %}
-                        {% endfor %}
+                        {% if totals.1 != 0 %}
+                            {{ totals.1 }}
+                        {% endif %}
                     </td>
                     <!---->
                     <!-- cost -->
@@ -57,28 +56,23 @@
                         {% endif %}
                     </td>
                     <!---->
+                    {% with totals.1|sub:cost as benefit %}
                     <!-- benefit -->
                     <td style="vertical-align: middle;">
-                        {% for key, value in total_by_products.items %}
-                            {% if key.name == product.name %}
-                                {{ value.1|sub:cost }}
-                            {% endif %}
-                        {% endfor %}
+                        {% if totals.1 != 0 or cost != 0 %}
+                            {% if totals.1|sub:cost.amount < 0 %}- {% endif %}{{ benefit }}
+                        {% endif %}
                     </td>
                     <!---->
                     <!-- benefit % -->
                     <td style="vertical-align: middle;">
-                        {% for key, value in total_by_products.items %}
-                            {% if key.name == product.name %}
-                                {% with value.1|sub:cost as benefit %}
-                                {% with total_revenue|sub:total_costs_product as total_benefit %}
-                                {{ 100|mul:benefit|div:total_benefit|floatformat:"-2" }} %
-                                {% endwith %}
-                                {% endwith %}
-                            {% endif %}
-                        {% endfor %}
+                        {% with total_revenue|sub:total_costs_product as total_benefit %}
+                        {% if totals.1|sub:cost.amount < 0 %}- {% endif %}{{ 100|mul:benefit|div:total_benefit|floatformat:"-2" }} %
+                        {% endwith %}
                     </td>
                     <!---->
+                    {% endwith %}
+                    {% endwith %}
                 </tr>
                 {% endwith %}
             {% endfor %}

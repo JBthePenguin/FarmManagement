@@ -5,7 +5,7 @@ from cost_app.models import (
 from cost_app.forms import CostCategoryForm, CostForm
 from cost_app.utils import (
     get_total_revenue, get_total_by_products, get_total_cost_product,
-    get_totals_by_costs_product_category, get_total_by_category)
+    get_total_by_category)
 from product_app.models import Product
 
 
@@ -158,7 +158,7 @@ def calcul(request):
         totals_by_general_category[category] = get_total_by_category(category)
     # total for general costs
     total_general_costs = 0
-    for category_id, total in totals_by_general_category.items():
+    for total in totals_by_general_category.values():
         total_general_costs += total
     # get all products
     products = Product.objects.all().order_by("name")
@@ -166,28 +166,23 @@ def calcul(request):
     # make a dict: {product id: total}
     total_cost_by_product = {}
     for product in products:
-        total_cost_by_product[product.id] = get_total_cost_product(product)
+        total_cost_by_product[product] = get_total_cost_product(product)
     # total for costs per product
     total_costs_product = 0
-    for key, value in total_cost_by_product.items():
-        total_costs_product += value
+    for total_cost in total_cost_by_product.values():
+        total_costs_product += total_cost
     # get all costs per product categories with costs
     cost_product_categories = CostCategory.objects.filter(
         calcul_mode="quantity").order_by("name")
-    costs_product = Cost.objects.filter(
-        category__calcul_mode="quantity").order_by("category__name", "name")
-    costs_product_quantities = {}
-    for cost in costs_product:
-        additional_costs = AdditionalCost.objects.filter(cost=cost)
-        quantity = 0
-        for additional_cost in additional_costs:
-            quantity += additional_cost.quantity
-        if str(quantity)[-2:] == ".0":
-            quantity = int(str(quantity)[:-2])
-        costs_product_quantities[cost.id] = quantity
+    # totals costs per product category
+    # make a dict: {category: total}
+    totals_by_costs_product_category = {}
+    for category in cost_product_categories:
+        totals_by_costs_product_category[category] = get_total_by_category(
+            category)
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Coûts et chiffre d'affaire",
+        "page_title": "Coûts et chiffre d'affaire",
         "cost": "active",
         "total_revenue": get_total_revenue(),
         "total_by_products": get_total_by_products(),
@@ -199,10 +194,7 @@ def calcul(request):
         "total_costs_product": total_costs_product,
         "total_costs": total_costs_product + total_general_costs,
         "cost_product_categories": cost_product_categories,
-        "costs_product": costs_product,
-        "costs_product_quantities": costs_product_quantities,
-        "totals_by_costs_product_category": get_totals_by_costs_product_category(
-            cost_product_categories),
+        "totals_by_costs_product_category": totals_by_costs_product_category,
     }
     return render(request, 'cost_app/calcul.html', context)
 
@@ -252,7 +244,7 @@ def add_genaral_cost(request, cost_id):
 def costs_per_product(request, product_id):
     """ costs per product view
     - display tables with all costs for one product """
-    # get product, all costs per product and the categories    
+    # get product, all costs per product and the categories
     product = Product.objects.get(pk=product_id)
     cost_product_categories = CostCategory.objects.filter(
         calcul_mode="quantity").order_by("name")
@@ -300,6 +292,12 @@ def costs_per_product(request, product_id):
     total_costs = 0
     for additional_cost in all_additional_costs:
         total_costs += additional_cost.quantity * additional_cost.cost.amount
+    # totals costs per product category
+    # make a dict: {category: total}
+    totals_by_costs_product_category = {}
+    for category in cost_product_categories:
+        totals_by_costs_product_category[category] = get_total_by_category(
+            category)
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "| Coûts par produit",
@@ -311,8 +309,7 @@ def costs_per_product(request, product_id):
         "costs_product": costs_product,
         "cost_product_quantities": cost_product_quantities,
         "totals_by_cost_product_category": totals_by_cost_product_category,
-        "totals_by_costs_product_category": get_totals_by_costs_product_category(
-            cost_product_categories),
+        "totals_by_costs_product_category": totals_by_costs_product_category,
         "totals_by_cost_product": totals_by_cost_product,
         "total_cost_per_product": total_cost_per_product,
         "total_costs": total_costs,

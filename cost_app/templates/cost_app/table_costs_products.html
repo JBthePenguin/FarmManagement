@@ -37,7 +37,6 @@
         <!-- Table lines -->
         <tbody>
             {% for product in products %}
-                {% with total_cost_by_product|get_value:product.id as cost %}
                 <!-- line for each product -->
                 <tr>
                     <!-- name -->
@@ -45,6 +44,7 @@
                         {{ product.name }}
                     </td>
                     <!---->
+                    {% with total_cost_by_product|get_value:product as cost %}
                     <!-- total cost -->
                     <td style="vertical-align: middle;">
                         {% if cost != 0 %}
@@ -78,8 +78,8 @@
                         {% endif %}
                     </td>
                     <!---->
+                    {% endwith %}
                 </tr>
-                {% endwith %}
             {% endfor %}
         </tbody>
         <!---->

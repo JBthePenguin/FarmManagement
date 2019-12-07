@@ -92,8 +92,8 @@
                                 {% endfor %}
                                 <!---->
                                 <!-- category costs % -->
-                                {% for category_id, total in totals_by_costs_product_category.items %}
-                                    {% if category_id == category.id %}
+                                {% for m_category, total in totals_by_costs_product_category.items %}
+                                    {% if m_category == category %}
                                         <td style="vertical-align: middle;">
                                             {% if quantity != 0 %}
                                                 {{ 100|mul:cost.amount|mul:quantity|div:total|floatformat:"-2" }} %
@@ -154,8 +154,8 @@
                         <td></td>
                         <td></td>
                         <!-- total cost category % -->
-                        {% for all_category_id, all_total in totals_by_costs_product_category.items %}
-                            {% if all_category_id == category.id %}
+                        {% for all_category, all_total in totals_by_costs_product_category.items %}
+                            {% if all_category == category %}
                                 <td style="vertical-align: middle;">
                                     {% if total != 0 %}
                                         {{ 100|mul:total|div:all_total|floatformat:"-2" }} %
