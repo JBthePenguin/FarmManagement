@@ -5,7 +5,7 @@ from cost_app.models import (
 from cost_app.forms import CostCategoryForm, CostForm
 from cost_app.utils import (
     get_total_revenue, get_total_by_products, get_total_cost_product,
-    get_totals_by_costs_product_category)
+    get_totals_by_costs_product_category, get_total_by_category)
 from product_app.models import Product
 
 
@@ -112,11 +112,10 @@ def add_cost(request, category_id):
             form.save()
             return redirect('cost')
     context = {
-        "page_title": "| Ajouter un coût",
+        "page_title": "Ajouter un coût",
         "cost": "active",
         "form": form,
-        "cost_category": category.name,
-        "calcul_mode": category.calcul_mode,
+        "cost_category": category,
     }
     return render(request, 'cost_app/add_cost.html', context)
 
@@ -135,11 +134,10 @@ def update_cost(request, cost_id):
             return redirect('cost')
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Modifier un coût",
+        "page_title": "Modifier un coût",
         "cost": "active",
         "form": form,
-        "cost_category": cost.category.name,
-        "calcul_mode": cost.category.calcul_mode,
+        "cost_category": cost.category,
     }
     return render(request, 'cost_app/update_cost.html', context)
 
@@ -150,30 +148,14 @@ def calcul(request):
     - display tables for each general cost
     - display table with total cost per product
     """
-    # get all general categories with costs and their quantities
+    # get all general categories
     general_categories = CostCategory.objects.filter(
         calcul_mode="percent").order_by("name")
-    general_costs = Cost.objects.filter(
-        category__calcul_mode="percent").order_by("category__name", "name")
-    general_cost_quantities = {}
-    for cost in general_costs:
-        additional_costs = AdditionalCost.objects.filter(cost=cost)
-        quantity = 0
-        for additional_cost in additional_costs:
-            quantity += additional_cost.quantity
-        if str(quantity)[-2:] == ".0":
-            quantity = int(str(quantity)[:-2])
-        general_cost_quantities[cost.id] = quantity
-    # total by general category
-    # make a dict: {category id: total}
+    # totals by general category
+    # make a dict: {category: total}
     totals_by_general_category = {}
     for category in general_categories:
-        additional_costs = AdditionalCost.objects.filter(
-            cost__category=category)
-        total = 0
-        for additional_cost in additional_costs:
-            total += additional_cost.quantity * additional_cost.cost.amount
-        totals_by_general_category[category.id] = total
+        totals_by_general_category[category] = get_total_by_category(category)
     # total for general costs
     total_general_costs = 0
     for category_id, total in totals_by_general_category.items():
@@ -210,8 +192,6 @@ def calcul(request):
         "total_revenue": get_total_revenue(),
         "total_by_products": get_total_by_products(),
         "general_categories": general_categories,
-        "general_costs": general_costs,
-        "general_cost_quantities": general_cost_quantities,
         "totals_by_general_category": totals_by_general_category,
         'total_general_costs': total_general_costs,
         "products": products,

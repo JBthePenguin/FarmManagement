@@ -3,8 +3,8 @@
 {% load static %}
 
 {% block content %}
-<h5>Coût {% if calcul_mode == "percent" %}généraux{% else %}par produit{% endif %}</h5>
-<h5>{{ cost_category }}</h5>
+<h5>Coût {% if cost_category.calcul_mode == "percent" %}généraux{% else %}par produit{% endif %}</h5>
+<h5>{{ cost_category.name }}</h5>
 <!-- Update cost form -->
 <form id="update-cost-form" role="form" action="" method="post">
     {% csrf_token %}

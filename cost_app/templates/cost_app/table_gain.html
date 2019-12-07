@@ -24,27 +24,33 @@
         <!---->
         <!-- Table lines -->
         <tbody>
-            {% for key, value in total_by_products.items %}
+            {% for product, totals in total_by_products.items %}
                 <!-- line for each product -->
                 <tr>
                     <!-- name -->
                     <td style="vertical-align: middle;">
-                        {{ key.name }}
+                        {{ product.name }}
                     </td>
                     <!---->
                     <!-- quantity -->
                     <td style="vertical-align: middle;">
-                        {{ value.0 }} {{ key.unit }}
+                        {% if totals.0 != 0 %}
+                            {{ totals.0 }} {{ product.unit }}
+                        {% endif %}
                     </td>
                     <!---->
                     <!-- gain -->
                     <td style="vertical-align: middle;">
-                        {{ value.1 }}
+                        {% if totals.1 != 0 %}
+                            {{ totals.1 }}
+                        {% endif %}
                     </td>
                     <!---->
                     <!-- percent gain with revenue -->
                     <td style="vertical-align: middle;">
-                        {{ 100|mul:value.1|div:total_revenue|floatformat:"-2" }} %
+                        {% if totals.1 != 0 %}
+                            {{ 100|mul:totals.1|div:total_revenue|floatformat:"-2" }} %
+                        {% endif %}
                     </td>
                     <!---->
                 </tr>

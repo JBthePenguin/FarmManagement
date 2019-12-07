@@ -39,6 +39,16 @@ def get_total_by_products():
     return total_by_products
 
 
+def get_total_by_category(category):
+    """ return total cost for a specific category """
+    additional_costs = AdditionalCost.objects.filter(
+        cost__category=category)
+    total = 0
+    for additional_cost in additional_costs:
+        total += additional_cost.quantity * additional_cost.cost.amount
+    return total
+
+
 def get_total_cost_product(product):
     """ return total cost for a product """
     additional_costs_product = AdditionalCostProduct.objects.filter(
