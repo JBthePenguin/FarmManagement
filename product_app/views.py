@@ -1,5 +1,4 @@
-import sys
-from django.core.management import call_command
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, HttpResponse
 from django.db.models.deletion import ProtectedError
 from djmoney.money import Money
@@ -9,26 +8,17 @@ from client_app.models import CategoryClient
 from price_app.models import Price
 
 
+@login_required
 def index(request):
     """ index view """
-    msg = ""
-    if request.method == 'POST':
-        # dump db
-        sysout = sys.stdout
-        sys.stdout = open('db_save.json', 'w')
-        call_command(
-            'dumpdata', 'product_app', 'client_app',
-            'basket_app', 'price_app', 'order_app', 'cost_app')
-        sys.stdout = sysout
-        msg = "Données sauvegardées"
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "Accueil",
-        "msg": msg,
     }
     return render(request, 'product_app/index.html', context)
 
 
+@login_required
 def product(request):
     """ product view used to:
     - display table with all products saved
@@ -66,6 +56,7 @@ def product(request):
     return render(request, 'product_app/product.html', context)
 
 
+@login_required
 def add_product(request):
     """ add a product view used to
     - display form to add a product
@@ -97,6 +88,7 @@ def add_product(request):
     return render(request, 'product_app/add_product.html', context)
 
 
+@login_required
 def update_product(request, product_id):
     """ update a product view
     - display form to update a product

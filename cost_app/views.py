@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, HttpResponse
 from django.db.models.deletion import ProtectedError
 from cost_app.models import (
@@ -9,6 +10,7 @@ from cost_app.utils import (
 from product_app.models import Product
 
 
+@login_required
 def cost(request):
     """ cost view used to:
     - display table with all costs ordered by calcul mode and category
@@ -52,6 +54,7 @@ def cost(request):
     return render(request, 'cost_app/cost.html', context)
 
 
+@login_required
 def add_cost_category(request, calcul_mode):
     """ add a cost category view used to
     - display form to add a cost category
@@ -74,6 +77,7 @@ def add_cost_category(request, calcul_mode):
     return render(request, 'cost_app/add_cost_category.html', context)
 
 
+@login_required
 def update_category_cost(request, category_id):
     """ update a cost category view
     - display form to update a category
@@ -96,6 +100,7 @@ def update_category_cost(request, category_id):
     return render(request, 'cost_app/update_category_cost.html', context)
 
 
+@login_required
 def add_cost(request, category_id):
     """ add a cost view used to
     - display form to add a cost
@@ -120,6 +125,7 @@ def add_cost(request, category_id):
     return render(request, 'cost_app/add_cost.html', context)
 
 
+@login_required
 def update_cost(request, cost_id):
     """ update a cost view
     - display form to update a cost
@@ -142,6 +148,7 @@ def update_cost(request, cost_id):
     return render(request, 'cost_app/update_cost.html', context)
 
 
+@login_required
 def calcul(request):
     """ calculate cost percent with revenue and cost per product
     - display total revenue and table with revenue for each product
@@ -199,6 +206,7 @@ def calcul(request):
     return render(request, 'cost_app/calcul.html', context)
 
 
+@login_required
 def add_genaral_cost(request, cost_id):
     """ add a general cost view used to
     - display form to add a general cost and historical of added
@@ -234,6 +242,7 @@ def add_genaral_cost(request, cost_id):
     return render(request, 'cost_app/add_general_cost.html', context)
 
 
+@login_required
 def costs_per_product(request, product_id):
     """ costs per product view
     - display tables with all costs for one product """
@@ -296,6 +305,7 @@ def costs_per_product(request, product_id):
     return render(request, 'cost_app/costs_per_product.html', context)
 
 
+@login_required
 def add_cost_per_product(request, cost_id, product_id):
     """ add a cost for a peoduct view used to
     - display form to add a cost for product and historical of added
@@ -339,6 +349,7 @@ def add_cost_per_product(request, cost_id, product_id):
     return render(request, 'cost_app/add_cost_per_product.html', context)
 
 
+@login_required
 def add_cost_product(request, cost_id):
     """ add a cost for products view used to
     - display form to add cost for products and historical of added
@@ -382,6 +393,7 @@ def add_cost_product(request, cost_id):
     return render(request, 'cost_app/add_cost_product.html', context)
 
 
+@login_required
 def cost_products(request, cost_id):
     """ cost details for each product view used to
     - display table with detail for each product """

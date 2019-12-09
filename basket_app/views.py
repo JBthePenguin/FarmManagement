@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, HttpResponse
 from django.db.models.deletion import ProtectedError
 from basket_app.models import Basket, BasketCategory, BasketProduct
@@ -7,6 +8,7 @@ from client_app.models import CategoryClient
 from order_app.models import OrderBasket
 
 
+@login_required
 def basket(request):
     """ basket view used to:
     - display table with all client's category saved
@@ -65,6 +67,7 @@ def basket(request):
     return render(request, 'basket_app/basket.html', context)
 
 
+@login_required
 def add_category_basket(request):
     """ add a category view used to:
     - display form to add a basket's category
@@ -86,6 +89,7 @@ def add_category_basket(request):
     return render(request, 'basket_app/add_category_basket.html', context)
 
 
+@login_required
 def update_category_basket(request, category_id):
     """ update a category view
     - display form to update a category
@@ -107,6 +111,7 @@ def update_category_basket(request, category_id):
     return render(request, 'basket_app/update_category_basket.html', context)
 
 
+@login_required
 def create_basket(request):
     """ create a basket view
     - display form to create a basket
@@ -144,6 +149,7 @@ def create_basket(request):
     return render(request, 'basket_app/create_basket.html', context)
 
 
+@login_required
 def update_basket(request, basket_number):
     """ update a basket view
     - display form to update a basket

@@ -1,9 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, HttpResponse
 from django.db.models.deletion import ProtectedError
 from client_app.models import *
 from client_app.forms import *
 
 
+@login_required
 def client(request):
     """ client view used to:
     - display table with all client's category saved
@@ -51,6 +53,7 @@ def client(request):
     return render(request, 'client_app/client.html', context)
 
 
+@login_required
 def add_category(request):
     """ add a category view used to:
     - display form to add a client's category
@@ -72,6 +75,7 @@ def add_category(request):
     return render(request, 'client_app/add_category.html', context)
 
 
+@login_required
 def update_category(request, category_id):
     """ update a category view
     - display form to update a category
@@ -93,6 +97,7 @@ def update_category(request, category_id):
     return render(request, 'client_app/update_category.html', context)
 
 
+@login_required
 def add_client(request):
     """ add a client view used to:
     - display form to add a client
@@ -113,6 +118,7 @@ def add_client(request):
     return render(request, 'client_app/add_client.html', context)
 
 
+@login_required
 def update_client(request, client_id):
     """ update a client view
     - display form to update a client

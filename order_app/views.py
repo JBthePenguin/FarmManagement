@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, HttpResponse
 from django.utils import timezone
 from order_app.models import *
@@ -8,6 +9,7 @@ from basket_app.models import BasketCategory, Basket, BasketProduct
 from price_app.models import Price
 
 
+@login_required
 def order(request):
     """ order view used to:
     - display table with orders ordered by status and date
@@ -39,6 +41,7 @@ def order(request):
     return render(request, 'order_app/order.html', context)
 
 
+@login_required
 def create_order(request):
     """ create an order view
     - display form to create an order
@@ -72,6 +75,7 @@ def create_order(request):
     return render(request, 'order_app/create_order.html', context)
 
 
+@login_required
 def update_order(request, order_id):
     """ update an order view
     - display form to update an order
@@ -136,6 +140,7 @@ def update_order(request, order_id):
     return render(request, 'order_app/update_order.html', context)
 
 
+@login_required
 def validate_order(request, order_id):
     """ validate an order view
     - display tables with baskets ordered with prices for an order and
@@ -188,6 +193,7 @@ def validate_order(request, order_id):
     return render(request, 'order_app/validate_order.html', context)
 
 
+@login_required
 def deliver_order(request, order_id):
     """ deliver an order view
     - display tables with baskets with prices for an order validated and
@@ -218,6 +224,7 @@ def deliver_order(request, order_id):
     return render(request, 'order_app/deliver_order.html', context)
 
 
+@login_required
 def delivered_order(request, order_id):
     """ order delivered view
     - display tables with baskets with prices for an order delivered """
@@ -238,6 +245,7 @@ def delivered_order(request, order_id):
     return render(request, 'order_app/delivered_order.html', context)
 
 
+@login_required
 def client_orders(request, client_id):
     """ client's orders view used to:
     - display table with a client's orders ordered by status and date
