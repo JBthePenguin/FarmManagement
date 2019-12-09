@@ -17,7 +17,7 @@ def get_products_client(client):
         for product_delivered in products_delivered:
             quantity = product_delivered.quantity_product * product_delivered.basket.quantity
             total_quantity += quantity
-            price = quantity * product_delivered.price_product
+            price = round(quantity * product_delivered.price_product, 2)
             total_price += price
         # if total_quantity != 0:
         total_by_products[product] = (total_quantity, total_price)

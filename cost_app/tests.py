@@ -32,9 +32,9 @@ class CostTests(Browser):
         """ test browsing in cost template """
         self.selenium.get('%s%s' % (self.live_server_url, "/couts/"))
         self.assert_page_title(
-            "Chiffre d'affaire: 0",
-            "Coûts en pourcentage du chiffre d'affaire",
-            "Coûts par rapport à la quantité de produits"
+            "Coûts généraux",
+            "Coûts par produit",
+            ""
         )  # assert page title
         # add some category of cost
         categories = [

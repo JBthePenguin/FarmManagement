@@ -44,7 +44,7 @@ class BaseTests(Browser):
         self.selenium.get(self.live_server_url)
         # title
         page_title = self.selenium.title
-        self.assertEqual(page_title, "Ma ferme")  # name
+        self.assertEqual(page_title, "Accueil")  # name
         # nav links
         nav_links = self.selenium.find_elements_by_css_selector(
             ".nav-link"

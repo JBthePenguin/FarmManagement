@@ -68,46 +68,26 @@ class OrderTests(Browser):
         for line in lines:
             # assert client and compositions for each order
             line_values = line.find_elements_by_tag_name("td")
-            if orders[i][0] != "":
+            self.assertEqual(
+                line_values[1].text, orders[i][0])
+            composition_list = line_values[2].find_element_by_tag_name(
+                "ul")
+            list_elements = composition_list.find_elements_by_tag_name(
+                "li")
+            i_second = 0
+            for list_element in list_elements:
                 self.assertEqual(
-                    line_values[1].text, orders[i][0])
-                composition_list = line_values[2].find_element_by_tag_name(
-                    "ul")
-                list_elements = composition_list.find_elements_by_tag_name(
-                    "li")
-                i_second = 0
-                for list_element in list_elements:
+                    list_element.find_element_by_tag_name("strong").text,
+                    orders[i][1][i_second][1])
+                badges = list_element.find_elements_by_tag_name("span")
+                self.assertEqual(
+                    badges[0].text,
+                    orders[i][1][i_second][0])
+                if (table_indice == 0) and (len(badges) >= 2):
                     self.assertEqual(
-                        list_element.find_element_by_tag_name("strong").text,
-                        orders[i][1][i_second][1])
-                    badges = list_element.find_elements_by_tag_name("span")
-                    self.assertEqual(
-                        badges[0].text,
-                        orders[i][1][i_second][0])
-                    if table_indice == 0:
-                        self.assertEqual(
-                            badges[1].text,
-                            orders[i][1][i_second][2])
-                    i_second += 1
-            else:
-                composition_list = line_values[1].find_element_by_tag_name(
-                    "ul")
-                list_elements = composition_list.find_elements_by_tag_name(
-                    "li")
-                i_second = 0
-                for list_element in list_elements:
-                    self.assertEqual(
-                        list_element.find_element_by_tag_name("strong").text,
-                        orders[i][1][i_second][1])
-                    badges = list_element.find_elements_by_tag_name("span")
-                    self.assertEqual(
-                        badges[0].text,
-                        orders[i][1][i_second][0])
-                    if (table_indice == 0) and (len(badges) == 2):
-                        self.assertEqual(
-                            badges[1].text,
-                            orders[i][1][i_second][2])
-                    i_second += 1
+                        badges[1].text,
+                        orders[i][1][i_second][2])
+                i_second += 1
             i += 1
 
     def update_order(self, link, old_order, new_order, categories_basket):
@@ -338,11 +318,11 @@ class OrderTests(Browser):
         self.selenium.find_elements_by_link_text("commandes")[2].click()
         self.wait_page_loaded("Commandes - " + "rest test")
         client_orders = [
-            ("", [
+            ("rest test", [
                 ("1", "gourmand", "3"),
                 ("6", "moyen", "4"),
                 ("5", "petit", "2"), ]),
-            ("", [
+            ("rest test", [
                 ("2", "gourmand", "1"),
                 ("3", "petit", "2"), ]), ]
         self.assert_table(
@@ -478,7 +458,7 @@ class OrderTests(Browser):
         self.selenium.find_elements_by_link_text("commandes")[1].click()
         self.wait_page_loaded("Commandes - " + "part test")
         client_orders = [
-            ("", [("2", "petit", "2"), ]), ]
+            ("part test", [("2", "petit", "2"), ]), ]
         self.assert_table(
             0, client_orders)  # assert orders in table
         self.assertEqual(
@@ -499,12 +479,12 @@ class OrderTests(Browser):
         self.assertEqual(values[0].text, "ail")
         self.assertEqual(values[1].text, "1,5 kg\n100 % de la quantité vendue")
         self.assertEqual(values[2].text, "3,22 €")
-        self.assertEqual(values[3].text, "78,18 %")
-        values = lines_body[1].find_elements_by_tag_name("td")
+        self.assertEqual(values[3].text, "78,16 %")
+        values = lines_body[2].find_elements_by_tag_name("td")
         self.assertEqual(values[0].text, "tomate")
         self.assertEqual(values[1].text, "2,0 kg\n100 % de la quantité vendue")
         self.assertEqual(values[2].text, "0,90 €")
-        self.assertEqual(values[3].text, "21,82 %")
+        self.assertEqual(values[3].text, "21,84 %")
         # delete all
         delete_all_orders(self)
         delete_all_categories_and_baskets(self)
