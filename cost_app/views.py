@@ -224,19 +224,12 @@ def add_genaral_cost(request, cost_id):
     # get added costs for general cost
     additional_costs = AdditionalCost.objects.filter(
         cost=general_cost).order_by("date_added").reverse()
-    # get total quantity
-    total_quantity = 0
-    for additional_cost in additional_costs:
-        total_quantity += additional_cost.quantity
-    if str(total_quantity)[-2:] == ".0":
-        total_quantity = int(str(total_quantity)[:-2])
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Mise à jour d'un coût",
+        "page_title": "Mise à jour d'un coût",
         "cost": "active",
         "general_cost": general_cost,
         "additional_costs": additional_costs,
-        "total_quantity": total_quantity,
     }
     return render(request, 'cost_app/add_general_cost.html', context)
 
@@ -250,18 +243,6 @@ def costs_per_product(request, product_id):
         calcul_mode="quantity").order_by("name")
     costs_product = Cost.objects.filter(
         category__calcul_mode="quantity").order_by("category__name", "name")
-    # make a dict for quantities
-    # {cost id: quantity}
-    cost_product_quantities = {}
-    for cost in costs_product:
-        additional_costs_product = AdditionalCostProduct.objects.filter(
-            additional_cost__cost=cost, product=product)
-        quantity = 0
-        for additional_cost_product in additional_costs_product:
-            quantity += additional_cost_product.additional_cost.quantity
-        if str(quantity)[-2:] == ".0":
-            quantity = int(str(quantity)[:-2])
-        cost_product_quantities[cost.id] = quantity
     # totals by cost per product category
     # make a dict: {category id: total}
     totals_by_cost_product_category = {}
@@ -271,7 +252,7 @@ def costs_per_product(request, product_id):
         total = 0
         for additional_cost_product in additional_costs_product:
             total += additional_cost_product.additional_cost.quantity * additional_cost_product.additional_cost.cost.amount
-        totals_by_cost_product_category[category.id] = total
+        totals_by_cost_product_category[category] = total
     # totals by cost per product
     # make a dict: {cost id: total}
     totals_by_cost_product = {}
@@ -280,7 +261,7 @@ def costs_per_product(request, product_id):
         total = 0
         for additional_cost in additional_costs:
             total += additional_cost.quantity * additional_cost.cost.amount
-        totals_by_cost_product[cost.id] = total
+        totals_by_cost_product[cost] = total
     # total costs per product
     additional_costs_products = AdditionalCost.objects.filter(
         cost__category__calcul_mode="quantity")
@@ -300,14 +281,12 @@ def costs_per_product(request, product_id):
             category)
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Coûts par produit",
+        "page_title": "Coûts par produit",
         "cost": "active",
         "product": product,
         "total_cost_product": get_total_cost_product(product),
         "total_revenue": get_total_revenue(),
         "cost_product_categories": cost_product_categories,
-        "costs_product": costs_product,
-        "cost_product_quantities": cost_product_quantities,
         "totals_by_cost_product_category": totals_by_cost_product_category,
         "totals_by_costs_product_category": totals_by_costs_product_category,
         "totals_by_cost_product": totals_by_cost_product,
@@ -349,26 +328,19 @@ def add_cost_per_product(request, cost_id, product_id):
     additional_costs_product = AdditionalCostProduct.objects.filter(
         additional_cost__cost=cost_per_product, product=product).order_by(
             "additional_cost__date_added").reverse()
-    # get total quantity
-    total_quantity = 0
-    for additional_cost_product in additional_costs_product:
-        total_quantity += additional_cost_product.additional_cost.quantity
-    if str(total_quantity)[-2:] == ".0":
-        total_quantity = int(str(total_quantity)[:-2])
     # prepare and send all elements needed to construct the template
     context = {
-        "page_title": "| Ajouter un coût pour un produit",
+        "page_title": "Ajouter un coût pour un produit",
         "cost": "active",
         "cost_per_product": cost_per_product,
         "product": product,
         "additional_costs_product": additional_costs_product,
-        "total_quantity": total_quantity,
     }
     return render(request, 'cost_app/add_cost_per_product.html', context)
 
 
 def add_cost_product(request, cost_id):
-    """ add a cost for peoducts view used to
+    """ add a cost for products view used to
     - display form to add cost for products and historical of added
     - save added costs in db """
     # get cost and products
@@ -400,19 +372,12 @@ def add_cost_product(request, cost_id):
     additional_costs_product = AdditionalCostProduct.objects.filter(
         additional_cost__cost=cost_per_product).order_by(
             "additional_cost__date_added").reverse()
-    # get total quantity
-    total_quantity = 0
-    for additional_cost_product in additional_costs_product:
-        total_quantity += additional_cost_product.additional_cost.quantity
-    if str(total_quantity)[-2:] == ".0":
-        total_quantity = int(str(total_quantity)[:-2])
     context = {
-        "page_title": "| Ajouter des coûts par produit",
+        "page_title": "Ajouter des coûts par produit",
         "cost": "active",
         "cost_per_product": cost_per_product,
         "products": products,
         "additional_costs_product": additional_costs_product,
-        "total_quantity": total_quantity,
     }
     return render(request, 'cost_app/add_cost_product.html', context)
 
@@ -423,33 +388,10 @@ def cost_products(request, cost_id):
     # get cost and products
     cost_per_product = Cost.objects.get(pk=cost_id)
     products = Product.objects.all().order_by("name")
-    # get total quantity
-    additional_costs = AdditionalCost.objects.filter(cost=cost_per_product)
-    total_quantity = 0
-    for additional_cost in additional_costs:
-        total_quantity += additional_cost.quantity
-        if str(total_quantity)[-2:] == ".0":
-            total_quantity = int(str(total_quantity)[:-2])
-    # make a dict
-    # {product_id: quantity}
-    # get added costs for cost per product
-    quantities_product = {}
-    for product in products:
-        additional_costs_product = AdditionalCostProduct.objects.filter(
-            additional_cost__cost=cost_per_product, product=product)
-        # get total quantity for product
-        total_quantity_product = 0
-        for additional_cost_product in additional_costs_product:
-            total_quantity_product += additional_cost_product.additional_cost.quantity
-        if str(total_quantity_product)[-2:] == ".0":
-            total_quantity_product = int(str(total_quantity_product)[:-2])
-        quantities_product[product.id] = total_quantity_product
     context = {
-        "page_title": "| Coût pour chaque produit",
+        "page_title": "Coût pour chaque produit",
         "cost": "active",
         "cost_per_product": cost_per_product,
         "products": products,
-        "total_quantity": total_quantity,
-        "quantities_product": quantities_product,
     }
     return render(request, 'cost_app/cost_products.html', context)

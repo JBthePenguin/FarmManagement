@@ -38,15 +38,15 @@ def client(request):
                     " car une (ou des) commande(s) lui appartien(nen)t."]))
             else:
                 return HttpResponse("")
-    # get all clients and  categories
+    # get all client's categories and number of clients
     categories = CategoryClient.objects.all().order_by('name')
-    clients = Client.objects.all().order_by('category__name', 'name')
+    number_of_clients = Client.objects.all().count()
     # prepare and send all elements needed to construct the template
     context = {
         "page_title": "Clients",
         "client": "active",
         "categories": categories,
-        "clients": clients,
+        "number_of_clients": number_of_clients
     }
     return render(request, 'client_app/client.html', context)
 

@@ -2,6 +2,8 @@
 
 {% load static %}
 
+{% load client_display %}
+
 {% block content %}
 <!-- Categories -->
 <!-- Header -->
@@ -21,7 +23,7 @@
                     <!---->
                     <!-- link to update category -->
                     <td>
-                        <a href="/clients/categorie{{ category.id }}/" class="text-danger">modifier</a>
+                        <a href="{% url 'client' %}categorie{{ category.id }}/" class="text-danger">modifier</a>
                     </td>
                     <!---->
                     <!--button to delete category -->
@@ -39,9 +41,10 @@
 </div>
 <!---->
 <!---->
+<hr style="border-top: 2px solid #8c8b8b;">
 <!-- Clients -->
 <!-- Header -->
-<h5>{{ clients.count }} client{% if clients.count > 1 %}s{% endif %} répertorié{% if clients.count > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_client' %}">Ajouter un client</a></h5>
+<h5>{{ number_of_clients }} client{% if number_of_clients > 1 %}s{% endif %} répertorié{% if number_of_clients > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'add_client' %}">Ajouter un client</a></h5>
 <!---->
 <!-- Tables of clients by category -->
 {% for category in categories %}
@@ -51,35 +54,33 @@
     <div class="table-responsive-md">
         <table class="table table-hover table-bordered table-sm table-dark text-center">
             <tbody>
-                {% for client in clients %}
-                    {% if client.category == category %}
-                        <!-- line for each client of this category -->
-                        <tr>
-                            <!-- client name -->
-                            <td style="vertical-align: middle;">
-                                {{ client.name }}
-                            </td>
-                            <!---->
-                            <!-- link to client's order -->
-                            <td>
-                                <a href="/commandes/client{{ client.id }}/" class="btn btn-outline-light">commandes</a>
-                            </td>
-                            <!---->
-                            <!-- link to update client -->
-                            <td style="vertical-align: middle;">
-                                <a href="/clients/{{ client.id }}/" class="text-danger">modifier</a>
-                            </td>
-                            <!---->
-                            <!--button to delete client -->
-                            <td style="vertical-align: middle;">
-                                <button onclick='DeleteClient("{{ client.id }}", "{{ client.name }}", "{{ csrf_token }}");'>
-                                    <img src="{% static 'img/trash.png' %}" class="img-fluid">
-                                </button>
-                            </td>
-                            <!---->
-                        </tr>
+                {% for client in category|get_clients %}
+                    <!-- line for each client of this category -->
+                    <tr>
+                        <!-- client name -->
+                        <td style="vertical-align: middle;">
+                            {{ client.name }}
+                        </td>
                         <!---->
-                    {% endif %}
+                        <!-- link to client's order -->
+                        <td>
+                            <a href="{% url 'order' %}client{{ client.id }}/" class="btn btn-outline-light">commandes</a>
+                        </td>
+                        <!---->
+                        <!-- link to update client -->
+                        <td style="vertical-align: middle;">
+                            <a href="{% url 'client' %}{{ client.id }}/" class="text-danger">modifier</a>
+                        </td>
+                        <!---->
+                        <!--button to delete client -->
+                        <td style="vertical-align: middle;">
+                            <button onclick='DeleteClient("{{ client.id }}", "{{ client.name }}", "{{ csrf_token }}");'>
+                                <img src="{% static 'img/trash.png' %}" class="img-fluid">
+                            </button>
+                        </td>
+                        <!---->
+                    </tr>
+                    <!---->
                 {% endfor %}
             </tbody>
         </table>

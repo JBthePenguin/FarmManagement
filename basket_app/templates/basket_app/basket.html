@@ -45,12 +45,15 @@
 </div>
 <!---->
 <!---->
+<hr style="border-top: 2px solid #8c8b8b;">
+<hr style="border-top: 2px solid #8c8b8b;">
 <!-- Basket -->
 <!-- Header -->
 <h5>{{ number_of_baskets }} panier{% if number_of_baskets > 1 %}s{% endif %} répertorié{% if number_of_baskets > 1 %}s{% endif %} <a class="btn btn-success" type="button" href="{% url 'create_basket' %}">Créer un nouveau panier</a></h5>
 <!---->
 <!-- Tables of basket by category -->
 {% for category in categories %}
+    <hr style="border-top: 2px solid #8c8b8b;">
     <div class="tables-by-category">
         <!-- category name -->
         <h5>{{ category.name }}</h5>

@@ -2,6 +2,8 @@
 
 {% load mathfilters %}
 
+{% load cost_display %}
+
 <div class="table-responsive-md">
     <table class="table table-hover table-bordered table-sm table-dark text-center">
         <!-- Table header -->
@@ -25,40 +27,66 @@
         <!-- Table lines -->
         <tbody>
             {% for product in products %}
-                {% for key, value in quantities_product.items %}
-                    {% if product.id == key %}
-                        <!-- line for product -->
-                        <tr>
-                            <!-- name -->
-                            <td style="vertical-align: middle;">
-                                {{ product.name }}
-                            </td>
-                            <!---->
-                            <!-- quantity -->
-                            <td style="vertical-align: middle;">
-                                {% if value != 0 %} 
-                                    {{ value }} {{ cost_per_product.unit }}
-                                {% endif %}
-                            </td>
-                            <!---->
-                            <!-- cost -->
-                            <td style="vertical-align: middle;">
-                                {% if value != 0 %}
-                                    {{ value|mul:cost_per_product.amount }}
-                                {% endif %}
-                            </td>
-                            <!---->
-                            <!-- percent cost with total cost -->
-                            <td style="vertical-align: middle;">
-                                {% if value != 0 %}
-                                    {{ 100|mul:value|div:total_quantity|floatformat:"-2" }} %
-                                {% endif %}
-                            </td>
-                            <!---->
-                        </tr>
-                    {% endif %}
-                {% endfor %}
+                {% with cost_per_product|get_cost_quantity_per_product:product as quantity %}
+                <!-- line for product -->
+                <tr>
+                    <!-- name -->
+                    <td style="vertical-align: middle;">
+                        {{ product.name }}
+                    </td>
+                    <!---->
+                    <!-- quantity -->
+                    <td style="vertical-align: middle;">
+                        {% if quantity != 0 %} 
+                            {{ quantity }} {{ cost_per_product.unit }}
+                        {% endif %}
+                    </td>
+                    <!---->
+                    <!-- cost -->
+                    <td style="vertical-align: middle;">
+                        {% if quantity != 0 %}
+                            {{ quantity|mul:cost_per_product.amount }}
+                        {% endif %}
+                    </td>
+                    <!---->
+                    <!-- percent cost with total cost -->
+                    <td style="vertical-align: middle;">
+                        {% with cost_per_product|get_cost_quantity as total_quantity %}
+                        {% if quantity != 0 %}
+                            {{ 100|mul:quantity|div:total_quantity|floatformat:"-2" }} %
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+                    <!---->
+                </tr>
+                {% endwith %}
             {% endfor %}
+            <!-- last line -->
+            <tr class="bg-success">
+                <!-- title line -->
+                <td class="text-right" style="vertical-align: middle;">
+                    Total:
+                </td>
+                <!---->
+                {% with cost_per_product|get_cost_quantity as total_quantity %}
+                <!-- total quantity -->
+                <td style="vertical-align: middle;">
+                    {% if total_quantity != 0 %}
+                        {{ total_quantity }} {{ cost_per_product.unit }}
+                    {% endif %}
+                </td>
+                <!---->
+                <!-- total cost -->
+                <td style="vertical-align: middle;">
+                    {% if total_quantity != 0 %}
+                        {{ total_quantity|mul:cost_per_product.amount }}
+                    {% endif %}
+                </td>
+                <!---->
+                {% endwith %}
+                <td></td>
+                <!---->
+            </tr>
         </tbody>
         <!---->
     </table>

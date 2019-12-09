@@ -4,6 +4,8 @@
 
 {% load mathfilters %}
 
+{% load cost_display %}
+
 {% block content %}
 <!-- Title -->
 <h5 class="mt-4">Coûts généraux</h5>
@@ -28,7 +30,7 @@
 <hr style="border-top: 2px solid #8c8b8b;">
 <!-- historic of added cost -->
 {% if additional_costs.count != 0 %}
-    <h5 class="mt-4">Quantité totale: {{ total_quantity }} {{ general_cost.unit }}</h5>
+    <h5 class="mt-4">Quantité totale: {{  general_cost|get_cost_quantity }} {{ general_cost.unit }}</h5>
     <h5 class="mt-4">Historique des ajouts</h5>
     <!-- Table of historic -->
     <div class="table-responsive-md">

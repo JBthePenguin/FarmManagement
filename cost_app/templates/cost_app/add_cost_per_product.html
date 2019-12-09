@@ -4,6 +4,8 @@
 
 {% load mathfilters %}
 
+{% load cost_display %}
+
 {% block content %}
 <!-- Title -->
 <h5 class="mt-4">Coûts pour {{ product.name }}</h5>
@@ -21,14 +23,14 @@
     <!---->
     <!-- Button save and cancel -->
     <button class="btn btn-success" type="submit">Ajouter</button>
-    <a class="btn btn-danger" href="/couts/calcul/couts-par-produit/{{ product.id }}/">Annuler</a>
+    <a class="btn btn-danger" href="{% url 'calcul' %}couts-par-produit/{{ product.id }}/">Annuler</a>
     <!---->
 </form>
 <!---->
 <hr style="border-top: 1.5px solid #8c8b8b;">
 <!-- historic of added cost -->
 {% if additional_costs_product.count != 0 %}
-    <h5 class="mt-4">Quantité totale: {{ total_quantity }} {{ cost_per_product.unit }}</h5>
+    <h5 class="mt-4">Quantité totale: {{ cost_per_product|get_cost_quantity_per_product:product }} {{ cost_per_product.unit }}</h5>
     <h5 class="mt-4">Historique des ajouts</h5>
     <!-- Table of historic -->
     <div class="table-responsive-md">

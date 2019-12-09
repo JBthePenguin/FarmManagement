@@ -8,6 +8,7 @@
 <!-- Title client name-->
 <h5>Client: {{ client_name }}</h5>
 <!---->
+<hr style="border-top: 2px solid #8c8b8b;">
 <!-- Orders in preparation -->
 <!-- Header -->
 <h5>{{ orders_in_preparation.count }} commande{% if orders_in_preparation.count > 1 %}s{% endif %} en préparation</h5>
@@ -16,6 +17,7 @@
     {% include 'order_app/table_orders_in_preparation.html' %}
 {% endif %}
 <!-- -->
+<hr style="border-top: 2px solid #8c8b8b;">
 <!-- Orders in course of delivery -->
 <!-- Header -->
 <h5>{{ orders_in_course_delivery.count }} commande{% if orders_in_course_delivery.count > 1 %}s{% endif %} en cours de livraison</h5>
@@ -24,6 +26,7 @@
     {% include 'order_app/table_orders_in_course_delivery.html' %}
 {% endif %}
 <!-- -->
+<hr style="border-top: 2px solid #8c8b8b;">
 <!-- Orders delivered -->
 <!-- Header -->
 <h5>{{ orders_delivered.count }} commande{% if orders_delivered.count > 1 %}s{% endif %} livrée{% if orders_delivered.count > 1 %}s{% endif %}</h5>
@@ -32,9 +35,10 @@
     {% include 'order_app/table_orders_delivered.html' %}
 {% endif %}
 <!---->
-<hr style="border-top: 1.5px solid #8c8b8b;">
 <!-- total by product-->
 {% if orders_delivered.count > 0 %}
+    <hr style="border-top: 2px solid #8c8b8b;">
+    <hr style="border-top: 2px solid #8c8b8b;">
     <h5 class="mt-4">Gain total: {{ total_gain }} soit {{ 100|mul:total_gain|div:total_revenue|floatformat:"-2" }} % du chiffre d'affaire</h5>
     {% include 'order_app/table_products_client.html' %}
 {% endif %}
