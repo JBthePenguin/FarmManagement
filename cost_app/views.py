@@ -155,6 +155,12 @@ def calcul(request):
     - display tables for each general cost
     - display table with total cost per product
     """
+    # total revenue and taxes
+    total_revenue = get_total_revenue()
+    if total_revenue != 0:
+        costs_taxes = (5.5 * total_revenue) / 100
+    else:
+        costs_taxes = 0
     # get all general categories
     general_categories = CostCategory.objects.filter(
         calcul_mode="percent").order_by("name")
@@ -191,15 +197,16 @@ def calcul(request):
     context = {
         "page_title": "Coûts et chiffre d'affaire",
         "cost": "active",
-        "total_revenue": get_total_revenue(),
+        "total_revenue": total_revenue,
         "total_by_products": get_total_by_products(),
         "general_categories": general_categories,
+        "costs_taxes": costs_taxes,
         "totals_by_general_category": totals_by_general_category,
         'total_general_costs': total_general_costs,
         "products": products,
         "total_cost_by_product": total_cost_by_product,
         "total_costs_product": total_costs_product,
-        "total_costs": total_costs_product + total_general_costs,
+        "total_costs": total_costs_product + total_general_costs + costs_taxes,
         "cost_product_categories": cost_product_categories,
         "totals_by_costs_product_category": totals_by_costs_product_category,
     }

@@ -95,7 +95,7 @@
                     <!---->
                     <!-- total revenue % -->
                     <td style="vertical-align: middle;">
-                        {% if quantity != 0 %}
+                        {% if quantity != 0 and total_revenue != 0 %}
                             {{ 100|mul:cost.amount|mul:quantity|div:total_revenue|floatformat:"-2" }} %
                         {% endif %}
                     </td>
@@ -135,7 +135,7 @@
                 <!---->
                 <!-- total revenue % -->
                 <td style="vertical-align: middle;">
-                    {% if total != 0 %}
+                    {% if total != 0 and total_revenue != 0 %}
                         {{ 100|mul:total|div:total_revenue|floatformat:"-2" }} %
                     {% endif %}
                 </td>

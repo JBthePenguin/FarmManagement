@@ -1,6 +1,6 @@
 env/
 
-static/
+/static/
 
 db.sqlite3
 

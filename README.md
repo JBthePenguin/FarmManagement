@@ -5,8 +5,8 @@ A tool to manage a farm
 ### Application, virtual environment and requirements
 Clone the folder, go inside, create a virtual environment for Python with virtualenv (*!!! maybe you have to install [virtualenv](https://virtualenv.pypa.io/en/stable/) !!!*), activate it and install all necessary dependencies ([django](https://www.djangoproject.com/foundation/), [django-debug-toolbar](https://django-debug-toolbar.readthedocs.io/en/stable/), [django-money](https://github.com/django-money/django-money), [django-mathfilters](https://pypi.org/project/django-mathfilters/), [selenium](https://selenium-python.readthedocs.io/)):
 ```shell
-$ git clone https://github.com/JBthePenguin/Projet.git
-$ cd Projet
+$ git clone https://github.com/JBthePenguin/FarmManagement.git
+$ cd FarmManagement
 $ virtualenv -p python3 env
 $ source env/bin/activate
 (env)$ pip install -r requirements.txt

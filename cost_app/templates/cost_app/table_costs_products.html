@@ -73,7 +73,7 @@
                     <!---->
                     <!-- percent cost with revenue -->
                     <td style="vertical-align: middle;">
-                        {% if cost != 0 %}
+                        {% if cost != 0 and total_revenue != 0 %}
                             {{ 100|mul:cost|div:total_revenue|floatformat:"-2" }} %
                         {% endif %}
                     </td>

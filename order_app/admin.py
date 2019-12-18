@@ -3,7 +3,7 @@ from django.contrib import admin
 from order_app.models import *
 from client_app.models import Client
 from basket_app.models import Basket
-from product_app.models import ProductOrdered
+from product_app.models import Product
 
 
 class ClientModelChoiceField(forms.ModelChoiceField):
@@ -113,7 +113,7 @@ class BasketOrderedModelChoiceField(forms.ModelChoiceField):
         return "%s" % (obj.id)
 
 
-class ProductOrderedModelChoiceField(forms.ModelChoiceField):
+class ProductModelChoiceField(forms.ModelChoiceField):
     """ Model to display product ordered name in select product
     for save a composition in admin site"""
     def label_from_instance(self, obj):
@@ -122,8 +122,8 @@ class ProductOrderedModelChoiceField(forms.ModelChoiceField):
 
 class BasketProductOrderedAdminForm(forms.ModelForm):
     """ Form to save a composition in admin site"""
-    product = ProductOrderedModelChoiceField(
-        queryset=ProductOrdered.objects.all().order_by('name'))
+    product = ProductModelChoiceField(
+        queryset=Product.objects.all().order_by('name'))
     basket = BasketOrderedModelChoiceField(
         queryset=BasketOrdered.objects.all())
 

@@ -15,15 +15,19 @@
                 <!-- col gain-->
                 <th scope="col" rowspan='2' style="vertical-align: middle;">Gain</th>
                 <!-- -->
-                <!-- col cost-->
-                <th scope="col" rowspan='2' style="vertical-align: middle;">Coût</th>
+                <!-- 2 cols cost-->
+                <th colspan="2" style="vertical-align: middle;">Coût</th>
                 <!-- -->
                 <!-- 2 cols benefit -->
                 <th colspan="2" style="vertical-align: middle;">Bénéfice</th>
                 <!-- -->                
             </tr>
             <tr class="bg-secondary">
-                <!-- col benefit -->
+                <!-- cols cost -->
+                <th scope="col">TVA</th>
+                <th scope="col">du produit</th>
+                <!---->
+                <!-- cols benefit -->
                 <th scope="col">total</th>
                 <th scope="col">% des bénéfices par produit</th>
                 <!---->
@@ -49,28 +53,40 @@
                         {% endif %}
                     </td>
                     <!---->
-                    <!-- cost -->
+                    <!-- cost taxes -->
+                    {% with totals.1|mul:5.5|div:100 as cost_taxes %}
+                    <td style="vertical-align: middle;">
+                        {% if totals.1 != 0 %}
+                            {{ cost_taxes }}
+                        {% endif %}
+                    </td>
+                    <!-- cost prouct -->
                     <td style="vertical-align: middle;">
                         {% if cost != 0 %}
                             {{ cost }}
                         {% endif %}
                     </td>
                     <!---->
-                    {% with totals.1|sub:cost as benefit %}
+                    {% with totals.1|sub:cost_taxes|sub:cost as benefit %}
                     <!-- benefit -->
                     <td style="vertical-align: middle;">
                         {% if totals.1 != 0 or cost != 0 %}
-                            {% if totals.1|sub:cost.amount < 0 %}- {% endif %}{{ benefit }}
+                            {% if totals.1|sub:cost_taxes|sub:cost.amount < 0 %}- {% endif %}{{ benefit }}
                         {% endif %}
                     </td>
                     <!---->
                     <!-- benefit % -->
                     <td style="vertical-align: middle;">
-                        {% with total_revenue|sub:total_costs_product as total_benefit %}
-                        {% if totals.1|sub:cost.amount < 0 %}- {% endif %}{{ 100|mul:benefit|div:total_benefit|floatformat:"-2" }} %
-                        {% endwith %}
+                        {% if totals.1 != 0 or cost != 0 %}
+                            {% with total_revenue|sub:total_costs_product|sub:costs_taxes as total_benefit %}
+                            {% if total_benefit != 0 %}
+                                {% if totals.1|sub:cost_taxes|sub:cost.amount < 0 %}- {% endif %}{{ 100|mul:benefit|div:total_benefit|floatformat:"-2" }} %
+                            {% endif %}
+                            {% endwith %}
+                        {% endif %}
                     </td>
                     <!---->
+                    {% endwith %}
                     {% endwith %}
                     {% endwith %}
                 </tr>
